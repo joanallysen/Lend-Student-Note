@@ -3,10 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login</title>
+    <title>Home</title>
+    <!-- <link rel="stylesheet" href="../static/output.css"> -->
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
 </head>
 <body>
-    <h1>Login</h1>
+    <h1 class="text-7xl">Welcome, {{ user_name }}!</h1>
     
     {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
@@ -16,18 +18,8 @@
         {% endif %}
     {% endwith %}
     
-    <form method="POST">
-        <div>
-            <label>Email:</label>
-            <input type="email" name="email" required>
-        </div>
-        <div>
-            <label>Password:</label>
-            <input type="password" name="password" required>
-        </div>
-        <button type="submit">Login</button>
-    </form>
+    <p>Your email: {{ email }}</p>
     
-    <p>Don't have an account? <a href="{{ url_for('signup') }}">Sign up here</a></p>
+    <a href="{{ url_for('logout') }}">Logout</a>
 </body>
 </html>
