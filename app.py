@@ -40,11 +40,11 @@ class Book(db.Model):
         return f'<Book {self.title}>'
 
 
-# Create database tables
+# create the database tables
 with app.app_context():
     db.create_all()
 
-# Login required decorator
+# login required decorator
 def login_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
@@ -55,7 +55,7 @@ def login_required(f):
     return decorated_function
 
 
-# Routes
+# routes
 @app.route('/')
 def index():
     if 'user_id' in session:
@@ -80,7 +80,7 @@ def signup():
             flash('Passwords do not match!', 'error')
             return redirect(url_for('signup'))
 
-        # Check if user already exists
+        # check if user already exists
         if User.query.filter_by(username=username).first():
             flash('Username already exists!', 'error')
             return redirect(url_for('signup'))
