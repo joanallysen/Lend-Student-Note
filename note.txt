@@ -1,0 +1,11 @@
+FOR RUNNING
+1. Open cmd in terminal
+2. Run python app.py
+
+FOR DEVELOPMENT REQUIREMENT
+1. pip install requirements.txt
+
+FOR PRODUCTION LATER
+1. Open Node in terminal
+2. Run this command 
+npx @tailwindcss/cli -i ./static/styles.css -o ./static/output.css --watch 
