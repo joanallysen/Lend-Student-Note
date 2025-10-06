@@ -30,6 +30,7 @@ class Book(db.Model):
     pickup_location = db.Column(db.String(200), nullable=False)
     available_date = db.Column(db.Date, nullable=False)
     is_available = db.Column(db.Boolean, default=True, nullable=False)
+    is_lend = db.Column(db.Boolean, default=True, nullable=False)
     lender_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     lended_to_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
 

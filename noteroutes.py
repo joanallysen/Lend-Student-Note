@@ -1,15 +1,32 @@
-# from flask import Blueprint, request
+from flask import Blueprint, request, render_template
 
-# auth_bp = Blueprint('notes', __name__)
+notes_bp = Blueprint('notes', __name__)
 
-# @app.route('/add_note')
-# def add_note():
+@notes_bp.route('/add_note')
+def add_note():
+    if request.method =='POST':
+        title = request.form.get('title')
+        price = request.form.get('price')
+        description = request.form.get('description')
+        condition = request.form.get('condition')
+        pickup_location = request.form.get('pickup_location')
+        available_date = request.form.get('available_date')
+        is_available = True
+        is_lend = request.form.get('is_lend')
+        lender_id = ''
+        lended_to_id = ''
+        
+    return render_template('preview.html')
+    pass
 
-# @app.route('/display_note')
-# def display_note():
+@notes_bp.route('/display_note')
+def display_note():
+    pass
 
-# @app.route('/update_note')
-# def update_note():
+@notes_bp.route('/update_note')
+def update_note():
+    pass
     
-# @app.route('/delete_note')
-# def delete_note():
+@notes_bp.route('/delete_note')
+def delete_note():
+    pass
