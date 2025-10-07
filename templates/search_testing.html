@@ -8,11 +8,26 @@
 <body>
     <h1>Search</h1>
     <form action='/search' method="get">
-        <input type="text" name="user_input">
-        <input type="submit" value="Search">
-    </form>
-    <label>{{ user_input }}</label>
+        <input type="text" name="user_input" value="{{user_input}}">  
+        <input type="submit" value="Search"><br><br>
 
+        <label>Condition:</label>
+        <select name="condition">
+            <option value="">==Select==</option>
+            <option value="Brand New">Brand New</option>
+            <option value="Good">Good</option>
+            <option value="Minimum">Minimum</option>
+        
+        </select><br>
+
+        <label>Min. Price</label>
+        <input type="number" name="min_price">
+
+        <label>Max. Price</label>
+        <input type="number" name="max_price">
+    </form>
+    <p> User Input: {{ user_input }}</p>
+    <p> Condition: {{ condition }}</p>
     
         {% if results %}
             <ul>

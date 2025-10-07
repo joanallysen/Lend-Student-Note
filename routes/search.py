@@ -1,27 +1,47 @@
 from flask import Flask, redirect, url_for, request, render_template,Blueprint
-# from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import or_
-from models import db,Note
+from models import db, Note
 import re
 
 search = Blueprint("search",__name__)
 
-# search.config['SECRET_KEY'] = 'your-secret-key-change-this-in-production'
+def is_eligible(num):
+    try:
+        return float(num)>0
+    except ValueError:
+        return False
 
-@search.route('/search', methods=["POST","GET"])
+@search.route('/search', methods=["GET"])
 def search_note():
     
     user_input = request.args.get('user_input','')
-    cleaned_input = re.sub(r'\s+', ' ', user_input).strip().lower()
+    #Additional Filter
+    condition = request.args.get('condition','')
+    min_price =  request.args.get('min_price')
+    max_price = request.args.get('max_price')
 
+    cleaned_input = re.sub(r'\s+', ' ', user_input).strip().lower()
+    
     search_output=[]
-    if cleaned_input:
+    if cleaned_input or condition:
             
         search_filter=[
-            Note.title.ilike(f'%{cleaned_input}%'),
-            Note.isbn == cleaned_input
+            Note.title.ilike(f'%{cleaned_input}%')
         ]
+            # Note.isbn == cleaned_input,
 
-        search_output = Note.query.filter(or_(*search_filter)).all()
+        if condition:
+            search_filter.append(Note.condition == condition)
 
-    return render_template("search_testing.html", results = search_output, user_input = cleaned_input) 
+        if min_price:
+            if is_eligible(min_price):
+                search_filter.append(Note.price>=float(min_price))
+        if max_price:
+            if is_eligible(max_price):
+                search_filter.append(Note.price<=float(max_price))
+
+           
+
+        search_output = Note.query.filter(*search_filter).all()
+
+    return render_template("search_testing.html", results = search_output, user_input = cleaned_input, condition=condition) 
