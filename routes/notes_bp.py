@@ -1,4 +1,4 @@
-from flask import Blueprint, request, render_template, session, url_for, redirect
+from flask import Blueprint, request, render_template, session, url_for, redirect, flash
 from models import db, Note
 from datetime import datetime
 
@@ -55,9 +55,13 @@ def update_note(note_id):
         db.session.commit()
         return redirect(url_for('dashboard'))
 
-        
-    return render_template('preview.html', error=error, action=url_for('notes.update_note'))
+    return render_template('preview.html', error=error, action='notes.update_note', note=note)
      
-@notes_bp.route('/delete_note')
-def delete_note():
-    pass
+@notes_bp.route('/delete_note/<int:note_id>', methods=['POST'])
+def delete_note(note_id):
+    note = Note.query.get_or_404(note_id)
+
+    db.session.delete(note)
+    db.session.commit()
+    flash('Book successfully deleted!', 'success')
+    return redirect(url_for('dashboard'))

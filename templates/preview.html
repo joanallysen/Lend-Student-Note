@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ 'Edit' if action == 'edit_note' else 'Add' }} Note</title>
+    <title>{{ 'Update' if action == 'notes.update_note' else 'Add' }} Note</title>
 </head>
 <body>
-    <h2>{{ 'Edit Note' if action == 'edit_note' else 'Add Note'}}</h2>
+    <h2>{{ 'Update Note' if action == 'notes.update_note' else 'Add Note'}}</h2>
     {% if error %}
         <p>{{error}}</p>
     {% endif %}
@@ -43,7 +43,7 @@
             <option value="sell" {% if note and not note.is_lend %}selected{% endif %}>Sell</option>
         </select>
 
-        <button type="submit">{{ 'Update Note' if action == 'edit_note' else 'Add Note' }}</button>
+        <button type="submit">{{ 'Update Note' if action == 'notes.update_note' else 'Add Note' }}</button>
     </form>
 </body>
 </html>
