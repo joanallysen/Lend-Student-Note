@@ -1,6 +1,6 @@
 from flask import Flask, redirect, url_for, request, render_template,flash
 from flask_sqlalchemy import SQLAlchemy
-
+from sqlalchemy import or_
 import re
 
 app= Flask (__name__)
@@ -35,20 +35,29 @@ class Book(db.Model):
 
     def __repr__(self):
         return f'<Book {self.title}>'
-@app.route('/', methods=["POST","GET"])
+    
+@app.route('/')
+def index():
+    return redirect(url_for("search"))
+@app.route('/search', methods=["POST","GET"])
 def search():
     
-    if request.method == "POST":
-        user_input = request.form['user_input']
-        cleaned_input = re.sub(r'\s+', ' ', user_input).strip().lower()
+    user_input = request.args.get('user_input','')
+    cleaned_input = re.sub(r'\s+', ' ', user_input).strip().lower()
 
-        search_output = User.query.filter(User.username.like(f'%{cleaned_input}%')).all()
+    search_output=[]
+    if cleaned_input:
+            
+        search_filter=[
+            User.username.ilike(f'%{cleaned_input}%'),
+            User.email.ilike(f'%{cleaned_input}%')
+        ]
+        search_output = User.query.filter(or_(*search_filter)).all()
 
-        for book in search_output:
-            flash(book.username)
-        return render_template("search_testing.html", user_input = cleaned_input) 
+   
+        
+    return render_template("search_testing.html", results = search_output, user_input = cleaned_input) 
     
-    return render_template("search_testing.html")
 
 if __name__ == "__main__":
     app.run(debug=True)

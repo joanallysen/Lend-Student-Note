@@ -7,20 +7,25 @@
 </head>
 <body>
     <h1>Search</h1>
-    <form action='/' method="post">
+    <form action='/search' method="get">
         <input type="text" name="user_input">
         <input type="submit" value="Search">
     </form>
-    <label>{{user_input }}</label>
+    <label>{{ user_input }}</label>
 
-    {% with messages = get_flashed_messages() %}
-        {% if messages %}
+    
+        {% if results %}
             <ul>
-                {% for message in messages %}
-                <li>{{ message }}</li>
+                {% for result in results %}
+                <li>{{ result.username }}</li>
                 {% endfor %}
+                
+            {% else %}
+                <li>Not Found</li>
+            
             </ul>
+        
         {% endif %}
-    {% endwith %}
+    
 </body>
 </html>
