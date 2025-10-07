@@ -101,7 +101,8 @@ def login():
 @login_required
 def dashboard():
     user = db.session.get(User, session['user_id'])
-    return render_template('dashboard.html', user=user)
+    owned_notes = user.books_owned
+    return render_template('dashboard.html', user=user, owned_notes=owned_notes)
 
 @app.route('/logout')
 @login_required

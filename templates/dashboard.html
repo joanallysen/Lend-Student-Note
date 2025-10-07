@@ -2,6 +2,7 @@
 <html>
 <head>
     <title>Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
 </head>
 <body>
     <h1>Dashboard</h1>
@@ -18,7 +19,17 @@
     <p><strong>Username:</strong> {{ user.username }}</p>
     <p><strong>Email:</strong> {{ user.email }}</p>
     <p><strong>User ID:</strong> {{ user.id }}</p>
+
+    <div class="flex justify-center text-center gap-1">
+        {% for note in owned_notes %}
+            <div class="bg-gray-200 w-50">
+                <p>{{note.title}}</p>
+                <p>{{note.description}}</p>
+            </div>
+        {% endfor %}
+    </div>
     
+    <a href="{{ url_for('notes.add_note') }}" class="cursor-pointer border-b-black border-2">Add owned book/note</a>
     <p><a href="{{ url_for('index') }}">Home</a> | <a href="{{ url_for('logout') }}">Logout</a></p>
 </body>
 </html>

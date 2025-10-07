@@ -4,7 +4,7 @@ from datetime import datetime
 
 notes_bp = Blueprint('notes', __name__)
 
-
+# TODO MAKE LOGIN REQUIRED
 @notes_bp.route('/add_note', methods=['POST', 'GET'])
 def add_note():
     error = None
@@ -34,9 +34,6 @@ def add_note():
         
     return render_template('preview.html', error=error, action='notes.add_note', note=None)
 
-@notes_bp.route('/display_note')
-def display_note():
-    pass
 
 @notes_bp.route('/update_note/<int:note_id>', methods=['GET', 'POST'])
 def update_note(note_id):
