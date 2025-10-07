@@ -2,8 +2,9 @@ from flask import Flask, render_template, request, redirect, url_for, session, f
 from werkzeug.security import generate_password_hash, check_password_hash
 from functools import wraps
 
-from models import db, User, Note
+from models import db, User, Note, Watchlist
 from routes.notes_bp import notes_bp
+from routes.watchlist_bp import watchlist_bp
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'your-secret-key-change-this-in-production'
@@ -12,6 +13,7 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db.init_app(app)
 app.register_blueprint(notes_bp)
+app.register_blueprint(watchlist_bp)
 
 # create the database tables
 with app.app_context():
@@ -31,10 +33,25 @@ def login_required(f):
 # routes
 @app.route('/')
 def index():
-    if 'user_id' in session:
-        user = db.session.get(User, session['user_id'])
-        return render_template('index.html', user=user)
-    return render_template('index.html')
+    # if 'user_id' in session:
+    #     user = db.session.get(User, session['user_id'])
+    #     return render_template('index.html', user=user)
+    # return render_template('index.html')
+    return redirect(url_for('explore'))
+
+@app.route('/explore')
+def explore():
+    user_id = session.get('user_id')
+    notes = Note.query.all()
+
+    watchlisted_note_ids = set(
+        db.session.query(Watchlist.note_id)
+        .filter_by(user_id=user_id)
+        .all()
+    )
+
+    watchlisted_note_ids = {nid[0] for nid in watchlisted_note_ids}
+    return render_template('explore.html', notes=notes, user_id=user_id, watchlisted_note_ids=watchlisted_note_ids)
 
 
 @app.route('/signup', methods=['GET', 'POST'])
@@ -101,7 +118,7 @@ def login():
 @login_required
 def dashboard():
     user = db.session.get(User, session['user_id'])
-    owned_notes = user.books_owned
+    owned_notes = user.notes_owned
     return render_template('dashboard.html', user=user, owned_notes=owned_notes)
 
 @app.route('/logout')
@@ -110,6 +127,14 @@ def logout():
     session.clear()
     flash('You have been logged out.', 'success')
     return redirect(url_for('index'))
+
+@app.route('/watchlist')
+@login_required
+def watchlist():
+    user_id = session['user_id']
+    watchlist_items = Watchlist.query.filter_by(user_id=user_id).all()
+    notes = [item.note for item in watchlist_items]
+    return render_template('watchlist.html', notes=notes)
 
 if __name__ == '__main__':
     app.run(debug=True)

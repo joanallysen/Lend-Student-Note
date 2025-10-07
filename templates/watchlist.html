@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width={}, initial-scale=1.0">
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script><script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <title>Watchlist</title>
+</head>
+<body>
+    <a href="{{url_for('dashboard')}}">Dashboard</a>
+    <div class="flex justify-center text-center space-x-1">
+        {% for note in notes %}
+            <div>
+                <img src="{{url_for('static', filename='uploads/' + note.image_filename)}}" alt="Current Image" class="w-80 h-auto">
+                <p>{{note.title}}</p>
+                <p>{{note.price}}</p>
+                <p>{{note.description}}</p>
+            </div>
+        {% endfor %}
+    </div>
+</body>
+</html>
