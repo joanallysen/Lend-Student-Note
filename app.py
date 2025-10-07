@@ -4,6 +4,7 @@ from functools import wraps
 
 from models import db, User, Note
 from routes.notes_bp import notes_bp
+from routes.search import search
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'your-secret-key-change-this-in-production'
@@ -12,6 +13,7 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db.init_app(app)
 app.register_blueprint(notes_bp)
+app.register_blueprint(search)
 
 # create the database tables
 with app.app_context():
@@ -103,6 +105,7 @@ def dashboard():
     user = db.session.get(User, session['user_id'])
     owned_notes = user.books_owned
     return render_template('dashboard.html', user=user, owned_notes=owned_notes)
+
 
 @app.route('/logout')
 @login_required
