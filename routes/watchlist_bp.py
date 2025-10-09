@@ -17,3 +17,4 @@ def add_watchlist(note_id):
     db.session.add(new_watchlist)
     db.session.commit()
     return redirect(url_for('explore'))
+ 

@@ -6,7 +6,7 @@ from models import db, User, Note, Watchlist
 from routes.notes_bp import notes_bp
 from routes.watchlist_bp import watchlist_bp
 from routes.search import search
-
+from routes.shopping_cart_bp import shopping_cart
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'your-secret-key-change-this-in-production'
@@ -17,6 +17,7 @@ db.init_app(app)
 app.register_blueprint(notes_bp)
 app.register_blueprint(watchlist_bp)
 app.register_blueprint(search)
+app.register_blueprint(shopping_cart)
 
 # create the database tables
 with app.app_context():
