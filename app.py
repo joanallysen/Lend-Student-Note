@@ -56,6 +56,13 @@ def explore():
     watchlisted_note_ids = {nid[0] for nid in watchlisted_note_ids}
     return render_template('explore.html', notes=notes, user_id=user_id, watchlisted_note_ids=watchlisted_note_ids)
 
+@app.route('/detail/<int:note_id>', methods=['POST', 'GET'])
+def detail(note_id):
+    if request.method == 'POST':
+        pass
+
+    note = Note.query.get_or_404(note_id)
+    return render_template('detail.html', note=note)
 
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
@@ -107,7 +114,7 @@ def login():
         user = User.query.filter_by(email=email).first()
 
         if user and check_password_hash(user.password, password):
-            session['user_id'] = user.id
+            session['user_id'] = user.user_id
             session['email'] = user.email
             flash(f'Welcome back, {user.username}!', 'success')
             return redirect(url_for('dashboard'))
@@ -120,7 +127,8 @@ def login():
 @app.route('/dashboard')
 @login_required
 def dashboard():
-    user = db.session.get(User, session['user_id'])
+    print(f"User ID from session: {session['user_id']}, type: {type(session['user_id'])}")
+    user = db.session.get(User, int(session['user_id']))
     owned_notes = user.notes_owned
     return render_template('dashboard.html', user=user, owned_notes=owned_notes)
 

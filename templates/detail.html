@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <title>Detail Before Buying</title>
+</head>
+<body>
+    <div class="flex justify-center text-center flex-row">
+        {% if note.image_filename != '' %}
+            <img class="w-100" src="{{url_for('static', filename='uploads/' + note.image_filename)}}" alt="Note poster">
+        {% endif %}
+
+        <div>
+            <p class="text-5xl">{{note.title}} <span class="text-2xl text-gray-400">{{note.isbn}}</span></p>
+            <p class="text-5xl font-bold">${{note.price}}</p>
+            <p>{{note.description}}</p>
+
+            <p>Condition {{note.condition}}</p>
+            <p>Pickup Location {{note.pickup_location}}</p>
+
+            <form action="shopping_cart_bp/add_to_cart" method="POST">
+                <!-- so shopping cart can have note id -->
+                <input type="hidden" name="note_id" value="{{note.id}}">
+
+                <label for="buying_type">Lend / Buy</label>
+                <select name="buying_type" id="buying_type">
+                    {% if note.listing_type == 'BOTH' or note.listing_type == 'RENTAL'%}
+                        <option value="LEND">Lend</option>
+                    {% endif %}
+                    {% if note.listing_type == 'BOTH' or note.listing_type == 'SALE' %} 
+                        <option value="BUY">Buy</option>
+                    {% endif%}
+                </select>
+
+                <div id="rental-options" {% if note.listing_type != 'RENTAL' %} class="hidden" {% endif %}>
+                    <label for="start_date">Choose Start Borrowing Date</label>
+                    <input type="text" id="start_date" name="start_date" required> <br>
+                
+                    <label for="end_date">Choose End Borrowing Date</label>
+                    <input type="text" id="end_date" name="end_date" required>
+                </div>
+            
+                <input type="submit" value="{%if note.listing_type == 'RENTAL'%} Borrow {%else %} Purchase {% endif %}">
+            </form>
+        </div>
+    </div>
+    
+    <script>
+        const listingType = '{{note.listing_type}}';
+        const availableDate = '{{note.available_date}}';
+
+        let startPicker, endPicker;
+
+        startPicker = flatpickr('#start_date', {
+            minDate: availableDate,
+            onChange: function(selectedDates, dateStr, instance){
+                if (selectedDates.length > 0){
+                    const minEndDate = new Date(selectedDates[0]);
+                    minEndDate.setDate(minEndDate.getDate() + 1);
+                    endPicker.set('minDate', minEndDate)
+                }
+            }
+        });
+
+        endPicker = flatpickr('#end_date', {
+            minDate: new Date(availableDate).setDate(new Date(availableDate).getDate() + 1)
+        })
+
+        document.getElementById('buying_type').addEventListener('change', function() {
+            const rentalOptions = document.getElementById('rental-options');
+            if (this.value === 'LEND'){
+                rentalOptions.style.display = 'block';
+            } else{
+                rentalOptions.style.display = 'none';
+            }
+        })
+    </script>
+</body>
+</html>
+

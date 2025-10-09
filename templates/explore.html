@@ -19,7 +19,7 @@
         {% for note in notes %}
             <div>
                 <img src="{{url_for('static', filename='uploads/' + note.image_filename)}}" alt="Current Image" class="w-80 h-auto">
-                <p>{{note.title}}</p>
+                <a class="underline" href="{{url_for('detail', note_id=note.note_id)}}">{{note.title}}</a>
                 <p>{{note.price}}</p>
                 <p>{{note.description}}</p>
                 {% if note.note_id not in watchlisted_note_ids %}

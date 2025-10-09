@@ -3,12 +3,12 @@ from flask_sqlalchemy import SQLAlchemy
 db = SQLAlchemy()
 
 class User(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), unique=True, nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
     password = db.Column(db.String(200), nullable=False)
 
-    avg_rating = db.Column(db.String(200), nullable=False, default=0)
+    avg_rating = db.Column(db.Numeric(3, 2), default=0.00)
     rating_count = db.Column(db.Integer, default=0)
 
     def __repr__(self):
@@ -34,14 +34,14 @@ class Note(db.Model):
     )
 
     listing_type = db.Column(
-        db.Enum('RENTAL', 'SALE', name='listing_type_enum'),
+        db.Enum('RENTAL', 'SALE', 'BOTH', name='listing_type_enum'),
         nullable=False
     )
     listing_date = db.Column(db.DateTime, default=db.func.now(), nullable=False)
     avg_rating = db.Column(db.Numeric(3, 2), default=0.00)
     rating_count = db.Column(db.Integer, default=0)
-    owner_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    buyer_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
+    owner_id = db.Column(db.Integer, db.ForeignKey('user.user_id'), nullable=False)
+    buyer_id = db.Column(db.Integer, db.ForeignKey('user.user_id'), nullable=True)
 
     owner = db.relationship('User', foreign_keys=[owner_id], backref='notes_owned')
     buyer = db.relationship('User', foreign_keys=[buyer_id], backref='notes_bought')
@@ -50,11 +50,31 @@ class Note(db.Model):
         return f'<Note {self.title}>'
     
 class Watchlist(db.Model):
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.user_id'), nullable=False, primary_key=True)
     note_id = db.Column(db.Integer, db.ForeignKey('note.note_id'), nullable=False, primary_key=True)
     added_at = db.Column(db.DateTime, default=db.func.now(), nullable=False)
     user = db.relationship('User', foreign_keys=[user_id], backref ='watchlist_items')
     note = db.relationship('Note', foreign_keys=[note_id], backref = 'watchlisted_by')
+
+class Review(db.Model):
+    review_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    note_id = db.Column(db.Integer, db.ForeignKey('note.note_id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.user_id'), nullable=False)
+    star = db.Column(db.Integer, nullable=False) # range 1-5
+    review = db.Column(db.String(400), nullable=False) 
+    added_at = db.Column(db.DateTime, default=db.func.now(), nullable=False)
+
+    __table_args__ = (
+        db.UniqueConstraint('note_id', 'user_id', name='unique_user_note_review'),
+        db.CheckConstraint('star >= 1 AND star <= 5', name = 'check_star_range'),
+    )
+
+    note = db.relationship('Note', backref='reviews')
+    user = db.relationship('User', backref='reviews')
+
+    def __repr__(self):
+        return f'<Review {self.review_id}: {self.star} stars by User {self.user_id}>'
+
 
 # class Cart(db.Model):
 #     cart_id = db.Column(db.Integer, primary_key=True)

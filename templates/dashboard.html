@@ -18,11 +18,12 @@
     <h2>User Information</h2>
     <p><strong>Username:</strong> {{ user.username }}</p>
     <p><strong>Email:</strong> {{ user.email }}</p>
-    <p><strong>User ID:</strong> {{ user.id }}</p>
+    <p><strong>User ID:</strong> {{ user.user_id }}</p>
 
-    <div class="flex justify-center text-center gap-1">
+    <div class="flex justify-center text-center space-y-1">
         {% for note in owned_notes %}
             <div class="bg-gray-200 w-50">
+                <img src="{{url_for('static', filename='uploads/' + note.image_filename)}}" alt="Current Image">
                 <p class="text-xl font-bold">{{note.title}}</p>
                 <p>{{note.description}}</p>
                 <a href="{{ url_for('notes.update_note', note_id=note.note_id) }}" class="cursor-pointer border-b-black border-2">Edit this book/note</a>
