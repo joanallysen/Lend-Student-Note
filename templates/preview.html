@@ -3,47 +3,83 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ 'Edit' if action == 'edit_note' else 'Add' }} Note</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <title>{{ 'Update' if action == 'notes.update_note' else 'Add' }} Note</title>
 </head>
 <body>
-    <h2>{{ 'Edit Note' if action == 'edit_note' else 'Add Note'}}</h2>
+    <h2>{{ 'Update Note' if action == 'notes.update_note' else 'Add Note'}}</h2>
     {% if error %}
         <p>{{error}}</p>
     {% endif %}
-    <form method="POST" action="{{ url_for(action, note_id=note.note_id if note else None)}}">
-        <label for="title">Title:</label><br>
+    <form method="POST" action="{{ url_for(action, note_id=note.note_id if note else None)}}" enctype="multipart/form-data">
+
+        <label for="image">Note Image: </label><br>
+        <input type="file" id="image" name="image" accept="image/*" onchange="previewImage(event)"><br>
+
+        <img class="hidden" id="imagePreview" alt="Image preview">
+
+        {% if note and note.image_filename %}
+            <img src="{{url_for('static', filename='uploads/' + note.image_filename)}}" alt="Current Image"><br>
+        {% endif %}
+
+        <label for="title">Title</label><br>
         <input type="text" id="title" name="title" required value="{{ note.title if note else '' }}"><br><br>
 
-        <label for="isbn">ISBN:</label><br>
+        <label for="isbn">ISBN</label><br>
         <input type="text" id="isbn" name="isbn" required value="{{ note.isbn if note else '' }}"><br><br>
 
-        <label for="price">Price:</label><br>
+        <label for="price">Price</label><br>
         <input type="number" step="0.01" id="price" name="price" required value="{{ note.price if note else '' }}"><br><br>
 
-        <label for="description">Description:</label><br>
+        <label for="description">Description</label><br>
         <textarea id="description" name="description">{{ note.description if note else '' }}</textarea><br><br>
 
-        <label for="condition">Condition:</label><br>
+        <label for="condition">Condition</label><br>
         <select name="condition" id="condition" required>
-            {% set conditions = ['Minimum', 'Good', 'Brand New'] %}
-            {% for cond in conditions %}
-                <option value="{{ cond }}" {% if note and note.condition == cond %}selected{% endif %}>{{ cond }}</option>
-            {% endfor %}
+            <option value="MINIMUM" {% if note and note.condition =='MINIMUM' %}selected{%endif%}>Minimum</option>
+            <option value="GOOD" {% if note and note.condition =='GOOD' %}selected{%endif%}>Good</option>
+            <option value="BRAND NEW" {% if note and note.condition =='BRAND NEW' %}selected{%endif%}>Brand New</option>
         </select><br><br>
 
-        <label for="pickup_location">Pickup Location:</label><br>
+        <label for="pickup_location">Pickup Location</label><br>
         <input type="text" id="pickup_location" name="pickup_location" required value="{{ note.pickup_location if note else '' }}"><br><br>
 
-        <label for="available_date">Available Date:</label><br>
+        <label for="available_date">Available Date</label><br>
         <input type="date" id="available_date" name="available_date" required value="{{ note.available_date.strftime('%Y-%m-%d') if note else '' }}"><br><br>
 
-        <label for="is_lend">Lend/Sell</label>
-        <select name="is_lend" id="is_lend" required>
-            <option value="lend" {% if note and note.is_lend %}selected{% endif %}>Lend</option>
-            <option value="sell" {% if note and not note.is_lend %}selected{% endif %}>Sell</option>
+        <label for="listing_type">Listing Type</label><br>
+        <select name="listing_type" id="listing_type" required>
+            <option value="RENTAL" {% if note and note.listing_type=='RENTAL' %}selected{% endif %}>Rental</option>
+            <option value="SALE" {%if note and note.listing_type=='SALE' %}selected{% endif %}>Sale</option>
+        </select><br>
+
+        <label for="status">Status</label><br>
+        <select name="status" id="status">
+            <option value="AVAILABLE" {% if note and note.status=='AVAILABLE' %}selected{% endif %}>Available</option>
+            <option value="HIDDEN" {% if note and note.status=='HIDDEN' %}selected{% endif %}>Hidden</option>
         </select>
 
-        <button type="submit">{{ 'Update Note' if action == 'edit_note' else 'Add Note' }}</button>
+        <button type="submit">{{ 'Update Note' if action == 'notes.update_note' else 'Add Note' }}</button>
     </form>
+
+    <script>
+        function previewImage(event){
+            const input = event.target;
+            const preview = document.getElementById('imagePreview');
+            if (input.files && input.files[0]){
+                const reader = new FileReader()
+
+                reader.onload = function(e){
+                    preview.src = e.target.result;
+                    preview.style.display = 'block';
+                }
+
+                reader.readAsDataURL(input.files[0])
+            } else{
+                preview.style.display = 'none';
+            }
+        }
+
+    </script>
 </body>
 </html>
