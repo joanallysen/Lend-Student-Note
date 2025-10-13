@@ -75,6 +75,13 @@ class Review(db.Model):
     def __repr__(self):
         return f'<Review {self.review_id}: {self.star} stars by User {self.user_id}>'
 
+class History(db.Model):
+    history_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.user_id'), nullable=False)
+    note_id = db.Column(db.Integer, db.ForeignKey('note.note_id'), nullable=False)
+    
+    user = db.relationship('User', foreign_keys=[user_id], backref='history')
+    
 
 # class Cart(db.Model):
 #     cart_id = db.Column(db.Integer, primary_key=True)
@@ -89,3 +96,6 @@ class Review(db.Model):
 #     quantity = db.Column(db.Integer, nullable=False)
 
 #     cart = db.relationship('Cart', backpopulates='items')
+
+
+

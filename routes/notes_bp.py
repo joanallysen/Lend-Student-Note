@@ -115,5 +115,5 @@ def delete_note(note_id):
 
     db.session.delete(note)
     db.session.commit()
-    flash('Book successfully deleted!', 'success')
+    flash('Note successfully deleted!', 'success')
     return redirect(url_for('dashboard'))

@@ -22,7 +22,7 @@
             <p>Condition <span class="border-2 border-red-50 bg-red-50 rounded">{{note.condition}}</span></p>
             <p>Pickup Location {{note.pickup_location}}</p>
 
-            <form action="shopping_cart_bp/add_to_cart" method="POST" class="space-y-4">
+            <form action="shopping_cart_bp.shopping_cart/add_to_cart" method="POST" class="space-y-4">
                 <!-- so shopping cart can have note id -->
                 <input type="hidden" name="note_id" value="{{note.id}}">
 
@@ -51,14 +51,14 @@
 
     <!-- TODO LINK THIS WITH SHOPPING CART -->
     <!-- If user has lended this book, have the ability to rate -->
-    <!-- {% if note.buyer_id and note.buyer_id == session['user_id'] %} -->
-    <!-- {% endif %} -->
+    <!-- {if user.history.note_id = note_id  -->
+    <!-- { endif -->
    <div class="">
         <h2>Rate this note or book!</h2>
 
         <div id="starRating" class="flex justify-center space-x-1 text-3xl text-yellow-400 cursor-pointer">
         </div>
-        <form action="{{ url_for('review.add_review', note_id=note.note_id) }}" method="POST">
+        <form action="review.add_review/{{note.note_id}}" method="POST">
             <input id="ratingValue" value="" required>
             <label for="review">Review</label>
             <input type="text" name="review">

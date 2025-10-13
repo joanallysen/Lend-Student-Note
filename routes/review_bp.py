@@ -1,5 +1,5 @@
 from flask import Blueprint, request, render_template, url_for, session, redirect
-from models import db, Review
+from models import db, Review, Note
 from datetime import datetime
 import os
 
@@ -9,6 +9,9 @@ review_bp = Blueprint('review', __name__)
 @review_bp.route('/add_review/<int:note_id>', methods=['POST', 'GET'])
 def add_review(note_id):
     error = None
+    note = Note.query.get_or_404(note_id)
+    if note.buyer_id != session['user_id']:
+        return 'Error, user_id does not match buyer_id please try again.'
 
     if request.method == 'POST':
         new_review = Review(
