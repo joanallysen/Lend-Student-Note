@@ -58,7 +58,7 @@ class Watchlist(db.Model):
 
 class Cart(db.Model):
     cart_id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.user_id'), nullable=False)
 
     items= db.relationship('CartItem',back_populates='cart')
 
