@@ -60,12 +60,12 @@ class Cart(db.Model):
     cart_id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
 
-    user = db.relationship('User', backref='carts')
-    items= db.relationship('Cart_Item',back_populates='cart')
+    items= db.relationship('CartItem',back_populates='cart')
 
-class Cart_Item(db.Model):
+class CartItem(db.Model):
     cart_id = db.Column(db.Integer, db.ForeignKey('cart.cart_id'), primary_key=True)
     note_id = db.Column(db.Integer, db.ForeignKey('note.note_id'), primary_key=True)
     quantity = db.Column(db.Integer, nullable=False)
 
     cart = db.relationship('Cart', back_populates='items')
+    note_details = db.relationship('Note')
