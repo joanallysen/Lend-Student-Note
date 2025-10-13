@@ -35,13 +35,13 @@ def update_image(note):
                 if os.path.exists(old_path):
                     os.remove(old_path)
                 
-                # save file
-                filename = secure_filename(file.filename)
-                timestamp = datetime.now().strftime('%Y%m%d_%H%M%S_')
-                filename = timestamp + filename
-                filepath = os.path.join(UPLOAD_FOLDER, filename)
-                file.save(filepath)
-                return filename
+            # save file
+            filename = secure_filename(file.filename)
+            timestamp = datetime.now().strftime('%Y%m%d_%H%M%S_')
+            filename = timestamp + filename
+            filepath = os.path.join(UPLOAD_FOLDER, filename)
+            file.save(filepath)
+            return filename
         
         # return old image if not changed
         return note.image_filename
@@ -115,5 +115,5 @@ def delete_note(note_id):
 
     db.session.delete(note)
     db.session.commit()
-    flash('Book successfully deleted!', 'success')
+    flash('Note successfully deleted!', 'success')
     return redirect(url_for('dashboard'))
