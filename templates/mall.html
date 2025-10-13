@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script><script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <title>Document</title>
+</head>
+<body>
+    <div class="flex justify-center text-center space-x-1">
+
+    
+    {% for note in notes %}
+        <div>
+            <img src="{{url_for('static',filename='uploads/'+note.image_filename)}} "alt="Current Image" class="w-80 h-auto">
+            {{note.note_id}}<br>
+            {{note.title}}<br>
+            {{note.description}}
+            
+            <form action="{{url_for('shopping_cart.add_to_cart', note_id = note.note_id)}}">
+                <button type="submit">Add to Cart</button>
+            </form>
+        </div>
+    {% endfor %}
+
+    <a href="/user_cart">Show user cart</a>
+</div>
+</body>
+</html>
