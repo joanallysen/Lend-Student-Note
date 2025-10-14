@@ -36,7 +36,7 @@
                     {% endif%}
                 </select>
 
-                <div id="rental_options" {% if note.listing_type != 'RENTAL' %} class="hidden" {% endif %} class="space-y-4">
+                <div id="rental_options" {% if note.listing_type == 'SALE' %} class="hidden space-y-4" {% endif %}>
                     <label for="start_date">Choose Start Borrowing Date</label> <br>
                     <input type="text" id="start_date" name="start_date" class="w-full p-3 bg-white border-gray-200" required> 
                 
@@ -44,7 +44,7 @@
                     <input type="text" id="end_date" name="end_date" class="w-full p-3 bg-white border-gray-200" required>
                 </div>
             
-                <input id="purchase_button" class="p-4 bg-white rounded-2xl font-bold cursor-pointer" type="submit" value="">
+                <input id="purchase_button" class="p-4 bg-white rounded-2xl font-bold cursor-pointer" type="submit" value="{% if note.listing_type == 'BOTH' %}Lend{% else %}Buy{% endif %}">
             </form>
         </div>
     </div>
@@ -81,6 +81,8 @@
         const listingType = '{{note.listing_type}}';
         const availableDate = '{{note.available_date}}';
 
+        
+
         let startPicker, endPicker;
 
         startPicker = flatpickr('#start_date', {
@@ -98,6 +100,7 @@
             minDate: new Date(availableDate).setDate(new Date(availableDate).getDate() + 1)
         })
 
+        
         document.getElementById('buying_type').addEventListener('change', function() {
             const rentalOptions = document.getElementById('rental_options');
             const purchaseButton = document.getElementById('purchase_button')
