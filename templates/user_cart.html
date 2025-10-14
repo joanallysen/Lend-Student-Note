@@ -10,23 +10,26 @@
     <h1 class="text-center font-bold m-5">User Cart </h1>
     <div  class="flex justify-center text-center space-x-1">
     {% for item in items%}
-        <div >
+        <div class="justify-center items-center bg-gray-100">
             <a href="/remove_item/{{item.note_details.note_id}}">X</a>
-            <img src="{{url_for('static',filename='uploads/'+item.note_details.image_filename)}} "alt="Current Image" class="w-80 h-auto">
+            <img src="{{url_for('static',filename='uploads/'+item.note_details.image_filename)}} "alt="Current Image" class="w-80 min-h-90">
             Note ID: {{item.note_details.note_id}}<br>
             Title: {{item.note_details.title}}<br>
+            Price: {{item.note_details.price}}<br>
             Description: {{item.note_details.description}}<br>
-            <div style="display: flex; flex-direction: row;">
-                <a href="/add_quantity/{{item.note_details.note_id}}">+</a>
-                Quantity: {{item.quantity}}<br>
+            <div>
                 <a href="/subtract_quantity/{{item.note_details.note_id}}">-</a>
+                Quantity: {{item.quantity}}
+                <a href="/add_quantity/{{item.note_details.note_id}}">+</a>
             </div>
+            Total Price: {{item.note_details.price*item.quantity }}
             
         </div>
-
     {% endfor %}
     </div>
-    
+
+     <h2>Total Checkout Price: {{total_price}}</h2>
     <a href="/checkout">Check Out</a>
+    <a href="/dashboard">Dashboard</a>
 </body>
 </html>

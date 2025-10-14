@@ -16,11 +16,18 @@ def user_cart():
     cart_exist = Cart.query.filter(Cart.user_id == user_id).first()
 
     if cart_exist:
-        content= cart_exist.items
+        cart_items= cart_exist.items
+
+        total_price = sum(item.note_details.price*item.quantity for item in cart_items)
+
     else:
         content="Nothing"
 
-    return render_template('user_cart.html', items = content)
+    return render_template('user_cart.html', items = cart_items, total_price=total_price)
+
+# def total_bills(cart_items){
+#     total_price
+# }
 
 @shopping_cart.route('/add_to_cart/<int:note_id>', methods=["GET"])
 def add_to_cart(note_id):
