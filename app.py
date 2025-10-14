@@ -27,6 +27,7 @@ with app.app_context():
 def login_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
+        print(f"Session check - user_id present: {'user_id' in session}")
         if 'user_id' not in session:
             flash('Please log in to access this page.', 'warning')
             return redirect(url_for('login'))
@@ -128,7 +129,6 @@ def login():
 @app.route('/dashboard')
 @login_required
 def dashboard():
-    print(f"User ID from session: {session['user_id']}, type: {type(session['user_id'])}")
     user = db.session.get(User, int(session['user_id']))
     owned_notes = user.notes_owned
     return render_template('dashboard.html', user=user, owned_notes=owned_notes)
