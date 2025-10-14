@@ -36,7 +36,7 @@
                     {% endif%}
                 </select>
 
-                <div id="rental-options" {% if note.listing_type != 'RENTAL' %} class="hidden" {% endif %} class="space-y-4">
+                <div id="rental_options" {% if note.listing_type != 'RENTAL' %} class="hidden" {% endif %} class="space-y-4">
                     <label for="start_date">Choose Start Borrowing Date</label> <br>
                     <input type="text" id="start_date" name="start_date" class="w-full p-3 bg-white border-gray-200" required> 
                 
@@ -44,7 +44,7 @@
                     <input type="text" id="end_date" name="end_date" class="w-full p-3 bg-white border-gray-200" required>
                 </div>
             
-                <input class="p-4 bg-white rounded-2xl font-bold" type="submit" value="{%if note.listing_type == 'RENTAL'%} Borrow {%else %} Purchase {% endif %}">
+                <input id="purchase_button" class="p-4 bg-white rounded-2xl font-bold cursor-pointer" type="submit" value="">
             </form>
         </div>
     </div>
@@ -75,6 +75,9 @@
 
 
     <script>
+        
+
+
         const listingType = '{{note.listing_type}}';
         const availableDate = '{{note.available_date}}';
 
@@ -96,11 +99,14 @@
         })
 
         document.getElementById('buying_type').addEventListener('change', function() {
-            const rentalOptions = document.getElementById('rental-options');
+            const rentalOptions = document.getElementById('rental_options');
+            const purchaseButton = document.getElementById('purchase_button')
             if (this.value === 'LEND'){
                 rentalOptions.style.display = 'block';
+                purchaseButton.value = 'Borrow'
             } else{
                 rentalOptions.style.display = 'none';
+                purchaseButton.value = 'Buy'
             }
         })
 

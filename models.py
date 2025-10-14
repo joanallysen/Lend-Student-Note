@@ -95,3 +95,4 @@ class History(db.Model):
     note_id = db.Column(db.Integer, db.ForeignKey('note.note_id'), nullable=False)
     
     user = db.relationship('User', foreign_keys=[user_id], backref='history')
+

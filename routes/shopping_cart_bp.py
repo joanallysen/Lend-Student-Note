@@ -11,7 +11,6 @@ def cart():
 
 @shopping_cart.route('/add_to_cart/<string:note_id>', methods=["GET"])
 def add_to_cart(note_id):
-    
     user_id = session.get('user_id')
 
     #Check if user cart exist
@@ -46,3 +45,23 @@ def user_cart():
         content="Nothing"
 
     return render_template('user_cart.html', items = content)
+
+# @shopping_cart.route('/checkout', methods=['POST'])
+# def checkout():
+#     if request.form == 'POST':
+#         user_id = session.get('user_id')
+#         cart_exist = Cart.query.filter(Cart.user_id == user_id).first()
+
+#         if cart_exist:
+#             cart_items = cart_exist.items
+#         else:
+#             cart_items = 'Nothing'
+
+#         notes = list(set())
+#         for item in cart_items:
+#             notes.append(set(db.session.query(Note.note_id).all()))
+        
+#         for note in notes:
+#             note.status = 
+        
+    

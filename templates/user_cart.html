@@ -21,6 +21,8 @@
     {% endfor %}
     </div>
     
-    <a href="/checkout">Check Out</a>
+    <form action="{{url_for('shopping_cart.checkout', item_id=item_id)}}" method="POST">
+        <a href="/shopping_cart.checkout">Check Out</a>
+    </form>
 </body>
 </html>
