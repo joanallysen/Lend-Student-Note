@@ -72,6 +72,22 @@
         <h2 class="text-5xl">Review</h2>
 
     </div>
+    
+Related Books
+    <div style="display: grid;
+    grid-auto-flow: column;">
+        
+
+        {% for book in related_books %}
+            <ul>
+                {% if book.image_filename != '' %}
+                <img class="w-100" src="{{url_for('static', filename='uploads/' + book.image_filename)}}" alt="Note poster">
+            {% endif %}
+    
+                <li>{{book.title}}</li>
+            </ul>
+        {% endfor %}
+    </div>
 
 
     <script>

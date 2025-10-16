@@ -58,7 +58,10 @@
         <select name="status" id="status">
             <option value="AVAILABLE" {% if note and note.status=='AVAILABLE' %}selected{% endif %}>Available</option>
             <option value="HIDDEN" {% if note and note.status=='HIDDEN' %}selected{% endif %}>Hidden</option>
-        </select>
+        </select><br><br>
+
+        <label for="tags">Tags (Comma separated)</label><br>
+        <input type="text" id="tags" name="tags"><br><br>
 
         <button type="submit">{{ 'Update Note' if action == 'notes.update_note' else 'Add Note' }}</button>
     </form>
