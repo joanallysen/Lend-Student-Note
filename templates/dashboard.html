@@ -19,7 +19,7 @@
     <p><strong>Username:</strong> {{ user.username }}</p>
     <p><strong>Email:</strong> {{ user.email }}</p>
     <p><strong>User ID:</strong> {{ user.user_id }}</p>
-    <a href="{{url_for('shopping_cart.mall')}}">Shopping Cart</a>
+    <a href="{{url_for('shopping_cart.user_cart')}}">Shopping Cart</a>
 
     <div class="flex justify-center text-center space-y-1">
         {% for note in owned_notes %}
@@ -33,6 +33,18 @@
                         Delete
                     </button>
                 </form>
+                <p>{{note.status}}</p>
+                {%if note.status == 'NEED ACTION' %}
+                    <form action="{{ url_for('borrowed.confirmed_returned', note_id=note.note_id) }}" method="POST">
+                        <label for="submit"> Buyer has tagged this book as returned, click below if it has been returned</label>
+                        <input type="submit" name="submit" class="cursor-pointer" value="Returned">
+                    </form>
+                {%elif note.status == 'LENT' %}
+                    <form action="{{ url_for('borrowed.confirmed_returned', note_id=note.note_id) }}" method="POST">
+                        <label for="submit">Click below if buyer has returned the book</label>
+                        <input type="submit" name="submit" class="cursor-pointer" value="Returned">
+                    </form>
+                {%endif%}
             </div>
         {% endfor %}
     </div>

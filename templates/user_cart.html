@@ -28,17 +28,14 @@
                 <a href="/add_quantity/{{item.note_details.note_id}}">+</a>
             </div>
             Total Price: {{item.note_details.price*item.quantity }}
-            {{item.note_details}}
         </div>
     {% endfor %}
     </div>
     
-    <form action="{{url_for('shopping_cart.checkout', item_id=item_id)}}" method="POST">
-        <a href="/shopping_cart.checkout">Check Out</a>
+    <form action="{{url_for('shopping_cart.checkout')}}" method="POST">
+        <input type="submit" name="submit" value="Checkout" class="cursor-pointer">
     </form>
 
-     <h2>Total Checkout Price: {{total_price}}</h2>
-    <a href="/checkout">Check Out</a>
     <a href="/dashboard">Dashboard</a>
 </body>
 </html>

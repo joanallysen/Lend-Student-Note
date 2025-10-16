@@ -1,4 +1,5 @@
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import not_
 
 db = SQLAlchemy()
 
@@ -28,7 +29,7 @@ class Note(db.Model):
     pickup_location = db.Column(db.String(200), nullable=False)
     available_date = db.Column(db.Date, nullable=False)
     status = db.Column(
-        db.Enum('AVAILABLE', 'LENT', 'SOLD', 'RESERVED', 'HIDDEN', name='status_enum'),
+        db.Enum('AVAILABLE', 'LENT', 'SOLD', 'RESERVED', 'HIDDEN', 'NEED ACTION', name='status_enum'),
         default='AVAILABLE',
         nullable=False
     )

@@ -1,14 +1,8 @@
-from flask import Flask, Blueprint, render_template, url_for, redirect, session, request
+from flask import Flask, Blueprint, render_template, url_for, redirect, session, request, render_template_string
 from models import db, Cart, CartItem, Note, BorrowedBook
 from datetime import datetime
 
 shopping_cart = Blueprint('shopping_cart',__name__)
-
-@shopping_cart.route('/mall')
-def mall():
-    all_notes = Note.query.all()
-
-    return render_template('mall.html',notes=all_notes)
 
 @shopping_cart.route('/user_cart')
 def user_cart():
@@ -43,7 +37,11 @@ def add_to_cart(note_id):
         item_exist= CartItem.query.filter(CartItem.cart_id == user_cart.cart_id, CartItem.note_id == note_id ).first()
         if item_exist:
             item_exist.quantity += 1
-            return redirect(url_for('shopping_cart.mall'))
+            return render_template_string("""
+                Item is already on cart! 
+                <a href='{{ url_for('shopping_cart.user_cart') }}'>Go to user cart?</a> 
+                <a href='{{ url_for('explore') }}'>Return to explore page</a>
+            """)
           
         # adding new cart item
         buying_type = request.form.get('buying_type')
@@ -57,7 +55,11 @@ def add_to_cart(note_id):
             
         db.session.add(new_item)
         db.session.commit()
-        return redirect(url_for('shopping_cart.mall'))
+        return render_template_string("""
+            Item added to cart! 
+            <a href='{{ url_for('shopping_cart.user_cart') }}'>Go to user cart?</a> 
+            <a href='{{ url_for('explore') }}'>Return to explore page</a>
+        """)
 
 @shopping_cart.route('/add_quantity/<int:note_id>')
 def add_quantity(note_id):
@@ -126,7 +128,6 @@ def checkout():
             
             elif item.buying_type == 'BORROW':
                 if item.start_date and item.end_date:
-                    # create borrowed book
                     borrowed_book = BorrowedBook(
                         note_id=item.note_id,
                         user_id=user_id,
@@ -134,6 +135,7 @@ def checkout():
                         end_date=item.end_date
                     )
                     note.status = 'LENT'
+                    note.buyer_id = user_id
                     db.session.add(borrowed_book)
                     db.session.add(note)
         
@@ -141,5 +143,5 @@ def checkout():
         cart_items = CartItem.query.filter_by(cart_id=cart.cart_id).delete()
         db.session.commit()
         
-        return redirect(url_for('explore'))
+        return render_template('successful.html')
 
