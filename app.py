@@ -2,7 +2,8 @@ from flask import Flask, render_template, request, redirect, url_for, session, f
 from werkzeug.security import generate_password_hash, check_password_hash
 from functools import wraps
 
-from models import db, not_, User, Note, Watchlist, CartItem, Cart, History
+from models import db, User, Note, Watchlist,Tag,note_tag_association,CartItem, Cart,not_
+
 from routes.notes_bp import notes_bp
 from routes.watchlist_bp import watchlist_bp
 from routes.search import search
@@ -71,7 +72,17 @@ def detail(note_id):
         pass
 
     note = Note.query.get_or_404(note_id)
-    return render_template('detail.html', note=note)
+
+    related_books = db.session.query(Note).join(
+    note_tag_association, Note.note_id == note_tag_association.c.note_id
+    ).filter(
+    note_tag_association.c.tag_id.in_(
+        db.session.query(note_tag_association.c.tag_id)
+        .filter(note_tag_association.c.note_id == note_id)
+    ),
+    Note.note_id != note_id ).distinct().all()
+
+    return render_template('detail.html', note=note, related_books= related_books)
 
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():

@@ -1,6 +1,6 @@
 from flask import Blueprint, request, render_template, session, url_for, redirect, flash
 from werkzeug.utils import secure_filename
-from models import db, Note
+from models import db, Note, Tag
 from datetime import datetime
 import os
 
@@ -64,11 +64,27 @@ def add_note():
             pickup_location = request.form.get('pickup_location'),
             available_date = datetime.strptime(request.form.get('available_date'), '%Y-%m-%d').date(),
             status = 'AVAILABLE',
+            
             listing_type = request.form.get('listing_type'),
             # listing date just default value
             owner_id = session['user_id'],
             buyer_id = None
         )
+        #Adding Tags
+        tags = request.form.get('tags','')
+        if tags:
+                cleaned_tags = [tag.strip().title() for tag in tags.split(',') if tag.strip()]
+
+                for tag in cleaned_tags:
+                    tag_exist = Tag.query.filter(Tag.name == tag).first()
+
+                    if not tag_exist:
+                        new_tag= Tag(name=tag)
+                        db.session.add(new_tag)
+                        new_note.tags.append(new_tag)
+
+                    else:
+                        new_note.tags.append(tag_exist)
 
         # try: TODO WILL ADD THE EXCEPTION BACK THIS IS FOR ERROR DEBUGGING
         db.session.add(new_note)

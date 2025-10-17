@@ -4,27 +4,8 @@ from datetime import datetime
 
 shopping_cart = Blueprint('shopping_cart',__name__)
 
-@shopping_cart.route('/user_cart')
-def user_cart():
-    user_id= session.get('user_id')
-    
-    cart_exist = Cart.query.filter(Cart.user_id == user_id).first()
-
-    if cart_exist:
-        cart_items= cart_exist.items
-        total_price = sum(item.note_details.price*item.quantity for item in cart_items)
-    else:
-        new_cart = Cart(user_id=user_id)
-        db.session.add(new_cart)
-        db.session.commit()
-
-    return render_template('user_cart.html', items=cart_items, total_price=total_price)
-
-
-@shopping_cart.route('/add_to_cart/<int:note_id>', methods=['POST'])
-def add_to_cart(note_id):
-    if request.method == 'POST':
-        user_id = session.get('user_id')
+def check_user_cart_exist():
+        user_id= session.get('user_id')
 
         # check if user cart exist
         user_cart=Cart.query.filter_by(user_id = user_id).first()
@@ -34,6 +15,36 @@ def add_to_cart(note_id):
 
             db.session.add(new_cart)
             db.session.commit()
+        
+        return user_cart
+
+@shopping_cart.route('/user_cart')
+def user_cart():
+    user_id= session.get('user_id')
+
+    # check if user cart exist
+    user_cart = check_user_cart_exist()
+
+    #check if the cart is not empty
+    if user_cart.items:
+        cart_items= user_cart.items
+        total_price = sum(item.note_details.price*item.quantity for item in cart_items)
+        return render_template('user_cart.html', items=cart_items, total_price=total_price)
+    else:
+        cart_items=[]
+        return render_template('user_cart.html', items=cart_items)
+
+    
+
+
+
+@shopping_cart.route('/add_to_cart/<int:note_id>', methods=['POST'])
+def add_to_cart(note_id):
+    if request.method == 'POST':
+        user_id = session.get('user_id')
+
+        # check if user cart exist
+        check_user_cart_exist()
 
         # check if the note is already in the cart or not
         item_exist= CartItem.query.filter(CartItem.cart_id == user_cart.cart_id, CartItem.note_id == note_id ).first()
