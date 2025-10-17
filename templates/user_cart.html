@@ -17,23 +17,25 @@
             Title: {{item.note_details.title}}<br>
             Price: {{item.note_details.price}}<br>
             Description: {{item.note_details.description}}<br>
+            Buying Type: {{item.buying_type}}<br>
+            {% if item.buying_type == 'BORROW' %}
+                Start Date: {{item.start_date}}
+                End Date: {{item.end_date}}
+            {% endif %}
             <div>
                 <a href="/subtract_quantity/{{item.note_details.note_id}}">-</a>
                 Quantity: {{item.quantity}}
                 <a href="/add_quantity/{{item.note_details.note_id}}">+</a>
             </div>
             Total Price: {{item.note_details.price*item.quantity }}
-            
         </div>
     {% endfor %}
     </div>
     
-    <form action="{{url_for('shopping_cart.checkout', item_id=item_id)}}" method="POST">
-        <a href="/shopping_cart.checkout">Check Out</a>
+    <form action="{{url_for('shopping_cart.checkout')}}" method="POST">
+        <input type="submit" name="submit" value="Checkout" class="cursor-pointer">
     </form>
 
-     <h2>Total Checkout Price: {{total_price}}</h2>
-    <a href="/checkout">Check Out</a>
     <a href="/dashboard">Dashboard</a>
 </body>
 </html>
