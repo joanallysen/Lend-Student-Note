@@ -2,7 +2,7 @@ from flask import Flask, render_template, request, redirect, url_for, session, f
 from werkzeug.security import generate_password_hash, check_password_hash
 from functools import wraps
 
-from models import db, User, Note, Watchlist,Tag,note_tag_association,CartItem, Cart,not_
+from models import db, User, Note, Watchlist, Tag, note_tag_association ,CartItem, Cart, not_, BorrowedBook
 from routes.notes_bp import notes_bp
 from routes.watchlist_bp import watchlist_bp
 from routes.search import search
@@ -141,7 +141,16 @@ def login():
 def dashboard():
     user = db.session.get(User, int(session['user_id']))
     owned_notes = user.notes_owned
-    return render_template('dashboard.html', user=user, owned_notes=owned_notes)
+
+    borrowed_books = user.borrowed_books
+    
+    currently_borrowing = []
+
+    for book in borrowed_books:
+        if book.status == 'ACTIVE' or book.status == 'OVERDUE':
+            currently_borrowing.append(book)
+
+    return render_template('dashboard.html', user=user, owned_notes=owned_notes, borrowed_books=currently_borrowing, total_books = len(borrowed_books))
 
 
 @app.route('/logout')

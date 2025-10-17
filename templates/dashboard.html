@@ -48,6 +48,17 @@
             </div>
         {% endfor %}
     </div>
+
+    <div class="flex justify-center text-center space-y-1 m-10 " style="display: flex; flex-direction: column;">
+        <h1>Currently Borrowed Books (Total Books= {{total_books}})</h1>
+        {% if borrowed_books %}
+            {% for book in borrowed_books %}
+                <div>
+                    <label>{{book.note_id}}</label>
+                </div>
+            {% endfor %}
+        {% endif %}
+    </div>
     
     <a href="{{ url_for('notes.add_note') }}" class="cursor-pointer border-b-black border-2">Add owned book/note</a>
     <p><a href="{{ url_for('index') }}">Home</a> | <a href="{{ url_for('logout') }}">Logout</a></p>

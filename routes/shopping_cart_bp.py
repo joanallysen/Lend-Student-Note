@@ -20,8 +20,7 @@ def check_user_cart_exist():
 
 @shopping_cart.route('/user_cart')
 def user_cart():
-    user_id= session.get('user_id')
-
+    
     # check if user cart exist
     user_cart = check_user_cart_exist()
 
@@ -41,10 +40,9 @@ def user_cart():
 @shopping_cart.route('/add_to_cart/<int:note_id>', methods=['POST'])
 def add_to_cart(note_id):
     if request.method == 'POST':
-        user_id = session.get('user_id')
 
         # check if user cart exist
-        check_user_cart_exist()
+        user_cart = check_user_cart_exist()
 
         # check if the note is already in the cart or not
         item_exist= CartItem.query.filter(CartItem.cart_id == user_cart.cart_id, CartItem.note_id == note_id ).first()

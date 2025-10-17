@@ -21,6 +21,7 @@ note_tag_association=db.Table(
     db.Column('note_id',db.Integer, db.ForeignKey('note.note_id', primary_key=True)),
     db.Column('tag_id',db.Integer, db.ForeignKey('tag.tag_id', primary_key=True))
 )
+
 class Note(db.Model):
     note_id = db.Column(db.Integer, primary_key=True)
     image_filename = db.Column(db.String(255), nullable=True)
