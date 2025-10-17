@@ -9,6 +9,7 @@
     <title>Detail Before Buying</title>
 </head>
 <body class="m-10">
+    <a href="{{url_for('shopping_cart.user_cart')}}">Shopping cart</a>
     <div class="flex justify-center text-center flex-row bg-gray-300 space-x-20 p-20">
         {% if note.image_filename != '' %}
             <img class="w-100" src="{{url_for('static', filename='uploads/' + note.image_filename)}}" alt="Note poster">
@@ -22,14 +23,14 @@
             <p>Condition <span class="border-2 border-red-50 bg-red-50 rounded">{{note.condition}}</span></p>
             <p>Pickup Location {{note.pickup_location}}</p>
 
-            <form action="shopping_cart_bp.shopping_cart/add_to_cart" method="POST" class="space-y-4">
+            <form action="{{url_for('shopping_cart.add_to_cart', note_id=note.note_id)}}" method="POST">
                 <!-- so shopping cart can have note id -->
-                <input type="hidden" name="note_id" value="{{note.id}}">
+                <input type="hidden" name="note_id" value="{{note.note_id}}">
 
-                <label for="buying_type">Lend / Buy</label> <br>
+                <label for="buying_type">Borrow / Buy</label> <br>
                 <select name="buying_type" id="buying_type" class="w-full  bg-white border-gray-200 p-3">
                     {% if note.listing_type == 'BOTH' or note.listing_type == 'RENTAL'%}
-                        <option value="LEND">Lend</option>
+                        <option value="BORROW">Borrow</option>
                     {% endif %}
                     {% if note.listing_type == 'BOTH' or note.listing_type == 'SALE' %} 
                         <option value="BUY">Buy</option>
@@ -44,7 +45,7 @@
                     <input type="text" id="end_date" name="end_date" class="w-full p-3 bg-white border-gray-200" required>
                 </div>
             
-                <input id="purchase_button" class="p-4 bg-white rounded-2xl font-bold cursor-pointer" type="submit" value="{% if note.listing_type == 'BOTH' %}Lend{% else %}Buy{% endif %}">
+                <input id="purchase_button" class="p-4 bg-white rounded-2xl font-bold cursor-pointer" type="submit" value="{% if note.listing_type == 'BOTH' %}Borrow{% else %}Buy{% endif %}">
             </form>
         </div>
     </div>
@@ -120,7 +121,7 @@ Related Books
         document.getElementById('buying_type').addEventListener('change', function() {
             const rentalOptions = document.getElementById('rental_options');
             const purchaseButton = document.getElementById('purchase_button')
-            if (this.value === 'LEND'){
+            if (this.value === 'BORROW'){
                 rentalOptions.style.display = 'block';
                 purchaseButton.value = 'Borrow'
             } else{
