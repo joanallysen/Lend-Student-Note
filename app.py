@@ -2,11 +2,12 @@ from flask import Flask, render_template, request, redirect, url_for, session, f
 from werkzeug.security import generate_password_hash, check_password_hash
 from functools import wraps
 
-from models import db, User, Note, Watchlist
+from models import db, User, Note, Watchlist,Tag,note_tag_association,CartItem, Cart,not_
 from routes.notes_bp import notes_bp
 from routes.watchlist_bp import watchlist_bp
 from routes.search import search
 from routes.shopping_cart_bp import shopping_cart
+from routes.borrowed_bp import borrowed_bp
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'your-secret-key-change-this-in-production'
@@ -18,6 +19,7 @@ app.register_blueprint(notes_bp)
 app.register_blueprint(watchlist_bp)
 app.register_blueprint(search)
 app.register_blueprint(shopping_cart)
+app.register_blueprint(borrowed_bp)
 
 # create the database tables
 with app.app_context():
@@ -27,6 +29,7 @@ with app.app_context():
 def login_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
+        print(f"Session check - user_id present: {'user_id' in session}")
         if 'user_id' not in session:
             flash('Please log in to access this page.', 'warning')
             return redirect(url_for('login'))
@@ -46,17 +49,32 @@ def index():
 @app.route('/explore')
 def explore():
     user_id = session.get('user_id')
-    notes = Note.query.all()
+    notes = Note.query.filter(not_(Note.status == 'HIDDEN')).all()
 
-    watchlisted_note_ids = set(
-        db.session.query(Watchlist.note_id)
-        .filter_by(user_id=user_id)
-        .all()
-    )
+    watchlisted_note_ids = {nid[0] for nid in db.session.query(Watchlist.note_id).filter_by(user_id=user_id).all()}
 
-    watchlisted_note_ids = {nid[0] for nid in watchlisted_note_ids}
-    return render_template('explore.html', notes=notes, user_id=user_id, watchlisted_note_ids=watchlisted_note_ids)
+    user_cart = Cart.query.filter_by(user_id=user_id).first()
+    cart_note_ids = {nid[0] for nid in db.session.query(CartItem.note_id).filter_by(cart_id=user_cart.cart_id).all()}
 
+    return render_template('explore.html', notes=notes, user_id=user_id, watchlisted_note_ids=watchlisted_note_ids, cart_note_ids=cart_note_ids)
+
+@app.route('/detail/<int:note_id>', methods=['POST', 'GET'])
+def detail(note_id):
+    if request.method == 'POST':
+        pass
+
+    note = Note.query.get_or_404(note_id)
+
+    related_books = db.session.query(Note).join(
+    note_tag_association, Note.note_id == note_tag_association.c.note_id
+    ).filter(
+    note_tag_association.c.tag_id.in_(
+        db.session.query(note_tag_association.c.tag_id)
+        .filter(note_tag_association.c.note_id == note_id)
+    ),
+    Note.note_id != note_id ).distinct().all()
+
+    return render_template('detail.html', note=note, related_books= related_books)
 
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
@@ -108,7 +126,7 @@ def login():
         user = User.query.filter_by(email=email).first()
 
         if user and check_password_hash(user.password, password):
-            session['user_id'] = user.id
+            session['user_id'] = user.user_id
             session['email'] = user.email
             flash(f'Welcome back, {user.username}!', 'success')
             return redirect(url_for('dashboard'))
@@ -121,7 +139,7 @@ def login():
 @app.route('/dashboard')
 @login_required
 def dashboard():
-    user = db.session.get(User, session['user_id'])
+    user = db.session.get(User, int(session['user_id']))
     owned_notes = user.notes_owned
     return render_template('dashboard.html', user=user, owned_notes=owned_notes)
 
@@ -131,7 +149,7 @@ def dashboard():
 def logout():
     session.clear()
     flash('You have been logged out.', 'success')
-    return redirect(url_for('index'))
+    return redirect(url_for('login'))
 
 @app.route('/watchlist')
 @login_required
@@ -140,6 +158,7 @@ def watchlist():
     watchlist_items = Watchlist.query.filter_by(user_id=user_id).all()
     notes = [item.note for item in watchlist_items]
     return render_template('watchlist.html', notes=notes)
+
 
 if __name__ == '__main__':
     app.run(debug=True)
