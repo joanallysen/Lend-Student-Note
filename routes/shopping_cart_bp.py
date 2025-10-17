@@ -1,5 +1,5 @@
 from flask import Flask, Blueprint, render_template, url_for, redirect, session, request, render_template_string
-from models import db, Cart, CartItem, Note, BorrowedBook
+from models import db, Cart, CartItem, Note, History
 from datetime import datetime
 
 shopping_cart = Blueprint('shopping_cart',__name__)
@@ -14,7 +14,9 @@ def user_cart():
         cart_items= cart_exist.items
         total_price = sum(item.note_details.price*item.quantity for item in cart_items)
     else:
-        content="Nothing"
+        new_cart = Cart(user_id=user_id)
+        db.session.add(new_cart)
+        db.session.commit()
 
     return render_template('user_cart.html', items=cart_items, total_price=total_price)
 
@@ -39,7 +41,7 @@ def add_to_cart(note_id):
             item_exist.quantity += 1
             return render_template_string("""
                 Item is already on cart! 
-                <a href='{{ url_for('shopping_cart.user_cart') }}'>Go to user cart?</a> 
+                <a href='{{ url_for('shopping_cart.user_cart') }}'>Go to your cart?</a> 
                 <a href='{{ url_for('explore') }}'>Return to explore page</a>
             """)
           
@@ -57,7 +59,7 @@ def add_to_cart(note_id):
         db.session.commit()
         return render_template_string("""
             Item added to cart! 
-            <a href='{{ url_for('shopping_cart.user_cart') }}'>Go to user cart?</a> 
+            <a href='{{ url_for('shopping_cart.user_cart') }}'>Go to your cart?</a> 
             <a href='{{ url_for('explore') }}'>Return to explore page</a>
         """)
 
@@ -115,30 +117,41 @@ def checkout():
         if not cart or not cart.items:
             return "Cart is empty"
 
+        new_history = None
         for item in cart.items:
             note = item.note_details
             
-            if not note:
-                continue
-            
+            if not note: continue
+    
             if item.buying_type == 'BUY':
                 note.status = 'SOLD'
                 note.buyer_id = user_id
                 db.session.add(note)
+                new_history = History(
+                    user_id = user_id,
+                    note_id = note.note_id,
+                    transaction_type = item.buying_type,
+                    transaction_date = db.func.now()
+                )
+                
+        
             
             elif item.buying_type == 'BORROW':
                 if item.start_date and item.end_date:
-                    borrowed_book = BorrowedBook(
-                        note_id=item.note_id,
-                        user_id=user_id,
-                        start_date=item.start_date,
-                        end_date=item.end_date
-                    )
                     note.status = 'LENT'
                     note.buyer_id = user_id
-                    db.session.add(borrowed_book)
                     db.session.add(note)
+                    new_history = History(
+                        user_id = user_id,
+                        note_id = note.note_id,
+                        transaction_type = item.buying_type,
+                        borrow_start_date = db.func.now(),
+                        transaction_date = None
+                    )
         
+            
+
+        db.session.add(new_history)
         # clear the cart
         cart_items = CartItem.query.filter_by(cart_id=cart.cart_id).delete()
         db.session.commit()

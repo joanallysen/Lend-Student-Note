@@ -2,12 +2,14 @@ from flask import Flask, render_template, request, redirect, url_for, session, f
 from werkzeug.security import generate_password_hash, check_password_hash
 from functools import wraps
 
-from models import db, not_, User, Note, Watchlist, CartItem, Cart
+from models import db, not_, User, Note, Watchlist, CartItem, Cart, History
 from routes.notes_bp import notes_bp
 from routes.watchlist_bp import watchlist_bp
 from routes.search import search
 from routes.shopping_cart_bp import shopping_cart
 from routes.borrowed_bp import borrowed_bp
+
+from collections import defaultdict
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'your-secret-key-change-this-in-production'
@@ -54,7 +56,12 @@ def explore():
     watchlisted_note_ids = {nid[0] for nid in db.session.query(Watchlist.note_id).filter_by(user_id=user_id).all()}
 
     user_cart = Cart.query.filter_by(user_id=user_id).first()
-    cart_note_ids = {nid[0] for nid in db.session.query(CartItem.note_id).filter_by(cart_id=user_cart.cart_id).all()}
+    
+    # user cart is not created upon initialization but when opening user_cart
+    if not user_cart:
+        cart_note_ids = None
+    else:
+        cart_note_ids = {nid[0] for nid in db.session.query(CartItem.note_id).filter_by(cart_id=user_cart.cart_id).all()}
 
     return render_template('explore.html', notes=notes, user_id=user_id, watchlisted_note_ids=watchlisted_note_ids, cart_note_ids=cart_note_ids)
 
@@ -149,6 +156,22 @@ def watchlist():
     notes = [item.note for item in watchlist_items]
     return render_template('watchlist.html', notes=notes)
 
+@app.route('/history')
+@login_required
+def history():
+    print(f"Adding to history")
+    user_id = session['user_id']
+    history = History.query.filter_by(user_id=user_id).order_by(History.transaction_date).all()
+    history_dict = defaultdict(list)
+    for h in history:
+        history_dict[h.transaction_date.date()].append({
+            'note': h.note,
+            'transaction_type':h.transaction_type,
+            'borrow_start_date': h.borrow_start_date,
+            'transaction_date':h.transaction_date
+        })
+        print(f'this are the borrow start date: {h.borrow_start_date}')
+    return render_template('history.html', history_dict=history_dict)
 
 if __name__ == '__main__':
     app.run(debug=True)
