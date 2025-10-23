@@ -24,6 +24,9 @@
                 {% endif %}
                 <p>Return date:{{item['transaction_date']}}</p>
             {% endif%}
+            {% if item['transaction_type'] == 'BUY' %}
+                <p>Buy date : {{item['transaction_date']}}</p>
+            {% endif %}
         </div>
         {% endfor %}
     {% endfor %}

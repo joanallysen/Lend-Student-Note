@@ -5,18 +5,20 @@ from datetime import datetime
 shopping_cart = Blueprint('shopping_cart',__name__)
 
 def check_user_cart_exist():
-        user_id= session.get('user_id')
+    user_id= session.get('user_id')
 
-        # check if user cart exist
-        user_cart=Cart.query.filter_by(user_id = user_id).first()
-        if not user_cart:
-            new_cart = Cart(user_id = user_id)
-            user_cart = new_cart
+    # check if user cart exist
+    user_cart=Cart.query.filter_by(user_id = user_id).first()
+    if not user_cart:
+        print('User cart has not exist yet, making a new one.')
+        new_cart = Cart(user_id = user_id)
+        user_cart = new_cart
 
-            db.session.add(new_cart)
-            db.session.commit()
-        
-        return user_cart
+        db.session.add(new_cart)
+        db.session.commit()
+    
+    print('User cart exist')
+    return user_cart
 
 @shopping_cart.route('/user_cart')
 def user_cart():
@@ -34,9 +36,6 @@ def user_cart():
         cart_items=[]
         return render_template('user_cart.html', items=cart_items)
 
-    
-
-
 
 @shopping_cart.route('/add_to_cart/<int:note_id>', methods=['POST'])
 def add_to_cart(note_id):
@@ -44,7 +43,7 @@ def add_to_cart(note_id):
         user_id = session.get('user_id')
 
         # check if user cart exist
-        check_user_cart_exist()
+        user_cart = check_user_cart_exist()
 
         # check if the note is already in the cart or not
         item_exist= CartItem.query.filter(CartItem.cart_id == user_cart.cart_id, CartItem.note_id == note_id ).first()

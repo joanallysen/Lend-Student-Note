@@ -2,7 +2,7 @@ from flask import Flask, render_template, request, redirect, url_for, session, f
 from werkzeug.security import generate_password_hash, check_password_hash
 from functools import wraps
 
-from models import db, User, Note, Watchlist,Tag,note_tag_association,CartItem, Cart,not_
+from models import db, User, Note, Watchlist,Tag,note_tag_association,CartItem, Cart,not_, History
 
 from routes.notes_bp import notes_bp
 from routes.watchlist_bp import watchlist_bp
