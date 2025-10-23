@@ -19,26 +19,22 @@ def return_borrowed(note_id):
     db.session.commit()
     return f"{borrowed_note.title} sucessfully tagged as returned! Please wait for lender respond <a href='/show_borrowed'>Return to borrowed note/book page</a>"
 
-# accessed only by owner
+
 @borrowed_bp.route('/confirmed_returned/<int:note_id>', methods=['POST'])
 def confirmed_returned(note_id):
-    user_id = session['user_id']
-    borrowed_note = Note.query.filter_by(owner_id=user_id, note_id=note_id).first()
-
-    if not borrowed_note or not borrowed_note.buyer_id:
-        return 'Note not found or not currently borrowed', 404
+    note = Note.query.get_or_404(note_id)
     
-    cart_item = CartItem.query.filter_by(note_id = note_id, buying_type='BORROW').first()
-    print(f'Getting cart item : {cart_item}')
-
-    # edit history that was borrowed
-    borrowed_history = History.query.filter_by(note_id=note_id, user_id=borrowed_note.buyer_id).first()
-    if not borrowed_history:
-        return 'Borrowed history not found', 404
+    # Update history if it exists
+    if note.current_history_id:
+        history = History.query.get(note.current_history_id)
+        if history:
+            history.transaction_date = datetime.now()
     
-    borrowed_history.transaction_date = db.func.now()
-    borrowed_note.status = 'HIDDEN'
-    borrowed_note.buyer_id = None
+    note.status = 'HIDDEN'
+    note.buyer_id = None
+    note.current_history_id = None
 
     db.session.commit()
-    return f"{borrowed_note.title} successfully returned! Deposit money will be returned to buyer. By default book / note is set to hidden, You can update to available if you want to lend again<a href='/dashboard'>Return to dashboard</a>"
+    return f"{history.note.title} successfully returned! Deposit money will be returned to buyer. By default book / note is set to hidden, You can update to available if you want to lend again<a href='/dashboard'>Return to dashboard</a>"
+
+

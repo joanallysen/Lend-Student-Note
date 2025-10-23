@@ -47,11 +47,16 @@ class Note(db.Model):
     listing_date = db.Column(db.DateTime, default=db.func.now(), nullable=False)
     avg_rating = db.Column(db.Numeric(3, 2), default=0.00)
     rating_count = db.Column(db.Integer, default=0)
+
+    
     owner_id = db.Column(db.Integer, db.ForeignKey('user.user_id'), nullable=False)
     buyer_id = db.Column(db.Integer, db.ForeignKey('user.user_id'), nullable=True)
+    # Button later for updating history.transaction_date
+    current_history_id = db.Column(db.Integer, db.ForeignKey('history.history_id'), nullable=True)
 
     owner = db.relationship('User', foreign_keys=[owner_id], backref='notes_owned')
     buyer = db.relationship('User', foreign_keys=[buyer_id], backref='notes_bought')
+    current_history = db.relationship('History', foreign_keys=[current_history_id], post_update=True)
 
     tags = db.relationship('Tag', secondary=note_tag_association, back_populates='notes')
     def __repr__(self):
@@ -121,7 +126,7 @@ class History(db.Model):
     transaction_date = db.Column(db.DateTime) # buying or returning book
     
     user = db.relationship('User', foreign_keys=[user_id], backref='history')
-    note = db.relationship('Note', backref='history_records')
+    note = db.relationship('Note', foreign_keys=[note_id], backref='history_records')
 
     def __repr__(self):
         return f'<History {self.history_id}: {self.transaction_type} by User {self.user_id}>'

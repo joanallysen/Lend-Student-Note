@@ -47,12 +47,12 @@
                         <label for="submit"> Buyer has tagged this book as returned, click below if it has been returned</label>
                         <input type="submit" name="submit" class="cursor-pointer" value="Returned">
                     </form>
-                {%elif note.status == 'LENT' %}
+                {% elif note.status == 'LENT' %}
                     <form action="{{ url_for('borrowed.confirmed_returned', note_id=note.note_id) }}" method="POST">
                         <label for="submit">Click below if buyer has returned the book</label>
                         <input type="submit" name="submit" class="cursor-pointer" value="Returned">
                     </form>
-                {%endif%}
+                {% endif %}
             </div>
         {% endfor %}
     </div>

@@ -141,8 +141,9 @@ def checkout():
                     user_id = user_id,
                     note_id = note.note_id,
                     transaction_type = item.buying_type,
-                    transaction_date = db.func.now()
+                    transaction_date = datetime.now()
                 )
+                db.session.add(new_history)
                 
             elif item.buying_type == 'BORROW':
                 if item.start_date and item.end_date:
@@ -153,13 +154,19 @@ def checkout():
                         user_id = user_id,
                         note_id = note.note_id,
                         transaction_type = item.buying_type,
-                        borrow_start_date = db.func.now(),
+                        borrow_start_date = datetime.now(),
                         transaction_date = None
                     )
+                    db.session.add(new_history)
+                    db.session.flush()
+
+                    note.current_history_id = new_history.history_id
+                    note.buyer_id = user_id
         
             
 
-        db.session.add(new_history)
+
+        
 
         # delete the cart item
         CartItem.query.filter_by(cart_id=cart.cart_id).delete()

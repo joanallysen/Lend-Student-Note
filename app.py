@@ -176,6 +176,7 @@ def history():
     history_dict = defaultdict(list)
     for h in history:
         transaction_date = h.transaction_date.date() if h.transaction_date else h.borrow_start_date.date()
+        transaction_date = transaction_date.strftime('%#d %B')
         history_dict[transaction_date].append({
             'note': h.note,
             'transaction_type': h.transaction_type,
