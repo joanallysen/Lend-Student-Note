@@ -32,7 +32,6 @@ def confirmed_returned(note_id):
     print(f'Getting cart item : {cart_item}')
 
     # edit history that was borrowed
-
     borrowed_history = History.query.filter_by(note_id=note_id, user_id=borrowed_note.buyer_id).first()
     if not borrowed_history:
         return 'Borrowed history not found', 404

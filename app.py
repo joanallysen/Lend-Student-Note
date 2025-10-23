@@ -175,11 +175,12 @@ def history():
     history = History.query.filter_by(user_id=user_id).order_by(History.transaction_date).all()
     history_dict = defaultdict(list)
     for h in history:
-        history_dict[h.transaction_date.date()].append({
+        transaction_date = h.transaction_date.date() if h.transaction_date else h.borrow_start_date.date()
+        history_dict[transaction_date].append({
             'note': h.note,
-            'transaction_type':h.transaction_type,
+            'transaction_type': h.transaction_type,
             'borrow_start_date': h.borrow_start_date,
-            'transaction_date':h.transaction_date
+            'transaction_date': h.transaction_date
         })
         print(f'this are the borrow start date: {h.borrow_start_date}')
     return render_template('history.html', history_dict=history_dict)
