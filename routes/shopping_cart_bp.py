@@ -144,8 +144,6 @@ def checkout():
                     transaction_date = db.func.now()
                 )
                 
-        
-            
             elif item.buying_type == 'BORROW':
                 if item.start_date and item.end_date:
                     note.status = 'LENT'
@@ -162,8 +160,9 @@ def checkout():
             
 
         db.session.add(new_history)
-        # clear the cart
-        cart_items = CartItem.query.filter_by(cart_id=cart.cart_id).delete()
+
+        # delete the cart item
+        CartItem.query.filter_by(cart_id=cart.cart_id).delete()
         db.session.commit()
         
         return render_template('successful.html')
