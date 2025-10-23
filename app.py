@@ -147,9 +147,37 @@ def login():
 @app.route('/dashboard')
 @login_required
 def dashboard():
-    user = db.session.get(User, int(session['user_id']))
+    user_id = int(session['user_id'])
+    user = db.session.get(User, user_id)
+    
+
+    #Borrower
+    total_borrowed_books= History.query.filter(History.user_id == user_id, History.transaction_type == 'BORROW')
+    
+    borrowed_notes = user.notes_bought
+    
+    currently_borrowing = []
+
+    for note in borrowed_notes:
+        if note.status == 'LENT':
+            currently_borrowing.append(note)
+
+    # Seller
+    notes_transaction_list=[]
     owned_notes = user.notes_owned
-    return render_template('dashboard.html', user=user, owned_notes=owned_notes)
+
+    for note in owned_notes:
+        lended = History.query.filter(History.note_id == note.note_id, History.transaction_type == 'BORROW').all()
+        sold = History.query.filter(History.note_id == note.note_id, History.transaction_type == 'BUY').all()
+        notes_transaction_list.append({
+            "note":note,
+            "lended_count":len(lended), 
+            "sold_count":len(sold)
+        })
+
+
+    return render_template('dashboard.html', user=user, owned_notes=owned_notes, borrowed_notes=currently_borrowing, total_books = total_borrowed_books.count()
+                           , notes_transaction_list=notes_transaction_list)
 
 
 @app.route('/logout')

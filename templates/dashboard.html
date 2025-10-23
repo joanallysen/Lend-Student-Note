@@ -56,6 +56,45 @@
             </div>
         {% endfor %}
     </div>
+
+    {% for note in notes_transaction_list %}
+            <div class="bg-gray-200 w-50">
+                
+                <p class="text-xl font-bold">{{note["note"].title}}</p>
+                <p>Total Lended: {{note["lended_count"]}}</p>
+                <p>Total Sold: {{note["sold_count"]}}</p>
+                
+            </div>
+    {% endfor %}
+
+    <div class="flex justify-center text-center space-y-1 m-10 " style="display: flex; flex-direction: column;"> 
+        <strong>Borrower Dashboard</strong>
+        {% if borrowed_notes %}
+        <h1>(Next Returning Date: )(Currently Borrowed Notes: {{borrowed_notes|length}}) (Total Borrowed Notes= {{total_books}})</h1>  
+        <div class="flex justify-center text-center space-x-1">
+            {% for note in borrowed_notes %}
+                <div>
+                    <img src="{{url_for('static', filename='uploads/' + note.image_filename)}}" alt="Current Image" class="w-80 h-auto">
+                    <a class="underline" href="{{url_for('detail', note_id=note.note_id)}}">{{note.title}}</a>
+                    <p>{{note.price}}</p>
+                    <p>{{note.description}}</p>
+
+                    {% if note.status == 'LENT' %}
+                    <form action="{{ url_for('borrowed.return_borrowed', note_id = note.note_id) }}" method="POST">
+                        <label for="returned">Click below if you have returned this book</label>
+                        <input name="returned" class="cursor-pointer" type="submit" value="Book Returned">
+                    </form>
+                    
+                    {% elif note.status == 'NEED ACTION' %}
+                        <p>This note has been tagged as returned!</p>
+                    {% endif %}
+                </div>
+
+            {% endfor %}
+            
+        </div>
+        {% endif %} 
+    </div>
     
     <a href="{{ url_for('notes.add_note') }}" class="cursor-pointer border-b-black border-2">Add owned book/note</a>
     <p><a href="{{ url_for('index') }}">Home</a> | <a href="{{ url_for('logout') }}">Logout</a></p>
