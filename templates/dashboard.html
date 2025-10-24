@@ -13,6 +13,10 @@
         <li><a href="{{url_for('history')}}">See History</a></li>
         <li><a href="{{url_for('watchlist')}}">See Watchlist</a></li>
         <li><a href="{{url_for('shopping_cart.user_cart')}}">See Cart</a></li>
+        <form action='/search' method="get">
+            <input type="text" name="user_input" value="{{user_input}}">  
+            <input type="submit" value="Search"><br><br>
+        </form>
     </ul>
     
     {% with messages = get_flashed_messages(with_categories=true) %}

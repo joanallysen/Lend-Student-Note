@@ -79,7 +79,6 @@ class Cart(db.Model):
 class CartItem(db.Model):
     cart_id = db.Column(db.Integer, db.ForeignKey('cart.cart_id'), primary_key=True)
     note_id = db.Column(db.Integer, db.ForeignKey('note.note_id'), primary_key=True)
-    quantity = db.Column(db.Integer, nullable=False)
     buying_type = db.Column(
         db.Enum('BUY', 'BORROW', name='buying_type_enum'),
         nullable=False

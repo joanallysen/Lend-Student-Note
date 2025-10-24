@@ -23,15 +23,19 @@
                         Start Date: {{item.start_date}}
                         End Date: {{item.end_date}}
                     {% endif %}
-                    <div>
-                        <a href="/subtract_quantity/{{item.note_details.note_id}}">-</a>
-                        Quantity: {{item.quantity}}
-                        <a href="/add_quantity/{{item.note_details.note_id}}">+</a>
-                    </div>
-                    Total Price: {{item.note_details.price*item.quantity }}
+                    <br>
+                    Price: ${{item.note_details.price}}
                 </div>
             {% endfor %}
-
+                <div>
+                    Checkout Summary:<br>
+                    Total: ${{total_price}}<br>
+                    Discount:<br>
+                    Delivery fees: 
+                    <form action="{{url_for('shopping_cart.checkout')}}" method="POST">
+                        <input type="submit" name="submit" value="Checkout" class="cursor-pointer">
+                    </form>
+                </div>
             {% else %}
                 <div>
                     <label class="font-bold">Nothing</label>
@@ -39,9 +43,7 @@
         {% endif %}
     </div>
     
-    <form action="{{url_for('shopping_cart.checkout')}}" method="POST">
-        <input type="submit" name="submit" value="Checkout" class="cursor-pointer">
-    </form>
+   
 
     <a href="/dashboard">Dashboard</a>
 </body>

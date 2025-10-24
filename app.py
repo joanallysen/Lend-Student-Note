@@ -6,7 +6,7 @@ from models import db, User, Note, Watchlist,Tag,note_tag_association,CartItem, 
 
 from routes.notes_bp import notes_bp
 from routes.watchlist_bp import watchlist_bp
-from routes.search import search
+from routes.search_bp import search_bp
 from routes.shopping_cart_bp import shopping_cart
 from routes.borrowed_bp import borrowed_bp
 
@@ -20,7 +20,7 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db.init_app(app)
 app.register_blueprint(notes_bp)
 app.register_blueprint(watchlist_bp)
-app.register_blueprint(search)
+app.register_blueprint(search_bp)
 app.register_blueprint(shopping_cart)
 app.register_blueprint(borrowed_bp)
 
