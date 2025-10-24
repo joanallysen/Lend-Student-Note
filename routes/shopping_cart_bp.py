@@ -136,6 +136,7 @@ def checkout():
             if item.buying_type == 'BUY':
                 note.status = 'SOLD'
                 note.buyer_id = user_id
+                
                 db.session.add(note)
                 new_history = History(
                     user_id = user_id,
@@ -149,6 +150,8 @@ def checkout():
                 if item.start_date and item.end_date:
                     note.status = 'LENT'
                     note.buyer_id = user_id
+                    note.incoming_return_date = item.end_date
+
                     db.session.add(note)
                     new_history = History(
                         user_id = user_id,

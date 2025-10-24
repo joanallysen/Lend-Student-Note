@@ -9,6 +9,7 @@ class User(db.Model):
     username = db.Column(db.String(80), unique=True, nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
     password = db.Column(db.String(200), nullable=False)
+    created_at = db.Column(db.DateTime, default=db.func.now())
 
     avg_rating = db.Column(db.Numeric(3, 2), default=0.00)
     rating_count = db.Column(db.Integer, default=0)
@@ -33,7 +34,7 @@ class Note(db.Model):
         nullable=False
     )
     pickup_location = db.Column(db.String(200), nullable=False)
-    available_date = db.Column(db.Date, nullable=False)
+    available_date = db.Column(db.DateTime, nullable=False)
     status = db.Column(
         db.Enum('AVAILABLE', 'LENT', 'SOLD', 'RESERVED', 'HIDDEN', 'NEED ACTION', name='status_enum'),
         default='AVAILABLE',
@@ -45,6 +46,8 @@ class Note(db.Model):
         nullable=False
     )
     listing_date = db.Column(db.DateTime, default=db.func.now(), nullable=False)
+    
+    incoming_return_date = db.Column(db.DateTime, nullable=True)
     avg_rating = db.Column(db.Numeric(3, 2), default=0.00)
     rating_count = db.Column(db.Integer, default=0)
 

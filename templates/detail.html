@@ -9,7 +9,10 @@
     <title>Detail Before Buying</title>
 </head>
 <body class="m-10">
-    <a href="{{url_for('shopping_cart.user_cart')}}">Shopping cart</a>
+    {% include '/components/navbar.html' %}
+    {% if note.incoming_return_date %} <h1 class="text-5xl">Book is currently lended until {{note.incoming_return_date.strftime("%d %b %Y")}}</h1>
+    {%elif note.buyer_id%} <h1 class="text-5xl"> Book has been sold</h1> {%endif%}
+    
     <div class="flex justify-center text-center flex-row bg-gray-300 space-x-20 p-20">
         {% if note.image_filename != '' %}
             <img class="w-100" src="{{url_for('static', filename='uploads/' + note.image_filename)}}" alt="Note poster">
@@ -45,7 +48,10 @@
                     <input type="text" id="end_date" name="end_date" class="w-full p-3 bg-white border-gray-200" required>
                 </div>
             
-                <input id="purchase_button" class="p-4 bg-white rounded-2xl font-bold cursor-pointer" type="submit" value="{% if note.listing_type == 'BOTH' %}Borrow{% else %}Buy{% endif %}">
+                
+                <input id="purchase_button" class="p-4 bg-white rounded-2xl font-bold cursor-pointer disabled:bg-gray-300 disabled:cursor-not-allowed" type="submit" value="{% if note.listing_type == 'BOTH' %}Borrow{% else %}Buy{% endif %}"
+                {%if note.buyer_id%} disabled{%endif%}
+                >
             </form>
         </div>
     </div>

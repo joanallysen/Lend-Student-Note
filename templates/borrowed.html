@@ -8,7 +8,7 @@
 </head>
 <body>
     <div class="mx-auto w-2/3">
-        <a href="{{url_for('dashboard')}}">Dashboard</a>
+        {% include 'components/navbar.html'%}
         <h1 class="text-5xl font-bold">Borrowed Book</h1>
         <div class="flex justify-center text-center space-x-1">
             {% for note in borrowed_notes %}

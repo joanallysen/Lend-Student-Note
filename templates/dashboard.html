@@ -6,14 +6,6 @@
 </head>
 <body>
     <h1>Dashboard</h1>
-    <ul class="flex justify-center-safe text-center space-x-10">
-        <li><a href="{{url_for('explore')}}">Explore</a></li>
-        <li><a href="{{url_for('dashboard')}}">Dashboard</a></li>
-        <li><a href="{{url_for('borrowed.show_borrowed')}}">See Borrowed Book</a></li>
-        <li><a href="{{url_for('history')}}">See History</a></li>
-        <li><a href="{{url_for('watchlist')}}">See Watchlist</a></li>
-        <li><a href="{{url_for('shopping_cart.user_cart')}}">See Cart</a></li>
-    </ul>
     
     {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
@@ -23,17 +15,28 @@
         {% endif %}
     {% endwith %}
 
+    {% include '/components/navbar.html' %}
+
     <h2>User Information</h2>
     <p><strong>Username:</strong> {{ user.username }}</p>
     <p><strong>Email:</strong> {{ user.email }}</p>
     <p><strong>User ID:</strong> {{ user.user_id }}</p>
     
 
+    <h1 class="text-5xl font-bold">Lended Notes</h1>
     <div class="flex justify-center text-center space-y-1">
         {% for note in owned_notes %}
             <div class="bg-gray-200 w-50">
                 <img src="{{url_for('static', filename='uploads/' + note.image_filename)}}" alt="Current Image">
+                {% if note.status == 'LENT'%}
+                    <p class="text-gray-500">Return</p>
+                    <p>{{ note.incoming_return_date.strftime("%d %b %Y") }}</p>
+                    <p class="text-gray-500">Currently Holding</p>
+                    <p>{{note.buyer.username}}</p>
+                {% endif %}
+
                 <p class="text-xl font-bold">{{note.title}}</p>
+                <p>{{note.price}}</p>
                 <p>{{note.description}}</p>
                 <a href="{{ url_for('notes.update_note', note_id=note.note_id) }}" class="cursor-pointer border-b-black border-2">Edit this book/note</a>
                 <form action="{{ url_for('notes.delete_note', note_id=note.note_id) }}" method="POST">

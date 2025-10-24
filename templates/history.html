@@ -8,6 +8,7 @@
 </head>
 <body>
     <h1>History</h1>
+    {% include 'components/navbar.html'%}
     <div class="flex justify-center text-center flex-col w-2/3 mx-auto">
         {% for date, items in history_dict.items() %}
             <p class="font-bold text-4xl text-left">{{date}}</p>
