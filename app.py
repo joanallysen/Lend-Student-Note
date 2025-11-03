@@ -97,11 +97,13 @@ def detail(note_id):
 
     if note.reviews:       
         total_star= sum(review.star for review in note.reviews)
-        
-        overall_star = total_star/(len(note.reviews))
+        total_reviews = len(note.reviews)
+        overall_star = total_star/total_reviews
     else:
         overall_star = 0
-    return render_template('detail.html', note=note, related_books= related_books, note_reviews=other_reviews, my_review=my_review, overall_star=overall_star)
+        total_reviews = 0
+    return render_template('detail.html', note=note, related_books= related_books, overall_star=overall_star
+                           , my_review=my_review, note_reviews=other_reviews, total_reviews=total_reviews)
 
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():

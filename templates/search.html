@@ -30,15 +30,23 @@
     <p> Condition: {{ condition }}</p>
     
         {% if results %}
-            <ul>
-                {% for result in results %}
-                <li>{{ result }}</li>
+            <div class="flex justify-center text-center space-y-1">
+                {% for note in results %}
+                <div class="justify-center items-center bg-gray-100">
+                   
+                    <img src="{{url_for('static',filename='uploads/'+note.image_filename)}} "alt="Current Image" class="w-80 min-h-90"><br>
+                    Note ID: {{note.note_id}}<br>
+                    Title: {{note.title}}<br>
+                    Description: {{note.description}}<br>
+                    <br>
+                    Price: ${{note.price}}
+                </div>
                 {% endfor %}
-                
+            </div>
             {% else %}
                 <li>Not Found</li>
             
-            </ul>
+            
         
         {% endif %}
     

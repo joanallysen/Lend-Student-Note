@@ -61,98 +61,218 @@
     <!-- If user has lended this book, have the ability to rate -->
     <!-- {if user.history.note_id = note_id  -->
     <!-- { endif -->
-      
-    {% if not my_review %}
-   <div class="">
-        <h2>Rate this note or book!</h2>
-
-        <div id="starRating" class="flex justify-center space-x-1 text-3xl text-yellow-400 cursor-pointer"></div>
-        <div class="flex justify-center space-x-1 ">
-            <form action="{{ url_for('review.add_review', note_id=note.note_id) }}" method="POST">
-                <input id="ratingValue" name="star" value="" required>
-                <label for="review">Review</label>
-                <input class="border border-gray-300 rounded px-3 py-2 w-full focus:outline-none focus:ring-2 focus:ring-yellow-400 w-200"
-                type="text" name="review">
-                <input type="submit" name="submit">
-            </form>
-        </div>
-        
-    </div>
-    {% endif %}
-
-
-    <h2 class="text-5xl">Review</h2>
-    <strong>Overall Star = {{overall_star|round(1)}}</strong>
-
-    {% if my_review %}
-    <h2>My Review:</h2>
-
-        <div id="view_review" class="border">   
-            <!-- Delete Button -->
-            <form action="{{url_for('review.delete_review', review_id=my_review.review_id)}}" method="post">
-                <input type="submit" value="X">
-            </form>
-
-            <!-- Review Content -->
-            <label>Name: {{my_review.user.username}}</label>
-            <div class="flex"> 
-                {% for i in range(5) %}
-                    {% if i < my_review.star %}
-                        <span class="text-yellow-400">★</span>
-                        {% else %}
-                        <span class="text-gray-300">★</span>
-                    {% endif %}
-                {% endfor %}
-            </div>
-            <label>{{my_review.review}}</label><br>
-            <label>Added at: {{my_review.added_at.strftime('%Y-%m-%d')}}</label>
-
-            <!-- Edit Button -->
-            <button onclick="toggle_edit_view()">Edit Review</button>
-            
-        </div>
-
-        <div id="edit_review" class="hidden border">
-            <div id="editStarRating" ></div>
-            <form action="{{url_for('review.edit_review', review_id=my_review.review_id)}}" method="post">
-                <input id="editRatingValue" name="star" value="{{my_review.star}}" required>
-                <label>Review</label><br>
-                <input class="border" name="edited_review" value="{{my_review.review}}"><br>
-                <input type="submit" value="Edit">
-            </form>
-        </div>
-        
     
-    {% endif %}
-  
-    <h2>Other Reviews:</h2>
-    <div>
-        {% if note_reviews %}
-        {% for review in note_reviews %}
-            <div class="border">
-                
-                <label>Name: {{review.user.username}}</label>
-
-                <div class="flex">
-                    {% for i in range(5) %}
-                    {% if i < review.star %}
-                        <span class="text-yellow-400">★</span>
-                        {% else %}
-                        <span class="text-gray-300">★</span>
-                    {% endif %}
-                {% endfor %}
+    <div class="max-w-3xl mx-auto bg-white rounded-lg p-6 shadow-sm">
+        
+        <!-- Add Review Section (shown when user hasn't reviewed yet) -->
+        {% if not my_review %}
+        <div class="mb-8 p-6 bg-blue-50 rounded-lg border border-blue-200">
+            <h2 class="text-xl font-semibold text-gray-800 mb-4">Rate this note or book!</h2>
+            
+            <form action="{{ url_for('review.add_review', note_id=note.note_id) }}" method="POST">
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Your Rating</label>
+                    <div id="starRating" class="flex justify-center gap-2 text-4xl cursor-pointer mb-2"></div>
+                    <input type="hidden" id="ratingValue" name="star" required>
                 </div>
                 
-                <label>{{review.review}}</label><br>
-                <label>Added at: {{review.added_at.strftime('%Y-%m-%d')}}</label>
-            </div>
-        {% endfor %} 
+                <div class="mb-4">
+                    <label for="review" class="block text-sm font-medium text-gray-700 mb-2">Your Review</label>
+                    <textarea 
+                        name="review" 
+                        id="review" 
+                        rows="4"
+                        class="border border-gray-300 rounded-lg px-4 py-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        placeholder="Share your thoughts about this book..."
+                        required
+                    ></textarea>
+                </div>
+                
+                <button 
+                    type="submit" 
+                    class="w-full bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors font-medium"
+                >
+                    Submit Review
+                </button>
+            </form>
+        </div>
+        {% endif %}
 
-        {% else %}
-        <label>Others have not reviewed this book yet!</label>
+        <!-- Reviews & Ratings Header -->
+        <div class="mb-6">
+            <h2 class="text-2xl font-semibold text-gray-800 mb-1">Reviews & Ratings</h2>
+            <p class="text-sm text-gray-600">See what others think about this book</p>
+        </div>
+        
+        <!-- Rating Summary -->
+        <div class="flex gap-8 mb-8 pb-8 border-b">
+            <div class="text-center">
+                <div class="text-5xl font-light text-gray-800 mb-2">{{ overall_star|round(1) }}</div>
+                <div class="flex gap-0.5 justify-center mb-1">
+                    {% for i in range(5) %}
+                        {% if i < overall_star %}
+                            <span class="text-yellow-400 text-xl">★</span>
+                        {% else %}
+                            <span class="text-gray-300 text-xl">★</span>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+                <div class="text-xs text-gray-600">
+                    {% set total_reviews = (note_reviews|length if note_reviews else 0) + (1 if my_review else 0) %}
+                    {{ total_reviews }} review{{ 's' if total_reviews != 1 else '' }}
+                </div>
+            </div>
+            
+            <div class="flex-1" id="ratingBars"></div>
+        </div>
+        
+        <!-- My Review Section (shown when user has reviewed) -->
+        {% if my_review %}
+        <div class="mb-8">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-semibold text-gray-800">My Review</h3>
+                <div class="flex gap-2">
+                    <button 
+                        onclick="toggle_edit_view()" 
+                        class="text-blue-600 text-sm hover:underline px-3 py-1"
+                    >
+                        Edit Review
+                    </button>
+                    <form action="{{ url_for('review.delete_review', review_id=my_review.review_id) }}" method="post" onsubmit="return confirm('Are you sure you want to delete your review?')">
+                        <button 
+                            type="submit" 
+                            class="text-red-600 text-sm hover:underline px-3 py-1"
+                        >
+                            Delete
+                        </button>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- View Mode -->
+            <div id="viewReview" class="bg-blue-50 rounded-lg p-4 border border-blue-100">
+                <div class="flex items-start gap-4">
+                    <div class="w-12 h-12 rounded-full bg-gray-300 flex items-center justify-center font-semibold text-gray-700 text-sm flex-shrink-0">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24">
+                            <path fill="currentColor" d="M12 12q-1.65 0-2.825-1.175T8 8t1.175-2.825T12 4t2.825 1.175T16 8t-1.175 2.825T12 12m-8 8v-2.8q0-.85.438-1.562T5.6 14.55q1.55-.775 3.15-1.162T12 13t3.25.388t3.15 1.162q.725.375 1.163 1.088T20 17.2V20z"/>
+                        </svg>
+                    </div>
+                    <div class="flex-1">
+                        <div class="flex items-center gap-2 mb-1">
+                            <span class="text-sm font-semibold text-gray-800">{{ my_review.user.username }}</span>
+                            <span class="inline-block bg-blue-600 text-white text-xs px-2 py-0.5 rounded font-medium">You</span>
+                        </div>
+                        <div class="text-xs text-gray-600 mb-2">{{ my_review.added_at.strftime('%B %d, %Y') }}</div>
+                        <div class="flex gap-0.5 mb-3">
+                            {% for i in range(5) %}
+                                {% if i < my_review.star %}
+                                    <span class="text-yellow-400 text-base">★</span>
+                                {% else %}
+                                    <span class="text-gray-300 text-base">★</span>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                        <p class="text-sm text-gray-800 leading-relaxed">{{ my_review.review }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Edit Mode -->
+            <div id="editReview" class="hidden bg-blue-50 rounded-lg p-4 border border-blue-100">
+                <form action="{{ url_for('review.edit_review', review_id=my_review.review_id) }}" method="post">
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Update Rating</label>
+                        <div id="editStarRating" class="flex justify-center gap-2 text-4xl cursor-pointer mb-2"></div>
+                        <input type="hidden" id="editRatingValue" name="star" value="{{ my_review.star }}" required>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Update Review</label>
+                        <textarea 
+                            name="edited_review" 
+                            rows="4"
+                            class="border border-gray-300 rounded-lg px-4 py-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            required
+                        >{{ my_review.review }}</textarea>
+                    </div>
+                    
+                    <div class="flex gap-2">
+                        <button 
+                            type="submit" 
+                            class="flex-1 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors font-medium"
+                        >
+                            Save Changes
+                        </button>
+                        <button 
+                            type="button" 
+                            onclick="toggle_edit_view()" 
+                            class="flex-1 bg-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-300 transition-colors font-medium"
+                        >
+                            Cancel
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
         {% endif %}
         
+        <!-- Other Reviews Section -->
+        <div>
+            <h3 class="text-lg font-semibold text-gray-800 mb-4">
+                {% if note_reviews %}
+                    Other Reviews ({{ note_reviews|length }})
+                {% else %}
+                    Other Reviews
+                {% endif %}
+            </h3>
+            
+            <div id="otherReviews">
+                {% if note_reviews %}
+                    {% for review in note_reviews %}
+                    <div class="bg-gray-50 rounded-lg p-4 mb-4 border border-gray-200">
+                        <div class="flex items-start gap-4">
+                            <div class="w-12 h-12 rounded-full bg-gray-300 flex items-center justify-center font-semibold text-gray-700 text-sm flex-shrink-0">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24">
+                                    <path fill="currentColor" d="M12 12q-1.65 0-2.825-1.175T8 8t1.175-2.825T12 4t2.825 1.175T16 8t-1.175 2.825T12 12m-8 8v-2.8q0-.85.438-1.562T5.6 14.55q1.55-.775 3.15-1.162T12 13t3.25.388t3.15 1.162q.725.375 1.163 1.088T20 17.2V20z"/>
+                                </svg>
+                            </div>
+                            <div class="flex-1">
+                                <div class="text-sm font-semibold text-gray-800 mb-1">{{ review.user.username }}</div>
+                                <div class="text-xs text-gray-600 mb-2">{{ review.added_at.strftime('%B %d, %Y') }}</div>
+                                <div class="flex gap-0.5 mb-3">
+                                    {% for i in range(5) %}
+                                        {% if i < review.star %}
+                                            <span class="text-yellow-400 text-base">★</span>
+                                        {% else %}
+                                            <span class="text-gray-300 text-base">★</span>
+                                        {% endif %}
+                                    {% endfor %}
+                                </div>
+                                <p class="text-sm text-gray-800 leading-relaxed">{{ review.review }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="text-center py-8 text-gray-500">
+                        <svg class="w-16 h-16 mx-auto mb-3 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
+                        </svg>
+                        <p class="font-medium">No reviews yet</p>
+                        <p class="text-sm mt-1">Be the first to share your thoughts!</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
     </div>
+
+   
+
+
+
+        
+        
+  
             
     <strong>Related Books</strong> 
     <div style="display: grid;
@@ -173,11 +293,26 @@
 
     <script>
         function toggle_edit_view(){
-            const view_container = document.getElementById("view_review")
-            const edit_container = document.getElementById("edit_review")
+            const view_container = document.getElementById("viewReview");
+            const edit_container = document.getElementById("editReview");
 
-            view_container.classList.toggle('hidden')
-            edit_container.classList.toggle('hidden')
+            if (view_container && edit_container) {
+                view_container.classList.toggle('hidden');
+                edit_container.classList.toggle('hidden');
+                
+                // Initialize edit star rating when showing edit mode
+                if (!edit_container.classList.contains('hidden')) {
+                    // Clear existing stars first
+                    const editStarContainer = document.getElementById('editStarRating');
+                    if (editStarContainer) {
+                        editStarContainer.innerHTML = '';
+                    }
+                    // Create star rating for edit mode
+                    {% if my_review %}
+                        createStarRating('editStarRating', 'editRatingValue', {{ my_review.star }});
+                    {% endif %}
+                }
+            }
         }
         
 
@@ -215,6 +350,56 @@
                 purchaseButton.value = 'Buy'
             }
         })
+
+        // Calculate rating distribution from the reviews
+        function calculateRatingDistribution() {
+            const reviews = [
+                {% if my_review %}
+                { star: {{ my_review.star }} },
+                {% endif %}
+                {% if note_reviews %}
+                {% for review in note_reviews %}
+                { star: {{ review.star }} },
+                {% endfor %}
+                {% endif %}
+            ];
+            
+            const distribution = { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 };
+            reviews.forEach(review => {
+                if (review.star >= 1 && review.star <= 5) {
+                    distribution[review.star]++;
+                }
+            });
+            
+            return {
+                totalReviews: reviews.length,
+                distribution: distribution
+            };
+        }
+
+        // Generate rating bars dynamically
+        function generateRatingBars() {
+            const container = document.getElementById('ratingBars');
+            const { totalReviews, distribution } = calculateRatingDistribution();
+            
+            container.innerHTML = '';
+            
+            for (let rating = 5; rating >= 1; rating--) {
+                const count = distribution[rating];
+                const percentage = totalReviews > 0 ? (count / totalReviews * 100) : 0;
+                
+                const barHTML = `
+                    <div class="flex items-center gap-3 mb-2">
+                        <div class="text-sm text-gray-600 w-2">${rating}</div>
+                        <div class="flex-1 h-2 bg-gray-200 rounded overflow-hidden">
+                            <div class="h-full bg-yellow-400 transition-all duration-300" style="width: ${percentage}%"></div>
+                        </div>
+                        <div class="text-sm text-gray-600 w-4 text-right">${count}</div>
+                    </div>
+                `;
+                container.innerHTML += barHTML;
+            }
+        }
 
         function createStarRating(starContainerID, ratingValueID, initialStarRating = 0){
             const starContainer = document.getElementById(starContainerID);
@@ -259,9 +444,10 @@
             highlightStars(currentRating);
         }
 
+        generateRatingBars();
         
         createStarRating('starRating','ratingValue',0);
-        createStarRating('editStarRating', 'editRatingValue', {{ my_review.star|default(0) }});
+        
        
     </script>
 </body>
