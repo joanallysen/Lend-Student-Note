@@ -1,14 +1,16 @@
 from flask import Flask, render_template, request, redirect, url_for, session, flash
 from werkzeug.security import generate_password_hash, check_password_hash
 from functools import wraps
+from sqlalchemy import and_
 
-from models import db, User, Note, Watchlist,Tag,note_tag_association,CartItem, Cart,not_, History
+from models import db, User, Note, Watchlist,Tag,note_tag_association,CartItem, Cart,not_, History, Review
 
 from routes.notes_bp import notes_bp
 from routes.watchlist_bp import watchlist_bp
 from routes.search_bp import search_bp
 from routes.shopping_cart_bp import shopping_cart
 from routes.borrowed_bp import borrowed_bp
+from routes.review_bp import review_bp
 
 from collections import defaultdict
 
@@ -23,7 +25,7 @@ app.register_blueprint(watchlist_bp)
 app.register_blueprint(search_bp)
 app.register_blueprint(shopping_cart)
 app.register_blueprint(borrowed_bp)
-
+app.register_blueprint(review_bp)
 # create the database tables
 with app.app_context():
     db.create_all()
@@ -68,6 +70,7 @@ def explore():
 
 @app.route('/detail/<int:note_id>', methods=['POST', 'GET'])
 def detail(note_id):
+    user_id= session.get('user_id')
     if request.method == 'POST':
         pass
 
@@ -82,7 +85,23 @@ def detail(note_id):
     ),
     Note.note_id != note_id ).distinct().all()
 
-    return render_template('detail.html', note=note, related_books= related_books)
+    #Review Review.query.filter(and_(Review.note_id==note_id, Review.user_id == user_id)).first()
+    my_review = None
+    other_reviews = []
+    
+    for review in note.reviews:
+        if review.user_id != user_id:
+            other_reviews.append(review)
+        else:
+            my_review = review
+
+    if note.reviews:       
+        total_star= sum(review.star for review in note.reviews)
+        
+        overall_star = total_star/(len(note.reviews))
+    else:
+        overall_star = 0
+    return render_template('detail.html', note=note, related_books= related_books, note_reviews=other_reviews, my_review=my_review, overall_star=overall_star)
 
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
@@ -150,17 +169,15 @@ def dashboard():
     user_id = int(session['user_id'])
     user = db.session.get(User, user_id)
     
-
     #Borrower
     total_borrowed_books= History.query.filter(History.user_id == user_id, History.transaction_type == 'BORROW')
-    
     borrowed_notes = user.notes_bought
-    
     currently_borrowing = []
 
-    for note in borrowed_notes:
-        if note.status == 'LENT':
-            currently_borrowing.append(note)
+    if borrowed_notes:
+        for note in borrowed_notes:
+            if note.status == 'LENT':
+                currently_borrowing.append(note)
 
     # Seller
     notes_transaction_list=[]

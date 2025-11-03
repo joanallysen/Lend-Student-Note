@@ -60,16 +60,21 @@
             </div>
         {% endfor %}
     </div>
-
-    {% for note in notes_transaction_list %}
-            <div class="bg-gray-200 w-50">
-                
-                <p class="text-xl font-bold">{{note["note"].title}}</p>
-                <p>Total Lended: {{note["lended_count"]}}</p>
-                <p>Total Sold: {{note["sold_count"]}}</p>
-                
-            </div>
-    {% endfor %}
+    <div class="flex justify-center text-center items-center space-y-1 mt-5 flex-col">
+        <strong>Seller Dashboard</strong>
+        <div class="flex justify-center text-center items-center space-y-1 mt-5 flex-row">
+            {% for note in notes_transaction_list %}
+                <div class="bg-gray-200 w-50 ">
+                    
+                    <p class="text-xl font-bold">{{note["note"].title}}</p>
+                    <p>Total Lended: {{note["lended_count"]}}</p>
+                    <p>Total Sold: {{note["sold_count"]}}</p>
+                    
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+    
 
     <div class="flex justify-center text-center space-y-1 m-10 " style="display: flex; flex-direction: column;"> 
         <strong>Borrower Dashboard</strong>

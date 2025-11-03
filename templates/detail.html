@@ -61,27 +61,100 @@
     <!-- If user has lended this book, have the ability to rate -->
     <!-- {if user.history.note_id = note_id  -->
     <!-- { endif -->
+      
+    {% if not my_review %}
    <div class="">
         <h2>Rate this note or book!</h2>
 
-        <div id="starRating" class="flex justify-center space-x-1 text-3xl text-yellow-400 cursor-pointer">
+        <div id="starRating" class="flex justify-center space-x-1 text-3xl text-yellow-400 cursor-pointer"></div>
+        <div class="flex justify-center space-x-1 ">
+            <form action="{{ url_for('review.add_review', note_id=note.note_id) }}" method="POST">
+                <input id="ratingValue" name="star" value="" required>
+                <label for="review">Review</label>
+                <input class="border border-gray-300 rounded px-3 py-2 w-full focus:outline-none focus:ring-2 focus:ring-yellow-400 w-200"
+                type="text" name="review">
+                <input type="submit" name="submit">
+            </form>
         </div>
-        <form action="review.add_review/{{note.note_id}}" method="POST">
-            <input id="ratingValue" value="" required>
-            <label for="review">Review</label>
-            <input type="text" name="review">
-            <input type="submit" name="submit">
-        </form>
+        
     </div>
+    {% endif %}
 
 
+    <h2 class="text-5xl">Review</h2>
+    <strong>Overall Star = {{overall_star|round(1)}}</strong>
 
-    <div>
-        <h2 class="text-5xl">Review</h2>
+    {% if my_review %}
+    <h2>My Review:</h2>
 
-    </div>
+        <div id="view_review" class="border">   
+            <!-- Delete Button -->
+            <form action="{{url_for('review.delete_review', review_id=my_review.review_id)}}" method="post">
+                <input type="submit" value="X">
+            </form>
+
+            <!-- Review Content -->
+            <label>Name: {{my_review.user.username}}</label>
+            <div class="flex"> 
+                {% for i in range(5) %}
+                    {% if i < my_review.star %}
+                        <span class="text-yellow-400">★</span>
+                        {% else %}
+                        <span class="text-gray-300">★</span>
+                    {% endif %}
+                {% endfor %}
+            </div>
+            <label>{{my_review.review}}</label><br>
+            <label>Added at: {{my_review.added_at.strftime('%Y-%m-%d')}}</label>
+
+            <!-- Edit Button -->
+            <button onclick="toggle_edit_view()">Edit Review</button>
+            
+        </div>
+
+        <div id="edit_review" class="hidden border">
+            <div id="editStarRating" ></div>
+            <form action="{{url_for('review.edit_review', review_id=my_review.review_id)}}" method="post">
+                <input id="editRatingValue" name="star" value="{{my_review.star}}" required>
+                <label>Review</label><br>
+                <input class="border" name="edited_review" value="{{my_review.review}}"><br>
+                <input type="submit" value="Edit">
+            </form>
+        </div>
+        
     
-Related Books
+    {% endif %}
+  
+    <h2>Other Reviews:</h2>
+    <div>
+        {% if note_reviews %}
+        {% for review in note_reviews %}
+            <div class="border">
+                
+                <label>Name: {{review.user.username}}</label>
+
+                <div class="flex">
+                    {% for i in range(5) %}
+                    {% if i < review.star %}
+                        <span class="text-yellow-400">★</span>
+                        {% else %}
+                        <span class="text-gray-300">★</span>
+                    {% endif %}
+                {% endfor %}
+                </div>
+                
+                <label>{{review.review}}</label><br>
+                <label>Added at: {{review.added_at.strftime('%Y-%m-%d')}}</label>
+            </div>
+        {% endfor %} 
+
+        {% else %}
+        <label>Others have not reviewed this book yet!</label>
+        {% endif %}
+        
+    </div>
+            
+    <strong>Related Books</strong> 
     <div style="display: grid;
     grid-auto-flow: column;">
         
@@ -99,8 +172,14 @@ Related Books
 
 
     <script>
-        
+        function toggle_edit_view(){
+            const view_container = document.getElementById("view_review")
+            const edit_container = document.getElementById("edit_review")
 
+            view_container.classList.toggle('hidden')
+            edit_container.classList.toggle('hidden')
+        }
+        
 
         const listingType = '{{note.listing_type}}';
         const availableDate = '{{note.available_date}}';
@@ -137,35 +216,34 @@ Related Books
             }
         })
 
+        function createStarRating(starContainerID, ratingValueID, initialStarRating = 0){
+            const starContainer = document.getElementById(starContainerID);
+            const ratingValue = document.getElementById(ratingValueID);
+            const maxStars = 5;
+            let currentRating = initialStarRating;
 
-        const starContainer = document.getElementById('starRating');
-        const ratingValue = document.getElementById('ratingValue');
-        const maxStars = 5;
-        let currentRating = 0;
+            for (let i = 1; i <= maxStars; i++) {
+                const star = document.createElement('span');
+                star.innerHTML = '★';
+                star.dataset.value = i;
 
+                star.addEventListener('mouseover', () => {
+                    highlightStars(i);
+                });
 
-        for (let i = 1; i <= maxStars; i++) {
-            const star = document.createElement('span');
-            star.innerHTML = '★';
-            star.dataset.value = i;
+                star.addEventListener('click', () => {
+                    currentRating = i;
+                    ratingValue.value = currentRating;
+                });
 
-            star.addEventListener('mouseover', () => {
-                highlightStars(i);
-            });
+                star.addEventListener('mouseleave', () => {
+                    highlightStars(currentRating);
+                });
 
-            star.addEventListener('click', () => {
-                currentRating = i;
-                ratingValue.value = currentRating;
-            });
-
-            star.addEventListener('mouseleave', () => {
-                highlightStars(currentRating);
-            });
-
-            starContainer.appendChild(star);
-        }
-
-        function highlightStars(rating) {
+                starContainer.appendChild(star);
+            } 
+            
+            function highlightStars(rating) {
             const stars = starContainer.querySelectorAll('span');
             stars.forEach((star, index) => {
                 if (index < rating) {
@@ -178,7 +256,13 @@ Related Books
             });
         }
 
-        highlightStars(0);
+            highlightStars(currentRating);
+        }
+
+        
+        createStarRating('starRating','ratingValue',0);
+        createStarRating('editStarRating', 'editRatingValue', {{ my_review.star|default(0) }});
+       
     </script>
 </body>
 </html>

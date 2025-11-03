@@ -1,5 +1,5 @@
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import not_
+from sqlalchemy import not_, and_
 
 db = SQLAlchemy()
 
