@@ -16,6 +16,7 @@ def search_note():
     
     user_input = request.args.get('user_input','')
     #Additional Filter
+    sort_by = request.args.get('sort_by','')
     condition = request.args.get('condition','')
     min_price =  request.args.get('min_price')
     max_price = request.args.get('max_price')
@@ -40,8 +41,12 @@ def search_note():
             if is_eligible(max_price):
                 search_filter.append(Note.price<=float(max_price))
 
-           
+        if sort_by == "Rating":
+            search_output = Note.query.filter(*search_filter).order_by(Note.avg_rating.desc()).all()
 
-        search_output = Note.query.filter(*search_filter).all()
+        elif sort_by == "Popularity":
+            search_output = Note.query.filter(*search_filter).order_by(Note.rating_count.desc()).all()
 
-    return render_template("search.html", results = search_output, user_input = cleaned_input, condition=condition) 
+        else:
+            search_output = Note.query.filter(*search_filter).all()
+    return render_template("search.html", results = search_output, user_input = cleaned_input, condition=condition, sort_by=sort_by) 
