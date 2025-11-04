@@ -1,13 +1,18 @@
 from flask import Flask, render_template, request, redirect, url_for, session, flash
 from werkzeug.security import generate_password_hash, check_password_hash
 from functools import wraps
+from sqlalchemy import and_
 
-from models import db, User, Note, Watchlist, Tag, note_tag_association ,CartItem, Cart, not_, BorrowedBook
+from models import db, User, Note, Watchlist,Tag,note_tag_association,CartItem, Cart,not_, History, Review
+
 from routes.notes_bp import notes_bp
 from routes.watchlist_bp import watchlist_bp
-from routes.search import search
+from routes.search_bp import search_bp
 from routes.shopping_cart_bp import shopping_cart
 from routes.borrowed_bp import borrowed_bp
+from routes.review_bp import review_bp
+
+from collections import defaultdict
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'your-secret-key-change-this-in-production'
@@ -17,10 +22,10 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db.init_app(app)
 app.register_blueprint(notes_bp)
 app.register_blueprint(watchlist_bp)
-app.register_blueprint(search)
+app.register_blueprint(search_bp)
 app.register_blueprint(shopping_cart)
 app.register_blueprint(borrowed_bp)
-
+app.register_blueprint(review_bp)
 # create the database tables
 with app.app_context():
     db.create_all()
@@ -54,12 +59,18 @@ def explore():
     watchlisted_note_ids = {nid[0] for nid in db.session.query(Watchlist.note_id).filter_by(user_id=user_id).all()}
 
     user_cart = Cart.query.filter_by(user_id=user_id).first()
-    cart_note_ids = {nid[0] for nid in db.session.query(CartItem.note_id).filter_by(cart_id=user_cart.cart_id).all()}
+    
+    # user cart is not created upon initialization but when opening user_cart
+    if not user_cart:
+        cart_note_ids = None
+    else:
+        cart_note_ids = {nid[0] for nid in db.session.query(CartItem.note_id).filter_by(cart_id=user_cart.cart_id).all()}
 
     return render_template('explore.html', notes=notes, user_id=user_id, watchlisted_note_ids=watchlisted_note_ids, cart_note_ids=cart_note_ids)
 
 @app.route('/detail/<int:note_id>', methods=['POST', 'GET'])
 def detail(note_id):
+    user_id= session.get('user_id')
     if request.method == 'POST':
         pass
 
@@ -74,7 +85,25 @@ def detail(note_id):
     ),
     Note.note_id != note_id ).distinct().all()
 
-    return render_template('detail.html', note=note, related_books= related_books)
+    #Review Review.query.filter(and_(Review.note_id==note_id, Review.user_id == user_id)).first()
+    my_review = None
+    other_reviews = []
+    
+    for review in note.reviews:
+        if review.user_id != user_id:
+            other_reviews.append(review)
+        else:
+            my_review = review
+
+    if note.reviews:       
+        total_star= sum(review.star for review in note.reviews)
+        total_reviews = len(note.reviews)
+        overall_star = total_star/total_reviews
+    else:
+        overall_star = 0
+        total_reviews = 0
+    return render_template('detail.html', note=note, related_books= related_books, overall_star=overall_star
+                           , my_review=my_review, note_reviews=other_reviews, total_reviews=total_reviews)
 
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
@@ -139,18 +168,35 @@ def login():
 @app.route('/dashboard')
 @login_required
 def dashboard():
-    user = db.session.get(User, int(session['user_id']))
-    owned_notes = user.notes_owned
-
-    borrowed_books = user.borrowed_books
+    user_id = int(session['user_id'])
+    user = db.session.get(User, user_id)
     
+    #Borrower
+    total_borrowed_books= History.query.filter(History.user_id == user_id, History.transaction_type == 'BORROW')
+    borrowed_notes = user.notes_bought
     currently_borrowing = []
 
-    for book in borrowed_books:
-        if book.status == 'ACTIVE' or book.status == 'OVERDUE':
-            currently_borrowing.append(book)
+    if borrowed_notes:
+        for note in borrowed_notes:
+            if note.status == 'LENT':
+                currently_borrowing.append(note)
 
-    return render_template('dashboard.html', user=user, owned_notes=owned_notes, borrowed_books=currently_borrowing, total_books = len(borrowed_books))
+    # Seller
+    notes_transaction_list=[]
+    owned_notes = user.notes_owned
+
+    for note in owned_notes:
+        lended = History.query.filter(History.note_id == note.note_id, History.transaction_type == 'BORROW').all()
+        sold = History.query.filter(History.note_id == note.note_id, History.transaction_type == 'BUY').all()
+        notes_transaction_list.append({
+            "note":note,
+            "lended_count":len(lended), 
+            "sold_count":len(sold)
+        })
+
+
+    return render_template('dashboard.html', user=user, owned_notes=owned_notes, borrowed_notes=currently_borrowing, total_books = total_borrowed_books.count()
+                           , notes_transaction_list=notes_transaction_list)
 
 
 @app.route('/logout')
@@ -168,6 +214,23 @@ def watchlist():
     notes = [item.note for item in watchlist_items]
     return render_template('watchlist.html', notes=notes)
 
+@app.route('/history')
+@login_required
+def history():
+    print(f"Adding to history")
+    user_id = session['user_id']
+    history = History.query.filter_by(user_id=user_id).order_by(History.transaction_date).all()
+    history_dict = defaultdict(list)
+    for h in history:
+        transaction_date = h.transaction_date.date() if h.transaction_date else h.borrow_start_date.date()
+        history_dict[transaction_date].append({
+            'note': h.note,
+            'transaction_type': h.transaction_type,
+            'borrow_start_date': h.borrow_start_date,
+            'transaction_date': h.transaction_date
+        })
+        print(f'this are the borrow start date: {h.borrow_start_date}')
+    return render_template('history.html', history_dict=history_dict)
 
 if __name__ == '__main__':
     app.run(debug=True)

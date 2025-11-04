@@ -1,5 +1,5 @@
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import not_
+from sqlalchemy import not_, and_
 
 db = SQLAlchemy()
 
@@ -21,7 +21,6 @@ note_tag_association=db.Table(
     db.Column('note_id',db.Integer, db.ForeignKey('note.note_id', primary_key=True)),
     db.Column('tag_id',db.Integer, db.ForeignKey('tag.tag_id', primary_key=True))
 )
-
 class Note(db.Model):
     note_id = db.Column(db.Integer, primary_key=True)
     image_filename = db.Column(db.String(255), nullable=True)
@@ -80,7 +79,6 @@ class Cart(db.Model):
 class CartItem(db.Model):
     cart_id = db.Column(db.Integer, db.ForeignKey('cart.cart_id'), primary_key=True)
     note_id = db.Column(db.Integer, db.ForeignKey('note.note_id'), primary_key=True)
-    quantity = db.Column(db.Integer, nullable=False)
     buying_type = db.Column(
         db.Enum('BUY', 'BORROW', name='buying_type_enum'),
         nullable=False
@@ -118,37 +116,12 @@ class History(db.Model):
         db.Enum('BUY', 'BORROW', name='history_transaction_type_enum'),
         nullable=False
     )
-    transaction_date = db.Column(db.DateTime, default=db.func.now(), nullable=False)
-    borrow_id = db.Column(db.Integer, db.ForeignKey('borrowed_book.borrow_id'), nullable=True)  # Links to BorrowedBook if it's a BORROW
+    borrow_start_date = db.Column(db.DateTime)
+    transaction_date = db.Column(db.DateTime) # buying or returning book
     
     user = db.relationship('User', foreign_keys=[user_id], backref='history')
     note = db.relationship('Note', backref='history_records')
-    borrowed_book = db.relationship('BorrowedBook', backref='history_record')
 
     def __repr__(self):
         return f'<History {self.history_id}: {self.transaction_type} by User {self.user_id}>'
-
-
-class BorrowedBook(db.Model):
-    borrow_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    note_id = db.Column(db.Integer, db.ForeignKey('note.note_id'), nullable=False)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.user_id'), nullable=False)
-    start_date = db.Column(db.Date, nullable=False)
-    end_date = db.Column(db.Date, nullable=False)
-    borrow_date = db.Column(db.DateTime, default=db.func.now(), nullable=False)
-    return_date = db.Column(db.DateTime, nullable=True)
-    status = db.Column(
-        db.Enum('ACTIVE', 'RETURNED', 'OVERDUE', name='borrow_status_enum'),
-        default='ACTIVE',
-        nullable=False
-    )
-
-    __table_args__ = (
-        db.CheckConstraint('end_date > start_date', name='check_borrow_dates'),
-    )
-
-    note = db.relationship('Note', backref='borrowed_by')
-    user = db.relationship('User', backref='borrowed_books')
-
-    def __repr__(self):
-        return f'<BorrowedBook {self.borrow_id}: Note {self.note_id} borrowed by User {self.user_id}>'
+    

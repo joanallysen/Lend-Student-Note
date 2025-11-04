@@ -6,6 +6,18 @@
 </head>
 <body>
     <h1>Dashboard</h1>
+    <ul class="flex justify-center-safe text-center space-x-10">
+        <li><a href="{{url_for('explore')}}">Explore</a></li>
+        <li><a href="{{url_for('dashboard')}}">Dashboard</a></li>
+        <li><a href="{{url_for('borrowed.show_borrowed')}}">See Borrowed Book</a></li>
+        <li><a href="{{url_for('history')}}">See History</a></li>
+        <li><a href="{{url_for('watchlist')}}">See Watchlist</a></li>
+        <li><a href="{{url_for('shopping_cart.user_cart')}}">See Cart</a></li>
+        <form action='/search' method="get">
+            <input type="text" name="user_input" value="{{user_input}}">  
+            <input type="submit" value="Search"><br><br>
+        </form>
+    </ul>
     
     {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
@@ -19,7 +31,7 @@
     <p><strong>Username:</strong> {{ user.username }}</p>
     <p><strong>Email:</strong> {{ user.email }}</p>
     <p><strong>User ID:</strong> {{ user.user_id }}</p>
-    <a href="{{url_for('shopping_cart.user_cart')}}">Shopping Cart</a>
+    
 
     <div class="flex justify-center text-center space-y-1">
         {% for note in owned_notes %}
@@ -48,16 +60,49 @@
             </div>
         {% endfor %}
     </div>
-
-    <div class="flex justify-center text-center space-y-1 m-10 " style="display: flex; flex-direction: column;">
-        <h1>Currently Borrowed Books (Total Books= {{total_books}})</h1>
-        {% if borrowed_books %}
-            {% for book in borrowed_books %}
-                <div>
-                    <label>{{book.note_id}}</label>
+    <div class="flex justify-center text-center items-center space-y-1 mt-5 flex-col">
+        <strong>Seller Dashboard</strong>
+        <div class="flex justify-center text-center items-center space-y-1 mt-5 flex-row">
+            {% for note in notes_transaction_list %}
+                <div class="bg-gray-200 w-50 ">
+                    
+                    <p class="text-xl font-bold">{{note["note"].title}}</p>
+                    <p>Total Lended: {{note["lended_count"]}}</p>
+                    <p>Total Sold: {{note["sold_count"]}}</p>
+                    
                 </div>
             {% endfor %}
-        {% endif %}
+        </div>
+    </div>
+    
+
+    <div class="flex justify-center text-center space-y-1 m-10 " style="display: flex; flex-direction: column;"> 
+        <strong>Borrower Dashboard</strong>
+        {% if borrowed_notes %}
+        <h1>(Next Returning Date: )(Currently Borrowed Notes: {{borrowed_notes|length}}) (Total Borrowed Notes= {{total_books}})</h1>  
+        <div class="flex justify-center text-center space-x-1">
+            {% for note in borrowed_notes %}
+                <div>
+                    <img src="{{url_for('static', filename='uploads/' + note.image_filename)}}" alt="Current Image" class="w-80 h-auto">
+                    <a class="underline" href="{{url_for('detail', note_id=note.note_id)}}">{{note.title}}</a>
+                    <p>{{note.price}}</p>
+                    <p>{{note.description}}</p>
+
+                    {% if note.status == 'LENT' %}
+                    <form action="{{ url_for('borrowed.return_borrowed', note_id = note.note_id) }}" method="POST">
+                        <label for="returned">Click below if you have returned this book</label>
+                        <input name="returned" class="cursor-pointer" type="submit" value="Book Returned">
+                    </form>
+                    
+                    {% elif note.status == 'NEED ACTION' %}
+                        <p>This note has been tagged as returned!</p>
+                    {% endif %}
+                </div>
+
+            {% endfor %}
+            
+        </div>
+        {% endif %} 
     </div>
     
     <a href="{{ url_for('notes.add_note') }}" class="cursor-pointer border-b-black border-2">Add owned book/note</a>

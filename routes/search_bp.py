@@ -3,7 +3,7 @@ from sqlalchemy import or_
 from models import db, Note
 import re
 
-search = Blueprint("search",__name__)
+search_bp = Blueprint("search_bp",__name__)
 
 def is_eligible(num):
     try:
@@ -11,7 +11,7 @@ def is_eligible(num):
     except ValueError:
         return False
 
-@search.route('/search', methods=["GET"])
+@search_bp.route('/search', methods=["GET"])
 def search_note():
     
     user_input = request.args.get('user_input','')
@@ -44,4 +44,4 @@ def search_note():
 
         search_output = Note.query.filter(*search_filter).all()
 
-    return render_template("search_testing.html", results = search_output, user_input = cleaned_input, condition=condition) 
+    return render_template("search.html", results = search_output, user_input = cleaned_input, condition=condition) 

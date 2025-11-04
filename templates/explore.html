@@ -14,10 +14,18 @@
             {% endfor %}
         {%endif%}
     {% endwith %}
-    <a href="{{url_for('dashboard')}}">Dashboard</a>
-    <a href="{{url_for('borrowed.show_borrowed')}}">See borrowed book</a>
-    <a href="{{url_for('watchlist')}}">See Watchlist</a>
-    <a href="{{url_for('shopping_cart.user_cart')}}">See cart</a>
+    <ul class="flex justify-center-safe text-center space-x-10">
+        <li><a href="{{url_for('dashboard')}}">Dashboard</a></li>
+        <li><a href="{{url_for('borrowed.show_borrowed')}}">See Borrowed book</a></li>
+        <li><a href="{{url_for('history')}}">See History</a></li>
+        <li><a href="{{url_for('watchlist')}}">See Watchlist</a></li>
+        <li><a href="{{url_for('shopping_cart.user_cart')}}">See Cart</a></li>
+        <form action='/search' method="get">
+            <input type="text" name="user_input" value="{{user_input}}">  
+            <input type="submit" value="Search"><br><br>
+        </form>
+    </ul>
+
     <div class="flex justify-center text-center space-x-1">
         {% for note in notes %}
             <div>
@@ -34,11 +42,16 @@
                 {% endif %}
 
                 <!-- check if user cart have this note id. note.note_id == user_cart -->
-                {% if note.note_id not in cart_note_ids %}
-                    <p class="text-gray-500">Not in cart</p>
-                {% else %}
+                {% if cart_note_ids and note.note_id in cart_note_ids %}
                     <p class="text-green-600 font-semibold">Added to cart ✓</p>
+                {% else %}
+                    <p class="text-gray-500">Not in cart</p>
                 {% endif %}
+
+                {% if note.owner_id == user_id%}
+                    <p>This is your book or note</p>
+                {% endif %}
+                    
             </div>
         {% endfor %}
     </div>

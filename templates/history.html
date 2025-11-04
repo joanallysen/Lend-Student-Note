@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script><script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <title>History</title>
+</head>
+<body>
+    <h1>History</h1>
+    {% for date, items in history_dict.items() %}
+        <p>{{date}}</p>
+        {% for item in items%}
+        <div>
+            <img src="{{url_for('static', filename='uploads/' + item['note'].image_filename)}}" alt="Current Image" class="w-80 h-auto">
+            <a class="underline" href="{{url_for('detail', note_id=item['note'].note_id)}}">{{item['note'].title}}</a>
+            <p>{{item['note'].price}}</p>
+            <p>{{item['note'].description}}</p>
+            <p>{{item['transaction_type']}}</p>
+            {% if item['transaction_type'] == 'BORROW'%}
+                <p>Borrow start date:{{item['borrow_start_date']}}</p>
+                {% if item['transaction_date'] == None %}
+                    <p>Book has not returned yet</p>
+                {% endif %}
+                <p>Return date:{{item['transaction_date']}}</p>
+            {% endif%}
+            {% if item['transaction_type'] == 'BUY' %}
+                <p>Buy date : {{item['transaction_date']}}</p>
+            {% endif %}
+        </div>
+        {% endfor %}
+    {% endfor %}
+</body>
+</html>
