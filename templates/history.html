@@ -17,7 +17,6 @@
                 <div>
                     <img src="{{url_for('static', filename='uploads/' + item['note'].image_filename)}}" alt="Current Image" class="w-80 h-auto">
                     <a class="underline" href="{{url_for('detail', note_id=item['note'].note_id)}}">{{item['note'].title}}</a>
-                    <p>{{item['note'].price}}</p>
                     <p>{{item['note'].description}}</p>
                     <p>{{item['transaction_type']}}</p>
                     {% if item['transaction_type'] == 'BORROW'%}
@@ -30,6 +29,7 @@
                     {% if item['transaction_type'] == 'BUY' %}
                         <p>Buy date : {{item['transaction_date']}}</p>
                     {% endif %}
+                    <p>${{item['total_price']}}</p>
                 </div>
                 {% endfor %}
             </div>

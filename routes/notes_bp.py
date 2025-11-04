@@ -59,6 +59,7 @@ def add_note():
             title=request.form.get('title'),
             isbn=request.form.get('isbn'),
             price = request.form.get('price'),
+            price_sale = request.form.get('price_sale'),
             description = request.form.get('description'),
             condition = request.form.get('condition'),
             pickup_location = request.form.get('pickup_location'),
@@ -111,6 +112,7 @@ def update_note(note_id):
         note.title = request.form.get('title')
         note.isbn = request.form.get('isbn')
         note.price = request.form.get('price')
+        note.price_sale = request.form.get('price_sale')
         note.description = request.form.get('description')
         note.condition = request.form.get('condition')
         note.pickup_location = request.form.get('pickup_location')

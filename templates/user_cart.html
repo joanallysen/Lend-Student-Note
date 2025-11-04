@@ -17,19 +17,19 @@
                     <img src="{{url_for('static',filename='uploads/'+item.note_details.image_filename)}} "alt="Current Image" class="w-80 min-h-90">
                     Note ID: {{item.note_details.note_id}}<br>
                     Title: {{item.note_details.title}}<br>
-                    Price: {{item.note_details.price}}<br>
+                    Price: {{item.total_price}}<br>
                     Description: {{item.note_details.description}}<br>
                     Buying Type: {{item.buying_type}}<br>
                     {% if item.buying_type == 'BORROW' %}
                         Start Date: {{item.start_date}}
                         End Date: {{item.end_date}}
+                        Total Week Borrowing : {{item.weeks_borrowed()}}
                     {% endif %}
                     <div>
                         <a href="/subtract_quantity/{{item.note_details.note_id}}">-</a>
                         Quantity: {{item.quantity}}
                         <a href="/add_quantity/{{item.note_details.note_id}}">+</a>
                     </div>
-                    Total Price: {{item.note_details.price*item.quantity }}
                 </div>
             {% endfor %}
 

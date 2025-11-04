@@ -57,13 +57,15 @@ def add_to_cart(note_id):
           
         # adding new cart item
         buying_type = request.form.get('buying_type')
+        total_price = request.form.get('total_price')
         new_item = None
         if buying_type == 'BORROW':
             start_date = datetime.strptime(request.form.get('start_date'), '%Y-%m-%d').date()
             end_date = datetime.strptime(request.form.get('end_date'), '%Y-%m-%d').date()
-            new_item = CartItem(cart_id = user_cart.cart_id, note_id=note_id, quantity=1, buying_type='BORROW', start_date=start_date, end_date=end_date)
+            
+            new_item = CartItem(cart_id = user_cart.cart_id, note_id=note_id, quantity=1, buying_type='BORROW', start_date=start_date, end_date=end_date, total_price=total_price)
         elif buying_type == 'BUY':
-            new_item = CartItem(cart_id = user_cart.cart_id, note_id=note_id, quantity=1, buying_type='BUY')
+            new_item = CartItem(cart_id = user_cart.cart_id, note_id=note_id, quantity=1, buying_type='BUY', total_price=total_price)
             
         db.session.add(new_item)
         db.session.commit()
@@ -139,10 +141,12 @@ def checkout():
                 
                 db.session.add(note)
                 new_history = History(
-                    user_id = user_id,
+                    buyer_id = user_id,
+                    owner_id = note.owner_id,
                     note_id = note.note_id,
                     transaction_type = item.buying_type,
-                    transaction_date = datetime.now()
+                    transaction_date = datetime.now(),
+                    total_price = item.total_price
                 )
                 db.session.add(new_history)
                 
@@ -154,11 +158,13 @@ def checkout():
 
                     db.session.add(note)
                     new_history = History(
-                        user_id = user_id,
+                        buyer_id = user_id,
+                        owner_id = note.owner_id,
                         note_id = note.note_id,
                         transaction_type = item.buying_type,
                         borrow_start_date = datetime.now(),
-                        transaction_date = None
+                        transaction_date = None,
+                        total_price = item.total_price
                     )
                     db.session.add(new_history)
                     db.session.flush()

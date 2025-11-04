@@ -172,7 +172,7 @@ def watchlist():
 def history():
     print(f"Adding to history")
     user_id = session['user_id']
-    history = History.query.filter_by(user_id=user_id).order_by(History.transaction_date).all()
+    history = History.query.filter_by(buyer_id=user_id).order_by(History.transaction_date).all()
     history_dict = defaultdict(list)
     for h in history:
         transaction_date = h.transaction_date.date() if h.transaction_date else h.borrow_start_date.date()
@@ -181,7 +181,8 @@ def history():
             'note': h.note,
             'transaction_type': h.transaction_type,
             'borrow_start_date': h.borrow_start_date,
-            'transaction_date': h.transaction_date
+            'transaction_date': h.transaction_date,
+            'total_price': h.total_price
         })
         print(f'this are the borrow start date: {h.borrow_start_date}')
     return render_template('history.html', history_dict=history_dict)

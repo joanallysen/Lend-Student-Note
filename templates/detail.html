@@ -20,7 +20,8 @@
 
         <div class="text-left space-y-4 w-100">
             <p class="text-4xl font-bold">{{note.title}} <span class="text-2xl text-gray-400">{{note.isbn}}</span></p>
-            <p class="text-5xl font-bold">${{note.price}}</p>
+            <p id="price" class="text-5xl font-bold">${{note.price}}/week</p>
+            <p id="price_sale" class="text-5xl font-bold" style='display:none'>${{note.price_sale}}</p>
             <p>{{note.description}}</p>
 
             <p>Condition <span class="border-2 border-red-50 bg-red-50 rounded">{{note.condition}}</span></p>
@@ -47,6 +48,9 @@
                     <label for="end_date">Choose End Borrowing Date</label> <br>
                     <input type="text" id="end_date" name="end_date" class="w-full p-3 bg-white border-gray-200" required>
                 </div>
+
+                <p id="total_display" name="total_display" readonly></p>
+                <input id="total_price" name="total_price" hidden></input>
             
                 
                 <input id="purchase_button" class="p-4 bg-white rounded-2xl font-bold cursor-pointer disabled:bg-gray-300 disabled:cursor-not-allowed" type="submit" value="{% if note.listing_type == 'BOTH' %}Borrow{% else %}Buy{% endif %}"
@@ -98,44 +102,89 @@ Related Books
 
 
     <script>
-        
-
-
-        const listingType = '{{note.listing_type}}';
-        const availableDate = '{{note.available_date}}';
-
-        
+        // simpler calendar
+        const listingType = '{{ note.listing_type }}';
+        const availableDate = '{{ note.available_date }}';
+        const pricePerWeek = parseFloat('{{ note.price }}');
+        const priceSale = parseFloat('{{note.price_sale}}')
 
         let startPicker, endPicker;
 
-        startPicker = flatpickr('#start_date', {
-            minDate: availableDate,
-            onChange: function(selectedDates, dateStr, instance){
-                if (selectedDates.length > 0){
-                    const minEndDate = new Date(selectedDates[0]);
-                    minEndDate.setDate(minEndDate.getDate() + 1);
-                    endPicker.set('minDate', minEndDate)
-                }
+        const startInput = document.getElementById('start_date');
+        const endInput = document.getElementById('end_date');
+        const totalPriceDisplay = document.getElementById('total_display');
+        const totalPriceInput = document.getElementById('total_price');
+
+
+        function calculateWeeksDiff(start, end) {
+            const diffTime = end - start;
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            const diffWeeks = Math.ceil(diffDays / 7); 
+            return diffWeeks > 0 ? diffWeeks : 0;
+        }
+
+        function updateTotalPrice() {
+            const startVal = startInput.value;
+            const endVal = endInput.value;
+            if (!startVal || !endVal) {
+                totalPriceDisplay.innerText = '';
+                return;
             }
+
+            const startDate = new Date(startVal);
+            const endDate = new Date(endVal);
+
+            const weeks = calculateWeeksDiff(startDate, endDate);
+            const total = weeks * pricePerWeek;
+
+            totalPriceDisplay.innerText = `Total Price: $${total.toFixed(2)} (${weeks} week${weeks !== 1 ? 's' : ''})`;
+            totalPriceInput.value = total;
+        }
+
+        // Initialize Flatpickr
+        startPicker = flatpickr('#start_date', {
+        minDate: availableDate,
+        onChange: function(selectedDates) {
+            if (selectedDates.length > 0) {
+            const minEndDate = new Date(selectedDates[0]);
+            minEndDate.setDate(minEndDate.getDate() + 7); // minimum 1 week later
+            endPicker.set('minDate', minEndDate);
+            updateTotalPrice();
+            }
+        }
         });
 
         endPicker = flatpickr('#end_date', {
-            minDate: new Date(availableDate).setDate(new Date(availableDate).getDate() + 1)
-        })
+        minDate: new Date(availableDate),
+        onChange: updateTotalPrice
+        });
 
-        
+        // also update if user manually types or edits date
+        startInput.addEventListener('change', updateTotalPrice);
+        endInput.addEventListener('change', updateTotalPrice);
+
+        // change the display if user click borrow or buy
         document.getElementById('buying_type').addEventListener('change', function() {
             const rentalOptions = document.getElementById('rental_options');
-            const purchaseButton = document.getElementById('purchase_button')
+            const purchaseButton = document.getElementById('purchase_button');
+            const priceElement = document.getElementById('price');
+            const priceSaleElement = document.getElementById('price_sale');
             if (this.value === 'BORROW'){
                 rentalOptions.style.display = 'block';
                 purchaseButton.value = 'Borrow'
+                priceElement.style.display = 'block'
+                priceSaleElement.style.display = 'none'
             } else{
                 rentalOptions.style.display = 'none';
                 purchaseButton.value = 'Buy'
+                priceElement.style.display = 'none'
+                priceSaleElement.style.display = 'block'
+                totalPriceDisplay.innerText = `Total Price: $${priceSale.toFixed(2)}`;
+                totalPriceInput.value = priceSale
             }
         })
 
+        // star rating
 
         const starContainer = document.getElementById('starRating');
         const ratingValue = document.getElementById('ratingValue');
