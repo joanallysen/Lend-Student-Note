@@ -85,7 +85,6 @@ def detail(note_id):
     ),
     Note.note_id != note_id ).distinct().all()
 
-    #Review Review.query.filter(and_(Review.note_id==note_id, Review.user_id == user_id)).first()
     my_review = None
     other_reviews = []
     
@@ -94,16 +93,9 @@ def detail(note_id):
             other_reviews.append(review)
         else:
             my_review = review
-
-    if note.reviews:       
-        total_star= sum(review.star for review in note.reviews)
-        total_reviews = len(note.reviews)
-        overall_star = total_star/total_reviews
-    else:
-        overall_star = 0
-        total_reviews = 0
-    return render_template('detail.html', note=note, related_books= related_books, overall_star=overall_star
-                           , my_review=my_review, note_reviews=other_reviews, total_reviews=total_reviews)
+    
+    return render_template('detail.html', note=note, related_books= related_books,
+                            my_review=my_review, note_reviews=other_reviews)
 
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():

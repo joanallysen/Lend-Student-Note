@@ -140,10 +140,10 @@
             
             <div class="flex gap-12 mb-12 pb-8 border-b-2 border-gray-100 items-center">
                 <div class="text-center bg-gradient-to-br from-yellow-50 to-orange-50 p-8 rounded-2xl">
-                    <div class="text-6xl font-bold text-gray-800 mb-3">{{ overall_star|round(1) }}</div>
+                    <div class="text-6xl font-bold text-gray-800 mb-3">{{ note.avg_rating }}</div>
                     <div class="flex gap-1 justify-center mb-2">
                         {% for i in range(5) %}
-                            {% if i < overall_star %}
+                            {% if i < note.avg_rating %}
                                 <span class="text-yellow-400 text-2xl">★</span>
                             {% else %}
                                 <span class="text-gray-300 text-2xl">★</span>
@@ -151,7 +151,7 @@
                         {% endfor %}
                     </div>
                     <div class="text-sm text-gray-600 font-medium">
-                        {{ total_reviews }} review{{ 's' if total_reviews != 1 }}
+                        {{ note.reviews|count }} review{{ 's' if note.reviews|count != 1 }}
                     </div>
                 </div>
                 
@@ -356,7 +356,7 @@
 
         startPicker = flatpickr('#start_date', {
             minDate: availableDate,
-              dateFormat: "d F Y",
+
             onChange: function(selectedDates, dateStr, instance){
                 if (selectedDates.length > 0){
                     const minEndDate = new Date(selectedDates[0]);
@@ -367,8 +367,7 @@
         });
 
         endPicker = flatpickr('#end_date', {
-            minDate: new Date(availableDate).setDate(new Date(availableDate).getDate() + 1),
-              dateFormat: "d F Y"
+            minDate: new Date(availableDate).setDate(new Date(availableDate).getDate() + 1)
         })
 
         

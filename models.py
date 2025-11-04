@@ -45,7 +45,7 @@ class Note(db.Model):
         nullable=False
     )
     listing_date = db.Column(db.DateTime, default=db.func.now(), nullable=False)
-    avg_rating = db.Column(db.Numeric(3, 2), default=0.00)
+    avg_rating = db.Column(db.Numeric(2, 1), default=0.00)
     rating_count = db.Column(db.Integer, default=0)
     owner_id = db.Column(db.Integer, db.ForeignKey('user.user_id'), nullable=False)
     buyer_id = db.Column(db.Integer, db.ForeignKey('user.user_id'), nullable=True)
