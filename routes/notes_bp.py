@@ -73,18 +73,8 @@ def add_note():
         #Adding Tags
         tags = request.form.get('tags','')
         if tags:
-                cleaned_tags = [tag.strip().title() for tag in tags.split(',') if tag.strip()]
+                new_note.tags = clean_tags(tags)
 
-                for tag in cleaned_tags:
-                    tag_exist = Tag.query.filter(Tag.name == tag).first()
-
-                    if not tag_exist:
-                        new_tag= Tag(name=tag)
-                        db.session.add(new_tag)
-                        new_note.tags.append(new_tag)
-
-                    else:
-                        new_note.tags.append(tag_exist)
 
         # try: TODO WILL ADD THE EXCEPTION BACK THIS IS FOR ERROR DEBUGGING
         db.session.add(new_note)
@@ -97,6 +87,29 @@ def add_note():
         
     return render_template('preview.html', error=error, action='notes.add_note', note=None)
 
+def clean_tags(tags):
+    cleaned_tags= [tag.strip().title() for tag in tags.split(',') if tag.strip()]
+
+    
+    #Remove duplicate iin the list of strings
+    cleaned_tags = list(set(cleaned_tags))
+
+    #List of tags
+    tags_list=[]
+    for tag in cleaned_tags:
+
+        #Check if tag exists in the tag pool
+        existing_tag = Tag.query.filter(Tag.name==tag).first()
+
+        if not existing_tag:
+            existing_tag = Tag(name=tag)
+            db.session.add(Tag(name=tag))
+            db.session.commit()
+
+        tags_list.append(existing_tag)
+
+        
+    return tags_list
 
 @notes_bp.route('/update_note/<int:note_id>', methods=['GET', 'POST'])
 def update_note(note_id):
@@ -120,6 +133,9 @@ def update_note(note_id):
         if request.form.get('status'):
             note.status = request.form.get('status')
         
+        tags = request.form.get('tags','')
+
+        note.tags = clean_tags(tags)
         db.session.commit()
         return redirect(url_for('dashboard'))
 
