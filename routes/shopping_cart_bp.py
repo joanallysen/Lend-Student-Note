@@ -134,7 +134,8 @@ def checkout():
                         borrow_start_date = db.func.now(),
                         transaction_date = None
                     )
-        
+
+            note.rating_count+=1
             
 
         db.session.add(new_history)

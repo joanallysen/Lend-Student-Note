@@ -9,14 +9,23 @@
     <h1>Search</h1>
     <form action='/search' method="get">
         <input type="text" name="user_input" value="{{user_input}}">  
-        <input type="submit" value="Search"><br><br>
+        <input type="submit" value="Search">
+
+        <label>Sort by:</label>
+        <select name="sort_by" onchange="this.form.submit()">
+            <option value="Default" {% if sort_by == "Default" %}selected {% endif %}>Default</option>
+            <option value="Rating" {% if sort_by == "Rating" %}selected{% endif %}>Rating</option>
+            <option value="Popularity" {% if sort_by == "Popularity" %}selected{% endif %}>Popularity</option>
+            
+        
+        </select><br><br>
 
         <label>Condition:</label>
         <select name="condition">
             <option value="">==Select==</option>
-            <option value="Brand New">Brand New</option>
-            <option value="Good">Good</option>
-            <option value="Minimum">Minimum</option>
+            <option value="Brand New" {% if condition == "Brand New" %}selected{% endif %}>Brand New</option>
+            <option value="Good" {% if condition == "Good" %}selected {% endif %}>Good</option>
+            <option value="Minimum" {%if condition == "Minimum" %}selected{% endif %}>Minimum</option>
         
         </select><br>
 
