@@ -356,7 +356,6 @@
 
         startPicker = flatpickr('#start_date', {
             minDate: availableDate,
-
             onChange: function(selectedDates, dateStr, instance){
                 if (selectedDates.length > 0){
                     const minEndDate = new Date(selectedDates[0]);
