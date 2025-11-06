@@ -2,9 +2,10 @@
 {% import 'components/macros.html' as comp %}
 
 {# Calculate statistics from History #}
-{% set current_borrowed = user.purchases | selectattr('transaction_type', 'equalto', 'BORROW') | selectattr('transaction_date', 'ne', None) | list | length %}
+{% set borrowed_notes = user.notes_bought | selectattr('status', 'equalto', 'LENT') | list %}
+{% set current_borrowed = borrowed_notes | list | length %}
 {% set total_borrowed = user.purchases | selectattr('transaction_type', 'equalto', 'BORROW') | list | length %}
-{% set next_return_date = user.notes_bought | selectattr('incoming_return_date', 'ne', None) | map(attribute='incoming_return_date') | sort | first %}
+{% set next_return_date = borrowed_notes | map(attribute='incoming_return_date') | select('ne', None) | sort | first %}
 {% set total_purchased = user.purchases | list | length %}
 
 <div class="mb-8">
@@ -74,8 +75,8 @@
 
         {# Notes Grid #}
         <div class="grid grid-cols-4 gap-6">
-            {% for purchase in user.purchases %}
-                {{ comp.borrowed_card(purchase.note) }}
+            {% for note in borrowed_notes %}
+                {{ comp.borrowed_card(note) }}
             {% endfor %}
         </div>
 </div>
