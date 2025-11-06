@@ -148,6 +148,7 @@ def login():
 @login_required
 def dashboard():
     user = db.session.get(User, int(session['user_id']))
+    # notes_owned is redundant
     owned_notes = user.notes_owned
     return render_template('dashboard.html', user=user, owned_notes=owned_notes)
 
@@ -167,12 +168,7 @@ def watchlist():
     notes = [item.note for item in watchlist_items]
     return render_template('watchlist.html', notes=notes)
 
-@app.route('/history')
-@login_required
-def history():
-    print(f"Adding to history")
-    user_id = session['user_id']
-    history = History.query.filter_by(buyer_id=user_id).order_by(History.transaction_date).all()
+def make_history_dictionary(history):
     history_dict = defaultdict(list)
     for h in history:
         transaction_date = h.transaction_date.date() if h.transaction_date else h.borrow_start_date.date()
@@ -185,7 +181,19 @@ def history():
             'total_price': h.total_price
         })
         print(f'this are the borrow start date: {h.borrow_start_date}')
-    return render_template('history.html', history_dict=history_dict)
+    return history_dict
+
+@app.route('/history')
+@login_required
+def history():
+    print(f"Adding to history")
+    user_id = session['user_id']
+    history_buyer = History.query.filter_by(buyer_id=user_id).order_by(History.transaction_date).all()
+    history_owner = History.query.filter_by(owner_id=user_id).order_by(History.transaction_date).all()
+    history_buyer = make_history_dictionary(history_buyer) 
+    history_owner = make_history_dictionary(history_owner)
+    
+    return render_template('history.html', history_buyer=history_buyer, history_owner=history_owner)
 
 if __name__ == '__main__':
     app.run(debug=True)

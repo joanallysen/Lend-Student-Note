@@ -16,11 +16,13 @@
 {% set earned_selling = buy_history | map(attribute='total_price') | sum %}
 {% set total_earned = earned_lending + earned_selling %}
 
+{% import 'components/macros.html' as comp %}
+
 <div class="mb-8">
     <h1 class="text-4xl font-bold mb-6">Lended Notes</h1>
     
     {# Statistics Cards #}
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+    <div class="grid grid-cols-3 gap-4 mb-8">
         {# Current Lended #}
         <div class="bg-white rounded-lg shadow p-6 flex items-start gap-4">
             <div class="bg-gray-100 rounded-lg p-3">
@@ -104,99 +106,9 @@
     </div>
 
     {# Notes Grid #}
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div class="grid grid-cols-4 gap-6">
         {% for note in owned_notes %}
-            <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
-                {# Image #}
-                <div class="relative h-48 bg-gray-100">
-                    <img src="{{url_for('static', filename='uploads/' + note.image_filename)}}" 
-                         alt="{{ note.title }}" 
-                         class="w-full h-full object-cover">
-                    
-                    {# Status Badge #}
-                    <div class="absolute top-2 right-2">
-                        {% if note.status == 'LENT' %}
-                            <span class="bg-yellow-100 text-yellow-800 text-xs font-medium px-2.5 py-1 rounded">Lent</span>
-                        {% elif note.status == 'SOLD' %}
-                            <span class="bg-green-100 text-green-800 text-xs font-medium px-2.5 py-1 rounded">Sold</span>
-                        {% elif note.status == 'NEED ACTION' %}
-                            <span class="bg-red-100 text-red-800 text-xs font-medium px-2.5 py-1 rounded">Action Needed</span>
-                        {% else %}
-                            <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-1 rounded">{{ note.status }}</span>
-                        {% endif %}
-                    </div>
-                </div>
-
-                {# Content #}
-                <div class="p-4">
-                    {# Lent Info #}
-                    {% if note.status == 'LENT' %}
-                        <div class="bg-yellow-50 border border-yellow-200 rounded-md p-3 mb-3 text-sm">
-                            <p class="text-gray-600 font-medium mb-1">Return Date</p>
-                            <p class="text-gray-900 mb-2">{{ note.incoming_return_date.strftime("%d %b %Y") }}</p>
-                            <p class="text-gray-600 font-medium mb-1">Currently Holding</p>
-                            <p class="text-gray-900">{{ note.buyer.username }}</p>
-                        </div>
-                    {% endif %}
-
-                    {# Title and Description #}
-                    <h3 class="text-lg font-semibold text-gray-900 mb-1">{{ note.title }}</h3>
-                    <p class="text-sm text-gray-600 mb-3">{{ note.description[:50] }}{% if note.description|length > 50 %}...{% endif %}</p>
-                    
-                    {# Rating #}
-                    {% if note.rating_count > 0 %}
-                        <div class="flex items-center gap-2 mb-3">
-                            <div class="flex items-center">
-                                {% for i in range(5) %}
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 {% if i < note.avg_rating %}text-yellow-400{% else %}text-gray-300{% endif %}" viewBox="0 0 24 24" fill="currentColor">
-                                        <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/>
-                                    </svg>
-                                {% endfor %}
-                            </div>
-                            <span class="text-sm font-medium text-gray-900">{{ "%.1f"|format(note.avg_rating) }}</span>
-                        </div>
-                    {% endif %}
-
-                    {# Lended Count and Price #}
-                    {% set note_lend_count = note.history_records | selectattr('transaction_type', 'equalto', 'BORROW') | selectattr('transaction_date', 'ne', None) | list | length %}
-                    <div class="flex items-center justify-between mb-4">
-                        <span class="text-sm text-gray-600">Lended {{ note_lend_count }}x</span>
-                        <span class="text-lg font-semibold text-gray-900">${{note.price}}/week</span>
-                    </div>
-
-                    {# Action Buttons #}
-                    <div class="space-y-2">
-                        {% if note.status == 'NEED ACTION' %}
-                            <form action="{{ url_for('borrowed.confirmed_returned', note_id=note.note_id) }}" method="POST" class="w-full">
-                                <button type="submit" class="w-full bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition-colors text-sm font-medium">
-                                    ✓ Confirm Return
-                                </button>
-                                <p class="text-xs text-gray-600 mt-1">Buyer has marked this as returned</p>
-                            </form>
-                        {% elif note.status == 'LENT' %}
-                            <form action="{{ url_for('borrowed.confirmed_returned', note_id=note.note_id) }}" method="POST" class="w-full">
-                                <button type="submit" class="w-full bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition-colors text-sm font-medium">
-                                    Mark as Returned
-                                </button>
-                            </form>
-                        {% endif %}
-
-                        <div class="flex gap-2">
-                            <a href="{{ url_for('notes.update_note', note_id=note.note_id) }}" 
-                               class="flex-1 text-center bg-gray-100 text-gray-700 px-4 py-2 rounded hover:bg-gray-200 transition-colors text-sm font-medium">
-                                Edit
-                            </a>
-                            <form action="{{ url_for('notes.delete_note', note_id=note.note_id) }}" method="POST" class="flex-1">
-                                <button type="submit" 
-                                        onclick="return confirm('Are you sure you want to delete this book?');"
-                                        class="w-full bg-red-100 text-red-700 px-4 py-2 rounded hover:bg-red-200 transition-colors text-sm font-medium">
-                                    Delete
-                                </button>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            {{ comp.dashboard_card(note) }}
         {% endfor %}
     </div>
 

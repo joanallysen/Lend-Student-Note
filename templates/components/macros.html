@@ -1,0 +1,277 @@
+{# components/macros.html #}
+{% macro dashboard_card(note) %}
+
+<div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
+    {# Image #}
+    <div class="relative h-100 bg-gray-100">
+        <img src="{{ url_for('static', filename='uploads/' + note.image_filename) }}" 
+             alt="{{ note.title }}" 
+             class="w-full h-full object-cover">
+        
+        {# Status Badge #}
+        <div class="absolute top-2 right-2">
+            {% if note.status == 'LENT' %}
+                <span class="bg-yellow-100 text-yellow-800 text-xs font-medium px-2.5 py-1 rounded">Lent</span>
+            {% elif note.status == 'SOLD' %}
+                <span class="bg-green-100 text-green-800 text-xs font-medium px-2.5 py-1 rounded">Sold</span>
+            {% elif note.status == 'NEED ACTION' %}
+                <span class="bg-red-100 text-red-800 text-xs font-medium px-2.5 py-1 rounded">Action Needed</span>
+            {% else %}
+                <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-1 rounded">Available</span>
+            {% endif %}
+        </div>
+    </div>
+
+    {# Content #}
+    <div class="p-4">
+        {# Lent Info #}
+        {% if note.status == 'LENT' %}
+            <div class="bg-yellow-50 border border-yellow-200 rounded-md p-3 mb-3 text-sm">
+                <p class="text-gray-600 font-medium mb-1">Return Date</p>
+                <p class="text-gray-900 mb-2">{{ note.incoming_return_date.strftime("%d %b %Y") }}</p>
+                <p class="text-gray-600 font-medium mb-1">Currently Holding</p>
+                <p class="text-gray-900">{{ note.buyer.username }}</p>
+            </div>
+        {% endif %}
+
+        {# Title and Description #}
+        <h3 class="text-lg font-semibold text-gray-900 mb-1">{{ note.title }}</h3>
+        <p class="text-sm text-gray-600 mb-3">
+            {{ note.description[:50] }}{% if note.description|length > 50 %}...{% endif %}
+        </p>
+
+        {# Rating #}
+        {% if note.rating_count > 0 %}
+            <div class="flex items-center gap-2 mb-3">
+                <div class="flex items-center">
+                    {% for i in range(5) %}
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 {% if i < note.avg_rating %}text-yellow-400{% else %}text-gray-300{% endif %}" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/>
+                        </svg>
+                    {% endfor %}
+                </div>
+                <span class="text-sm font-medium text-gray-900">{{ "%.1f"|format(note.avg_rating) }}</span>
+            </div>
+        {% endif %}
+
+        {# Lended Count and Price #}
+        {% set note_lend_count = note.history_records | selectattr('transaction_type', 'equalto', 'BORROW') | selectattr('transaction_date', 'ne', None) | list | length %}
+        <div class="flex items-center justify-between mb-4">
+            <span class="text-sm text-gray-600">Lended {{ note_lend_count }}x</span>
+            <span class="text-lg font-semibold text-gray-900">${{ note.price }}/week</span>
+        </div>
+
+        {# Action Buttons #}
+        <div class="space-y-2">
+            {% if note.status == 'NEED ACTION' %}
+                <form action="{{ url_for('borrowed.confirmed_returned', note_id=note.note_id) }}" method="POST" class="w-full">
+                    <button type="submit" class="w-full bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition-colors text-sm font-medium">
+                        ✓ Confirm Return
+                    </button>
+                    <p class="text-xs text-gray-600 mt-1">Buyer has marked this as returned</p>
+                </form>
+            {% elif note.status == 'LENT' %}
+                <form action="{{ url_for('borrowed.confirmed_returned', note_id=note.note_id) }}" method="POST" class="w-full">
+                    <button type="submit" class="w-full bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition-colors text-sm font-medium">
+                        Mark as Returned
+                    </button>
+                </form>
+            {% endif %}
+
+            <div class="flex gap-2">
+                <a href="{{ url_for('notes.update_note', note_id=note.note_id) }}" 
+                    class="flex-1 text-center bg-gray-100 text-gray-700 px-4 py-2 rounded hover:bg-gray-200 transition-colors text-sm font-medium">
+                    Edit
+                </a>
+                <form action="{{ url_for('notes.delete_note', note_id=note.note_id) }}" method="POST" class="flex-1">
+                    <button type="submit" 
+                            onclick="return confirm('Are you sure you want to delete this book?');"
+                            class="w-full bg-red-100 text-red-700 px-4 py-2 rounded hover:bg-red-200 transition-colors text-sm font-medium">
+                        Delete
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endmacro %}
+
+{% macro explore_card(note, user_id, cart_note_ids=[], watchlisted_note_ids=[]) %}
+
+    <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow ">
+        
+        {# Image #}
+        <div class="relative h-100 bg-gray-100">
+            <img src="{{ url_for('static', filename='uploads/' + note.image_filename) }}" 
+                 alt="{{ note.title }}" 
+                 class="w-full h-full object-cover">
+            
+            {# Status Badge (top-right) #}
+            <div class="absolute top-2 right-2">
+                {% if note.status == 'LENT' %}
+                    <span class="bg-yellow-100 text-yellow-800 text-xs font-medium px-2.5 py-1 rounded">Lent</span>
+                {% elif note.status == 'SOLD' %}
+                    <span class="bg-red-100 text-red-800 text-xs font-medium px-2.5 py-1 rounded">Sold</span>
+                {% elif note.status == 'NEED ACTION' %}
+                    <span class="bg-red-100 text-red-800 text-xs font-medium px-2.5 py-1 rounded">Not Available</span>
+                {% else %}
+                    <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-1 rounded">Available</span>
+                {% endif %}
+            </div>
+        </div>
+
+        {# Content #}
+        <div class="p-4">
+            <a href="{{ url_for('detail', note_id=note.note_id) }}" class="text-lg font-semibold text-gray-900 mb-1 underline">{{ note.title }}</a>
+            <p class="text-sm text-gray-600 mb-3">
+                {{ note.description[:50] }}{% if note.description|length > 50 %}...{% endif %}
+            </p>
+            
+            <div class="flex items-center justify-between mb-4">
+                <span class="text-xl font-semibold text-gray-900">${{ note.price }}<span class="text-sm">/week</span></span>
+            </div>
+
+            {# Rating #}
+            {% if note.rating_count > 0 %}
+                <div class="flex items-center gap-2 mb-3">
+                    <div class="flex items-center">
+                        {% for i in range(5) %}
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 {% if i < note.avg_rating %}text-yellow-400{% else %}text-gray-300{% endif %}" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/>
+                            </svg>
+                        {% endfor %}
+                    </div>
+                    <span class="text-sm font-medium text-gray-900">{{ "%.1f"|format(note.avg_rating) }}</span>
+                </div>
+            {% endif %}
+
+            {# Status Indicators at the bottom of card #}
+            <div class="mt-2 flex gap-2">
+                {% if note.owner_id == user_id %}
+                    <div class="flex items-center gap-2 text-sm text-blue-600 bg-blue-50 px-3 py-1.5 rounded-md">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="12" cy="7" r="4"></circle>
+                        </svg>
+                        <span class="font-medium">Your listing</span>
+                    </div>
+                {% endif %}
+
+                {% if cart_note_ids and note.note_id in cart_note_ids %}
+                    <div class="flex items-center gap-2 text-sm text-green-600 bg-green-50 px-3 py-1.5 rounded-md">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="9" cy="21" r="1"></circle>
+                            <circle cx="20" cy="21" r="1"></circle>
+                            <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+                        </svg>
+                        <span class="font-medium">In cart</span>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        {# Watchlist Button outside clickable card #}
+        {% if note.owner_id != user_id %}
+            {% if note.note_id not in watchlisted_note_ids %}
+                <form action="{{ url_for('watchlist.add_watchlist', note_id=note.note_id) }}" method="POST" class="p-4 pt-0">
+                    <button type="submit" class="w-full flex items-center justify-center gap-2 px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>
+                        </svg>
+                        Add to watchlist
+                    </button>
+                </form>
+            {% else %}
+                <div class="p-4 pt-0">
+                    <div class="flex items-center justify-center gap-2 px-4 py-2 bg-gray-100 rounded-lg text-sm font-medium text-gray-600">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>
+                        </svg>
+                        In watchlist
+                    </div>
+                </div>
+            {% endif %}
+        {% endif %}
+    </div>
+{% endmacro %}
+
+{% macro borrowed_card(note) %}
+<div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
+    {# Image #}
+    <div class="relative h-100 bg-gray-100">
+        <img src="{{ url_for('static', filename='uploads/' + note.image_filename) }}" 
+             alt="{{ note.title }}" 
+             class="w-full h-full object-cover">
+        
+        {# Status Badge #}
+        <div class="absolute top-2 right-2">
+            {% if note.status == 'LENT' %}
+                <span class="bg-yellow-100 text-yellow-800 text-xs font-medium px-2.5 py-1 rounded">Lent</span>
+            {% elif note.status == 'SOLD' %}
+                <span class="bg-green-100 text-green-800 text-xs font-medium px-2.5 py-1 rounded">Sold</span>
+            {% elif note.status == 'NEED ACTION' %}
+                <span class="bg-red-100 text-red-800 text-xs font-medium px-2.5 py-1 rounded">Action Needed</span>
+            {% else %}
+                <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-1 rounded">Available</span>
+            {% endif %}
+        </div>
+    </div>
+
+    {# Content #}
+    <div class="p-4">
+        {# Lent Info #}
+        {% if note.status == 'LENT' %}
+            <div class="bg-yellow-50 border border-yellow-200 rounded-md p-3 mb-3 text-sm">
+                <p class="text-gray-600 font-medium mb-1">Return Date</p>
+                <p class="text-gray-900 mb-2">{{ note.incoming_return_date.strftime("%d %b %Y") }}</p>
+                <p class="text-gray-600 font-medium mb-1">Currently Holding</p>
+                <p class="text-gray-900">{{ note.buyer.username }}</p>
+            </div>
+        {% endif %}
+
+        {# Title and Description #}
+        <h3 class="text-lg font-semibold text-gray-900 mb-1">{{ note.title }}</h3>
+        <p class="text-sm text-gray-600 mb-3">
+            {{ note.description[:50] }}{% if note.description|length > 50 %}...{% endif %}
+        </p>
+
+        {# Rating #}
+        {% if note.rating_count > 0 %}
+            <div class="flex items-center gap-2 mb-3">
+                <div class="flex items-center">
+                    {% for i in range(5) %}
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 {% if i < note.avg_rating %}text-yellow-400{% else %}text-gray-300{% endif %}" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/>
+                        </svg>
+                    {% endfor %}
+                </div>
+                <span class="text-sm font-medium text-gray-900">{{ "%.1f"|format(note.avg_rating) }}</span>
+            </div>
+        {% endif %}
+
+        {# Lended and Price #}
+        {% set note_lend_count = note.history_records | selectattr('transaction_type', 'equalto', 'BORROW') | selectattr('transaction_date', 'ne', None) | list | length %}
+        <div class="flex items-center justify-between mb-4">
+            <span class="text-lg font-semibold text-gray-900">${{ note.price }}/week</span>
+        </div>
+
+        {# Action Buttons #}
+        <div class="space-y-2">
+            {% if note.status == 'NEED ACTION' %}
+                <form action="{{ url_for('borrowed.confirmed_returned', note_id=note.note_id) }}" method="POST" class="w-full">
+                    <button type="submit" class="w-full bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition-colors text-sm font-medium">
+                        ✓ Confirm Return
+                    </button>
+                    <p class="text-xs text-gray-600 mt-1">Buyer has marked this as returned</p>
+                </form>
+            {% elif note.status == 'LENT' %}
+                <form action="{{ url_for('borrowed.confirmed_returned', note_id=note.note_id) }}" method="POST" class="w-full">
+                    <button type="submit" class="w-full bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition-colors text-sm font-medium">
+                        Mark as Returned
+                    </button>
+                </form>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endmacro %}

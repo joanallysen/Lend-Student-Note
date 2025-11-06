@@ -6,36 +6,67 @@
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script><script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <title>History</title>
 </head>
-<body>
-    <h1>History</h1>
+<body class="max-w-7xl mx-auto mt-10">
     {% include 'components/navbar.html'%}
-    <div class="flex justify-center text-center flex-col w-2/3 mx-auto">
-        {% for date, items in history_dict.items() %}
-            <p class="font-bold text-4xl text-left">{{date}}</p>
-            <div class="flex justify-center text-center">
-                {% for item in items%}
-                <div>
-                    <img src="{{url_for('static', filename='uploads/' + item['note'].image_filename)}}" alt="Current Image" class="w-80 h-auto">
-                    <a class="underline" href="{{url_for('detail', note_id=item['note'].note_id)}}">{{item['note'].title}}</a>
-                    <p>{{item['note'].description}}</p>
-                    <p>{{item['transaction_type']}}</p>
-                    {% if item['transaction_type'] == 'BORROW'%}
-                        <p>Borrow start date:{{item['borrow_start_date']}}</p>
-                        {% if item['transaction_date'] == None %}
-                            <p>Book has not returned yet</p>
-                        {% endif %}
-                        <p>Return date:{{item['transaction_date']}}</p>
-                    {% endif%}
-                    {% if item['transaction_type'] == 'BUY' %}
-                        <p>Buy date : {{item['transaction_date']}}</p>
-                    {% endif %}
-                    <p>${{item['total_price']}}</p>
-                </div>
-                {% endfor %}
-            </div>
 
-            
-            {% endfor %}
-        </div>
+    <h1 class="text-3xl font-bold mb-2">History</h1>
+    <p class="text-gray-600 mb-8">View borrowed, lended, and sold history</p>
+
+    <nav class="border-b border-gray-200 mb-6">
+        <ul class="flex justify-center gap-8">
+            <li>
+                <button 
+                    class="tab-button px-4 py-3 font-medium text-gray-600 border-b-2 border-transparent hover:text-gray-900 hover:border-gray-300 transition-colors"
+                    data-tab="lended_notes"
+                    onclick="switchTab('lended_notes')">
+                    Lended Notes
+                </button>
+            </li>
+            <li>
+                <button 
+                    class="tab-button px-4 py-3 font-medium text-gray-600 border-b-2 border-transparent hover:text-gray-900 hover:border-gray-300 transition-colors"
+                    data-tab="borrowed_notes"
+                    onclick="switchTab('borrowed_notes')">
+                    Borrowed Notes
+                </button>
+            </li>
+        </ul>
+    </nav>
+
+    <div id="borrowed_notes_container" class="tab-content hidden">
+        {% include '/components/history_buyer.html' %}
+    </div>
+
+    <div id="lended_notes_container" class="tab-content hidden">
+        {% include '/components/history_owner.html' %}
+    </div>
 </body>
+<script>
+    // switch between tabs
+    function switchTab(tabName) {
+        // hide all the content first
+        document.querySelectorAll('.tab-content').forEach(content => {
+            content.classList.add('hidden');
+        });
+        
+        // remove active state from all buttons
+        document.querySelectorAll('.tab-button').forEach(button => {
+            button.classList.remove('text-blue-600', 'border-blue-600');
+            button.classList.add('text-gray-600', 'border-transparent');
+        });
+        
+        // show selected tab content
+        document.getElementById(tabName + '_container').classList.remove('hidden');
+        
+        // add active state to clicked button
+        const activeButton = document.querySelector(`[data-tab="${tabName}"]`);
+        activeButton.classList.remove('text-gray-600', 'border-transparent');
+        activeButton.classList.add('text-blue-600', 'border-blue-600');
+    }
+    
+    // set default tab on page load
+    document.addEventListener('DOMContentLoaded', () => {
+        switchTab('lended_notes');
+    });
+</script>
 </html>

@@ -1,13 +1,14 @@
+{% import 'components/macros.html' as comp %}
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width={}, initial-scale=1.0">
-    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script><script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <title>Explore</title>
 </head>
-<body>
+<body class="max-w-7xl mx-auto mt-10">
     {% with messagges = get_flashed_messages(with_categories=true) %}
         {% if messages %}
             {% for category, message in messages %}
@@ -17,45 +18,13 @@
     {% endwith %}
 
     {% include '/components/navbar.html' %}
-
-    
-
-    <div class="flex justify-center text-center space-x-1">
+    <h1 class="text-3xl font-bold mb-2">Explore</h1>
+    <p class="text-gray-600 mb-8">Browse through notes and books</p>
+    <div class="grid grid-cols-4 gap-6">
         {% for note in notes %}
-            <div>
-                <img src="{{url_for('static', filename='uploads/' + note.image_filename)}}" alt="Current Image" class="w-80 h-auto">
-                <a class="underline" href="{{url_for('detail', note_id=note.note_id)}}">{{note.title}}</a>
-                <p>{{note.price}}</p>
-                <p>{{note.description}}</p>
-                {% if note.note_id not in watchlisted_note_ids %}
-                    <form action="{{ url_for('watchlist.add_watchlist', note_id=note.note_id) }}" method="POST">
-                        <button type="submit">Add to watchlist</button>
-                    </form>
-                {% else %}
-                    <p>Already in your watchlist</p>
-                {% endif %}
-
-                <!-- check if user cart have this note id. note.note_id == user_cart -->
-                {% if cart_note_ids and note.note_id in cart_note_ids %}
-                    <p class="text-green-600 font-semibold">Added to cart ✓</p>
-                {% else %}
-                    <p class="text-gray-500">Not in cart</p>
-                {% endif %}
-
-                {% if note.owner_id == user_id%}
-                    <p>This is your book or note</p>
-                {% endif %}
-
-                {% if note.incoming_return_date %}
-                    <p>Not Available until {{note.incoming_return_date.strftime('%d %b %Y')}}</p>
-                {% elif note.buyer_id%}
-                    <p>Sold</p>
-                {% else %}
-                    <p>Available</p>
-                {% endif %}
-                    
-            </div>
+            {{ comp.explore_card(note, user_id, cart_note_ids, watchlisted_note_ids) }}
         {% endfor %}
     </div>
+
 </body>
 </html>
