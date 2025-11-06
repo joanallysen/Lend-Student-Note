@@ -48,7 +48,13 @@
             </div>
             <div>
                 <p class="text-gray-600 text-sm mb-1">Next Return Date</p>
-                <p class="text-xl font-semibold">{{ next_return_date.strftime("%d %B %Y") }}</p>
+                <p class="text-xl font-semibold">
+                    {% if next_return_date %}
+                        {{ next_return_date.strftime("%d %B %Y") }}
+                    {% else %}
+                        No incoming return date!
+                    {% endif %}
+                </p>
             </div>
         </div>
         {# Notes Since Start #}

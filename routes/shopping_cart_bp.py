@@ -62,15 +62,9 @@ def add_to_cart(note_id):
             start_date = datetime.strptime(request.form.get('start_date'), '%Y-%m-%d').date()
             end_date = datetime.strptime(request.form.get('end_date'), '%Y-%m-%d').date()
             
-            new_item = CartItem(cart_id = user_cart.cart_id, note_id=note_id, quantity=1, buying_type='BORROW', start_date=start_date, end_date=end_date, total_price=total_price)
+            new_item = CartItem(cart_id = user_cart.cart_id, note_id=note_id, buying_type='BORROW', start_date=start_date, end_date=end_date, total_price=total_price)
         elif buying_type == 'BUY':
-            new_item = CartItem(cart_id = user_cart.cart_id, note_id=note_id, quantity=1, buying_type='BUY', total_price=total_price)
-            
-            if start_date and end_date:
-                new_item = CartItem(cart_id = user_cart.cart_id, note_id=note_id, buying_type='BORROW', start_date=start_date, end_date=end_date)
-           
-        elif buying_type == 'BUY':
-            new_item = CartItem(cart_id = user_cart.cart_id, note_id=note_id, buying_type='BUY')
+            new_item = CartItem(cart_id = user_cart.cart_id, note_id=note_id, buying_type='BUY', total_price=total_price)
             
         if new_item:
             db.session.add(new_item)

@@ -94,8 +94,9 @@ def detail(note_id):
         else:
             my_review = review
     
-    return render_template('detail.html', note=note, related_books= related_books,
-                            my_review=my_review, note_reviews=other_reviews)
+    return render_template('detail.html', note=note, related_books=related_books,
+                            my_review=my_review.to_dict() if my_review else None, 
+                            note_reviews=[review.to_dict() for review in other_reviews])
 
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
