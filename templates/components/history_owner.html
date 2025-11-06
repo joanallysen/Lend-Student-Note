@@ -1,0 +1,30 @@
+{% set current_path = request.path %}
+
+<div class="flex justify-center text-center flex-col">
+    {% for date, items in history_owner.items() %}
+        <p class="font-bold text-2xl text-left">{{date}}</p>
+        <div class="flex justify-center text-center">
+            {% for item in items %}
+            <div>
+                <img src="{{url_for('static', filename='uploads/' + item['note'].image_filename)}}" alt="Current Image" class="w-80 h-auto">
+                <a class="underline" href="{{url_for('detail', note_id=item['note'].note_id)}}">{{item['note'].title}}</a>
+                <p>{{item['note'].description}}</p>
+                <p>{{item['transaction_type']}}</p>
+                {% if item['transaction_type'] == 'BORROW'%}
+                    <p>Borrow start date:{{item['borrow_start_date']}}</p>
+                    {% if item['transaction_date'] == None %}
+                        <p>Book has not returned yet</p>
+                    {% endif %}
+                    <p>Return date:{{item['transaction_date']}}</p>
+                {% endif%}
+                {% if item['transaction_type'] == 'BUY' %}
+                    <p>Buy date : {{item['transaction_date']}}</p>
+                {% endif %}
+                <p>${{item['total_price']}}</p>
+            </div>
+            {% endfor %}
+        </div>
+
+        
+        {% endfor %}
+</div>

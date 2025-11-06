@@ -7,7 +7,7 @@
     <title>Watchlist</title>
 </head>
 <body>
-    <a href="{{url_for('dashboard')}}">Dashboard</a>
+    {% include 'components/navbar.html'%}
     <div class="flex justify-center text-center space-x-1">
         {% for note in notes %}
             <div>

@@ -9,10 +9,86 @@
     <title>Detail Before Buying</title>
 </head>
 <body class="m-10">
-    <a href="{{url_for('shopping_cart.user_cart')}}">Shopping cart</a>
-
     <!-- Book -->
-    <div class="max-w-7xl mx-auto px-6 py-8">
+    <!-- <div class="max-w-7xl mx-auto px-6 py-8"> -->
+    {% include '/components/navbar.html' %}
+    {% if note.incoming_return_date %} <h1 class="text-5xl">Book is currently lended until {{note.incoming_return_date.strftime("%d %b %Y")}}</h1>
+    {%elif note.buyer_id%} <h1 class="text-5xl"> Book has been sold</h1> {%endif%}
+    
+    <div class="flex justify-center text-center flex-row bg-gray-300 space-x-20 p-20">
+        {% if note.image_filename != '' %}
+            <img class="w-100" src="{{url_for('static', filename='uploads/' + note.image_filename)}}" alt="Note poster">
+        {% endif %}
+
+        <div class="text-left space-y-4 w-100">
+            <p class="text-4xl font-bold">{{note.title}} <span class="text-2xl text-gray-400">{{note.isbn}}</span></p>
+            <p id="price" class="text-5xl font-bold">${{note.price}}/week</p>
+            <p id="price_sale" class="text-5xl font-bold" style='display:none'>${{note.price_sale}}</p>
+            <p>{{note.description}}</p>
+
+            <p>Condition <span class="border-2 border-red-50 bg-red-50 rounded">{{note.condition}}</span></p>
+            <p>Pickup Location {{note.pickup_location}}</p>
+
+            <form action="{{url_for('shopping_cart.add_to_cart', note_id=note.note_id)}}" method="POST">
+                <!-- so shopping cart can have note id -->
+                <input type="hidden" name="note_id" value="{{note.note_id}}">
+
+                <label for="buying_type">Borrow / Buy</label> <br>
+                <select name="buying_type" id="buying_type" class="w-full  bg-white border-gray-200 p-3">
+                    {% if note.listing_type == 'BOTH' or note.listing_type == 'RENTAL'%}
+                        <option value="BORROW">Borrow</option>
+                    {% endif %}
+                    {% if note.listing_type == 'BOTH' or note.listing_type == 'SALE' %} 
+                        <option value="BUY">Buy</option>
+                    {% endif%}
+                </select>
+
+                <div id="rental_options" {% if note.listing_type == 'SALE' %} class="hidden space-y-4" {% endif %}>
+                    <label for="start_date">Choose Start Borrowing Date</label> <br>
+                    <input type="text" id="start_date" name="start_date" class="w-full p-3 bg-white border-gray-200" required> 
+                
+                    <label for="end_date">Choose End Borrowing Date</label> <br>
+                    <input type="text" id="end_date" name="end_date" class="w-full p-3 bg-white border-gray-200" required>
+                </div>
+
+                <p id="total_display" name="total_display" readonly></p>
+                <input id="total_price" name="total_price" hidden></input>
+            
+                
+                <input id="purchase_button" class="p-4 bg-white rounded-2xl font-bold cursor-pointer disabled:bg-gray-300 disabled:cursor-not-allowed" type="submit" value="{% if note.listing_type == 'BOTH' %}Borrow{% else %}Buy{% endif %}"
+                {%if note.buyer_id%} disabled{%endif%}
+                >
+            </form>
+        </div>
+    </div>
+
+    <!-- TODO LINK THIS WITH SHOPPING CART -->
+    <!-- If user has lended this book, have the ability to rate -->
+    <!-- {if user.history.note_id = note_id  -->
+    <!-- { endif -->
+   <div class="">
+        <h2>Rate this note or book!</h2>
+
+        <div id="starRating" class="flex justify-center space-x-1 text-3xl text-yellow-400 cursor-pointer">
+        </div>
+        <form action="review.add_review/{{note.note_id}}" method="POST">
+            <input id="ratingValue" value="" required>
+            <label for="review">Review</label>
+            <input type="text" name="review">
+            <input type="submit" name="submit">
+        </form>
+    </div>
+
+
+
+    <div>
+        <h2 class="text-5xl">Review</h2>
+
+    </div>
+    
+Related Books
+    <div style="display: grid;
+    grid-auto-flow: column;">
         
         <div class="bg-white rounded-2xl shadow-lg overflow-hidden mb-8">
             <div class="flex">
@@ -349,38 +425,88 @@
         }
 
 
+        // simpler calendar
         const listingType = '{{note.listing_type}}';
-        const availableDate = '{{note.available_date}}';
-        
+        const availableDate = '{{note.available_date}}';;
+        const pricePerWeek = parseFloat('{{ note.price }}');
+        const priceSale = parseFloat('{{note.price_sale}}')
+
         let startPicker, endPicker;
 
-        startPicker = flatpickr('#start_date', {
-            minDate: availableDate,
-            onChange: function(selectedDates, dateStr, instance){
-                if (selectedDates.length > 0){
-                    const minEndDate = new Date(selectedDates[0]);
-                    minEndDate.setDate(minEndDate.getDate() + 1);
-                    endPicker.set('minDate', minEndDate)
-                }
+        const startInput = document.getElementById('start_date');
+        const endInput = document.getElementById('end_date');
+        const totalPriceDisplay = document.getElementById('total_display');
+        const totalPriceInput = document.getElementById('total_price');
+
+
+        function calculateWeeksDiff(start, end) {
+            const diffTime = end - start;
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            const diffWeeks = Math.ceil(diffDays / 7); 
+            return diffWeeks > 0 ? diffWeeks : 0;
+        }
+
+        function updateTotalPrice() {
+            const startVal = startInput.value;
+            const endVal = endInput.value;
+            if (!startVal || !endVal) {
+                totalPriceDisplay.innerText = '';
+                return;
             }
+
+            const startDate = new Date(startVal);
+            const endDate = new Date(endVal);
+
+            const weeks = calculateWeeksDiff(startDate, endDate);
+            const total = weeks * pricePerWeek;
+
+            totalPriceDisplay.innerText = `Total Price: $${total.toFixed(2)} (${weeks} week${weeks !== 1 ? 's' : ''})`;
+            totalPriceInput.value = total;
+        }
+
+        // Initialize Flatpickr
+        startPicker = flatpickr('#start_date', {
+        minDate: availableDate,
+        onChange: function(selectedDates) {
+            if (selectedDates.length > 0) {
+            const minEndDate = new Date(selectedDates[0]);
+            minEndDate.setDate(minEndDate.getDate() + 7); // minimum 1 week later
+            endPicker.set('minDate', minEndDate);
+            updateTotalPrice();
+            }
+        }
         });
 
         endPicker = flatpickr('#end_date', {
-            minDate: new Date(availableDate).setDate(new Date(availableDate).getDate() + 1)
-        })
+        minDate: new Date(availableDate),
+        onChange: updateTotalPrice
+        });
 
-        
+        // also update if user manually types or edits date
+        startInput.addEventListener('change', updateTotalPrice);
+        endInput.addEventListener('change', updateTotalPrice);
+
+        // change the display if user click borrow or buy
         document.getElementById('buying_type').addEventListener('change', function() {
             const rentalOptions = document.getElementById('rental_options');
-            const purchaseButton = document.getElementById('purchase_button')
+            const purchaseButton = document.getElementById('purchase_button');
+            const priceElement = document.getElementById('price');
+            const priceSaleElement = document.getElementById('price_sale');
             if (this.value === 'BORROW'){
                 rentalOptions.style.display = 'block';
                 purchaseButton.value = 'Borrow'
+                priceElement.style.display = 'block'
+                priceSaleElement.style.display = 'none'
             } else{
                 rentalOptions.style.display = 'none';
                 purchaseButton.value = 'Buy'
+                priceElement.style.display = 'none'
+                priceSaleElement.style.display = 'block'
+                totalPriceDisplay.innerText = `Total Price: $${priceSale.toFixed(2)}`;
+                totalPriceInput.value = priceSale
             }
         })
+
 
         // Calculate rating distribution from the reviews
         function calculateRatingDistribution() {
@@ -389,6 +515,8 @@
                 {% if my_review %}
                     { star: {{ my_review.star }} },
                 {% endif %}
+
+        // star rating
 
                 //Others Reviews
                 {% if note_reviews %}
