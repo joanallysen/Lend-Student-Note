@@ -2,7 +2,7 @@
 {% import 'components/macros.html' as comp %}
 
 {# Calculate statistics from History #}
-{% set borrowed_notes = user.notes_bought | selectattr('status', 'equalto', 'LENT') | list %}
+{% set borrowed_notes = user.notes_bought | selectattr('status', 'in', ['LENT', 'NEED ACTION']) | list %}
 {% set current_borrowed = borrowed_notes | list | length %}
 {% set total_borrowed = user.purchases | selectattr('transaction_type', 'equalto', 'BORROW') | list | length %}
 {% set next_return_date = borrowed_notes | map(attribute='incoming_return_date') | select('ne', None) | sort | first %}
