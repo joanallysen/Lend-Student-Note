@@ -1,3 +1,5 @@
+{% import 'components/user_profile.html' as comp%}
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -15,7 +17,10 @@
     {% endwith %}
 
     {% include '/components/navbar.html' %}
-    {% include '/components/user_profile.html' %}
+    <h1 class="text-3xl font-bold mb-2">Student Profile</h1>
+    <p class="text-gray-600 mb-8">View borrowing history, lended materials, and community reputation</p>
+
+    {{comp.user_profile(user)}}
     
     <!-- Tab Navigation -->
     <nav class="border-b border-gray-200 mb-6">

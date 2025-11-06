@@ -1,3 +1,5 @@
+{% import 'components/user_profile.html' as comp %}
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -90,19 +92,20 @@
 
                         <div id="total_display" class="text-lg font-semibold text-gray-700 mb-2"></div>
                         <input type="hidden" name="total_price" id="total_price">
-                    
+                        
+                        
                         <input id="purchase_button" class="py-4 w-full bg-blue-700 text-white rounded-2xl font-bold cursor-pointer disabled:bg-red-500 disabled:cursor-not-allowed" type="submit" 
-                        value="  {% if note.status != 'AVAILABLE' %}
-                                    Not Available
-                                {% else %}
-                                    {% if note.listing_type == 'BOTH' %}Borrow{% else %}Buy
-                                {% endif %}"
-                        {%if note.buyer_id%} disabled{%endif%}>
+                         value="{% if note.status != 'AVAILABLE' %}Not Available{% else %}{{ 'Borrow' if note.listing_type == 'BOTH' else 'Buy' }}{% endif %}"
+                        {% if note.buyer_id %} disabled{% endif %}>
+
                     </form>
                 </div>
             </div>
         </div>
 
+        <!-- Seller Profile -->
+         <h1 class="text-3xl font-bold mb-2">Seller Profile</h1>
+        {{comp.user_profile(user=note.owner)}}
         <!-- Reviews -->
         <div class="bg-white rounded-2xl shadow-lg p-8 mb-8">
             <!-- Add Review  -->
@@ -365,9 +368,9 @@
 
         // simpler calendar
         const listingType = '{{note.listing_type}}';
-        const availableDate = '{{note.available_date}}';;
+        const availableDate = '{{note.available_date}}';
         const pricePerWeek = parseFloat('{{ note.price }}');
-        const priceSale = parseFloat('{{note.price_sale}}')
+        const priceSale = parseFloat('{{ note.price_sale }}');
 
         let startPicker, endPicker;
 

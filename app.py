@@ -84,7 +84,6 @@ def detail(note_id):
         .filter(note_tag_association.c.note_id == note_id)
     ),
     Note.note_id != note_id ).distinct().all()
-
     my_review = None
     other_reviews = []
     
@@ -93,8 +92,10 @@ def detail(note_id):
             other_reviews.append(review)
         else:
             my_review = review
-    
-    return render_template('detail.html', note=note, related_books=related_books,
+
+    return render_template('detail.html', 
+                            note=note, 
+                            related_books=related_books,
                             my_review=my_review.to_dict() if my_review else None, 
                             note_reviews=[review.to_dict() for review in other_reviews])
 

@@ -1,9 +1,8 @@
-{% set current_path = request.path %}
-<div>
-  <h1 class="text-3xl font-bold mb-2">Student Profile</h1>
-  <p class="text-gray-600 mb-8">View borrowing history, lended materials, and community reputation</p>
+{# components/user_profile.html #}
+{% macro user_profile(user)%}
 
-  <div class="rounded-lg shadow-md p-8">
+<div>
+  <div class="rounded-lg shadow-md p-8 mb-8">
     <div class="flex flex-row items-start gap-8">
       <!-- Profile Image -->
       <div>
@@ -47,3 +46,4 @@
     </div>
   </div>
 </div>
+{% endmacro %}
