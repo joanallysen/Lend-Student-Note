@@ -1,0 +1,10 @@
+{% set current_path = request.path %}
+<nav>
+    <ul class="flex justify-center-safe text-center space-x-10">
+        <li class="{% if current_path == '/explore' %}font-bold{% endif %}"><a href="{{url_for('explore')}}">Explore</a></li>
+        <li class="{% if current_path == '/dashboard' %}font-bold{% endif %}"><a href="{{url_for('dashboard')}}">Dashboard</a></li>
+        <li class="{% if current_path == '/history' %}font-bold{% endif %}"><a href="{{url_for('history')}}">See History</a></li>
+        <li class="{% if current_path == '/watchlist' %}font-bold{% endif %}"><a href="{{url_for('watchlist')}}">See Watchlist</a></li>
+        <li class="{% if current_path == '/user_cart' %}font-bold{% endif %}"><a href="{{url_for('shopping_cart.user_cart')}}">See Cart</a></li>
+    </ul>
+</nav>

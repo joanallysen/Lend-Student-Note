@@ -94,8 +94,9 @@ def detail(note_id):
         else:
             my_review = review
     
-    return render_template('detail.html', note=note, related_books= related_books,
-                            my_review=my_review, note_reviews=other_reviews)
+    return render_template('detail.html', note=note, related_books=related_books,
+                            my_review=my_review.to_dict() if my_review else None, 
+                            note_reviews=[review.to_dict() for review in other_reviews])
 
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
@@ -160,35 +161,11 @@ def login():
 @app.route('/dashboard')
 @login_required
 def dashboard():
-    user_id = int(session['user_id'])
-    user = db.session.get(User, user_id)
-    
-    #Borrower
-    total_borrowed_books= History.query.filter(History.user_id == user_id, History.transaction_type == 'BORROW')
-    borrowed_notes = user.notes_bought
-    currently_borrowing = []
-
-    if borrowed_notes:
-        for note in borrowed_notes:
-            if note.status == 'LENT':
-                currently_borrowing.append(note)
-
-    # Seller
-    notes_transaction_list=[]
+    user = db.session.get(User, int(session['user_id']))
+    # notes_owned is redundant
     owned_notes = user.notes_owned
 
-    for note in owned_notes:
-        lended = History.query.filter(History.note_id == note.note_id, History.transaction_type == 'BORROW').all()
-        sold = History.query.filter(History.note_id == note.note_id, History.transaction_type == 'BUY').all()
-        notes_transaction_list.append({
-            "note":note,
-            "lended_count":len(lended), 
-            "sold_count":len(sold)
-        })
-
-
-    return render_template('dashboard.html', user=user, owned_notes=owned_notes, borrowed_notes=currently_borrowing, total_books = total_borrowed_books.count()
-                           , notes_transaction_list=notes_transaction_list)
+    return render_template('dashboard.html', user=user, owned_notes=owned_notes)
 
 
 @app.route('/logout')
@@ -206,23 +183,32 @@ def watchlist():
     notes = [item.note for item in watchlist_items]
     return render_template('watchlist.html', notes=notes)
 
+def make_history_dictionary(history):
+    history_dict = defaultdict(list)
+    for h in history:
+        transaction_date = h.transaction_date.date() if h.transaction_date else h.borrow_start_date.date()
+        transaction_date = transaction_date.strftime('%#d %B')
+        history_dict[transaction_date].append({
+            'note': h.note,
+            'transaction_type': h.transaction_type,
+            'borrow_start_date': h.borrow_start_date,
+            'transaction_date': h.transaction_date,
+            'total_price': h.total_price
+        })
+        print(f'this are the borrow start date: {h.borrow_start_date}')
+    return history_dict
+
 @app.route('/history')
 @login_required
 def history():
     print(f"Adding to history")
     user_id = session['user_id']
-    history = History.query.filter_by(user_id=user_id).order_by(History.transaction_date).all()
-    history_dict = defaultdict(list)
-    for h in history:
-        transaction_date = h.transaction_date.date() if h.transaction_date else h.borrow_start_date.date()
-        history_dict[transaction_date].append({
-            'note': h.note,
-            'transaction_type': h.transaction_type,
-            'borrow_start_date': h.borrow_start_date,
-            'transaction_date': h.transaction_date
-        })
-        print(f'this are the borrow start date: {h.borrow_start_date}')
-    return render_template('history.html', history_dict=history_dict)
+    history_buyer = History.query.filter_by(buyer_id=user_id).order_by(History.transaction_date).all()
+    history_owner = History.query.filter_by(owner_id=user_id).order_by(History.transaction_date).all()
+    history_buyer = make_history_dictionary(history_buyer) 
+    history_owner = make_history_dictionary(history_owner)
+    
+    return render_template('history.html', history_buyer=history_buyer, history_owner=history_owner)
 
 if __name__ == '__main__':
     app.run(debug=True)

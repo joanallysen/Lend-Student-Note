@@ -1,0 +1,123 @@
+{% set current_path = request.path %}
+
+{# Calculate statistics from History #}
+{% set current_lended = owned_notes | selectattr('status', 'equalto', 'LENT') | list | length %}
+
+{# Get all completed borrow transactions where user is the owner #}
+{% set borrow_history = user.sales | selectattr('transaction_type', 'equalto', 'BORROW') | selectattr('transaction_date', 'ne', None) | list %}
+{% set total_lended = borrow_history | length %}
+
+{# Get all buy transactions where user is the owner #}
+{% set buy_history = user.sales | selectattr('transaction_type', 'equalto', 'BUY') | list %}
+{% set total_sold = buy_history | length %}
+
+{# Calculate earnings #}
+{% set earned_lending = borrow_history | map(attribute='total_price') | sum %}
+{% set earned_selling = buy_history | map(attribute='total_price') | sum %}
+{% set total_earned = earned_lending + earned_selling %}
+
+{% import 'components/macros.html' as comp %}
+
+<div class="mb-8">
+    <h1 class="text-4xl font-bold mb-6">Lended Notes</h1>
+    
+    {# Statistics Cards #}
+    <div class="grid grid-cols-3 gap-4 mb-8">
+        {# Current Lended #}
+        <div class="bg-white rounded-lg shadow p-6 flex items-start gap-4">
+            <div class="bg-gray-100 rounded-lg p-3">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-gray-700" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+                    <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+                </svg>
+            </div>
+            <div>
+                <p class="text-gray-600 text-sm mb-1">Current Lended</p>
+                <p class="text-2xl font-semibold">{{ current_lended }} books</p>
+            </div>
+        </div>
+
+        {# Total Lended #}
+        <div class="bg-white rounded-lg shadow p-6 flex items-start gap-4">
+            <div class="bg-gray-100 rounded-lg p-3">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-gray-700" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+                </svg>
+            </div>
+            <div>
+                <p class="text-gray-600 text-sm mb-1">Total Lended</p>
+                <p class="text-2xl font-semibold">{{ total_lended }} times</p>
+            </div>
+        </div>
+
+        {# Total Sold #}
+        <div class="bg-white rounded-lg shadow p-6 flex items-start gap-4">
+            <div class="bg-gray-100 rounded-lg p-3">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-gray-700" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+                    <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
+                    <line x1="12" y1="22.08" x2="12" y2="12"></line>
+                </svg>
+            </div>
+            <div>
+                <p class="text-gray-600 text-sm mb-1">Total Sold</p>
+                <p class="text-2xl font-semibold">{{ total_sold }} books</p>
+            </div>
+        </div>
+
+        {# Earned from Lending #}
+        <div class="bg-white rounded-lg shadow p-6 flex items-start gap-4">
+            <div class="bg-gray-100 rounded-lg p-3">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-gray-700" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z"/>
+                </svg>
+            </div>
+            <div>
+                <p class="text-gray-600 text-sm mb-1">Earned from Lending</p>
+                <p class="text-2xl font-semibold">${{ "%.2f"|format(earned_lending) }}</p>
+            </div>
+        </div>
+
+        {# Earned from Selling #}
+        <div class="bg-white rounded-lg shadow p-6 flex items-start gap-4">
+            <div class="bg-gray-100 rounded-lg p-3">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-gray-700" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z"/>
+                </svg>
+            </div>
+            <div>
+                <p class="text-gray-600 text-sm mb-1">Earned from Selling</p>
+                <p class="text-2xl font-semibold">${{ "%.2f"|format(earned_selling) }}</p>
+            </div>
+        </div>
+
+        {# Total Earned - Featured Card #}
+        <div class="bg-gray-900 text-white rounded-lg shadow-lg p-6 flex items-start gap-4">
+            <div class="bg-white/10 rounded-lg p-3">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z"/>
+                </svg>
+            </div>
+            <div>
+                <p class="text-gray-300 text-sm mb-1">Total Earned</p>
+                <p class="text-2xl font-semibold">${{ "%.2f"|format(total_earned) }}</p>
+            </div>
+        </div>
+    </div>
+
+    {# Notes Grid #}
+    <div class="grid grid-cols-4 gap-6">
+        {% for note in owned_notes %}
+            {{ comp.dashboard_card(note) }}
+        {% endfor %}
+    </div>
+
+    {# Floating Add Button #}
+    <a href="{{ url_for('notes.add_note') }}"
+       class="fixed bottom-6 right-6 bg-blue-600 text-white px-5 py-3 rounded-full shadow-lg hover:bg-blue-700 transition-colors flex items-center gap-2 z-50">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+            <path fill="currentColor" d="M11 13H5v-2h6V5h2v6h6v2h-6v6h-2z"/>
+        </svg>
+        <span class="hidden sm:inline">Add Note</span>
+    </a>
+</div>

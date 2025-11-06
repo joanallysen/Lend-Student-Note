@@ -8,11 +8,11 @@
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <title>Detail Before Buying</title>
 </head>
-<body class="m-10">
-    <a href="{{url_for('shopping_cart.user_cart')}}">Shopping cart</a>
-
+<body class="max-w-7xl mx-auto mt-10">
     <!-- Book -->
-    <div class="max-w-7xl mx-auto px-6 py-8">
+    <!-- <div class="max-w-7xl mx-auto px-6 py-8"> -->
+    {% include '/components/navbar.html' %}
+<!-- copy here -->
         
         <div class="bg-white rounded-2xl shadow-lg overflow-hidden mb-8">
             <div class="flex">
@@ -37,7 +37,8 @@
                         <p class="text-lg text-gray-500">ISBN: {{note.isbn}}</p>
                     </div>
 
-                    <div class="text-5xl font-bold mb-6">${{note.price}}</div>
+                    <div id="price" class="text-5xl font-bold mb-6">${{note.price}}<span class="text-xl">/week</span></div>
+                    <div id="price_sale" class="text-5xl font-bold mb-6" style='display:none'>${{note.price_sale}}</div>
 
                     <div class="mb-6">
                         <p class="text-lg text-gray-500 mb-1 leading-relaxed">Description:</p>
@@ -86,21 +87,17 @@
                                 <input type="text" id="end_date" name="end_date" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Select end date">
                             </div>
                         </div>
+
+                        <div id="total_display" class="text-lg font-semibold text-gray-700 mb-2"></div>
+                        <input type="hidden" name="total_price" id="total_price">
                     
-                        <button id="purchase_button" type="submit" {% if note.status != 'AVAILABLE' %}disabled{% endif %} class="w-full text-white px-6 py-4 rounded-xl font-bold text-lg
-                        {% if note.status != 'AVAILABLE' %}
-                            bg-red-500 cursor-not-allowed
-                        {% else %}
-                            bg-gradient-to-r from-blue-600 to-blue-700  hover:from-blue-700 hover:to-blue-800 transition-all shadow-lg hover:shadow-xl transform hover:scale-[1.02]
-                        {% endif %} "
-                        >   {% if note.status != 'AVAILABLE' %}
-                                Not Available
+                        <input id="purchase_button" class="py-4 w-full bg-blue-700 text-white rounded-2xl font-bold cursor-pointer disabled:bg-red-500 disabled:cursor-not-allowed" type="submit" 
+                        value="  {% if note.status != 'AVAILABLE' %}
+                                    Not Available
                                 {% else %}
-                                    {% if note.listing_type == 'BOTH' %}📖 Borrow{% elif note.listing_type == 'RENTAL' %}📖 Borrow{% else %}🛒 Buy{% endif %}
-                            {% endif %}
-                            
-                            
-                        </button>
+                                    {% if note.listing_type == 'BOTH' %}Borrow{% else %}Buy
+                                {% endif %}"
+                        {%if note.buyer_id%} disabled{%endif%}>
                     </form>
                 </div>
             </div>
@@ -338,8 +335,14 @@
     </div>
 
 
-
+    <script id="review-data" type="application/json">
+         {{ {"my_review": (my_review or {}), "note_reviews": (note_reviews or {})} | tojson | safe }}
+    </script>
     <script>
+        const data = JSON.parse(document.getElementById('review-data').textContent);
+        const myReview = data.my_review;
+        const noteReviews = data.note_reviews;
+
         function toggle_edit_view(){
             const view_container = document.getElementById("viewReview");
             const edit_container = document.getElementById("editReview");
@@ -353,69 +356,109 @@
                     
                     const editStarContainer = document.getElementById('editStarRating');
                     
-                    createStarRating('editStarRating', 'editRatingValue', {{ my_review.star }});
+                    createStarRating('editStarRating', 'editRatingValue',  myReview.star);
                     
                 }
             }
         }
 
 
+        // simpler calendar
         const listingType = '{{note.listing_type}}';
-        const availableDate = '{{note.available_date}}';
-        
+        const availableDate = '{{note.available_date}}';;
+        const pricePerWeek = parseFloat('{{ note.price }}');
+        const priceSale = parseFloat('{{note.price_sale}}')
+
         let startPicker, endPicker;
 
-        startPicker = flatpickr('#start_date', {
-            minDate: availableDate,
-            onChange: function(selectedDates, dateStr, instance){
-                if (selectedDates.length > 0){
-                    const minEndDate = new Date(selectedDates[0]);
-                    minEndDate.setDate(minEndDate.getDate() + 1);
-                    endPicker.set('minDate', minEndDate)
-                }
+        const startInput = document.getElementById('start_date');
+        const endInput = document.getElementById('end_date');
+        const totalPriceDisplay = document.getElementById('total_display');
+        const totalPriceInput = document.getElementById('total_price');
+
+
+        function calculateWeeksDiff(start, end) {
+            const diffTime = end - start;
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            const diffWeeks = Math.ceil(diffDays / 7); 
+            return diffWeeks > 0 ? diffWeeks : 0;
+        }
+
+        function updateTotalPrice() {
+            const startVal = startInput.value;
+            const endVal = endInput.value;
+            if (!startVal || !endVal) {
+                totalPriceDisplay.innerText = '';
+                return;
             }
+
+            const startDate = new Date(startVal);
+            const endDate = new Date(endVal);
+
+            const weeks = calculateWeeksDiff(startDate, endDate);
+            const total = weeks * pricePerWeek;
+
+            totalPriceDisplay.innerText = `Total Price: $${total.toFixed(2)} (${weeks} week${weeks !== 1 ? 's' : ''})`;
+            totalPriceInput.value = total;
+        }
+
+        // Initialize Flatpickr
+        startPicker = flatpickr('#start_date', {
+        minDate: availableDate,
+        onChange: function(selectedDates) {
+            if (selectedDates.length > 0) {
+            const minEndDate = new Date(selectedDates[0]);
+            minEndDate.setDate(minEndDate.getDate() + 7); // minimum 1 week later
+            endPicker.set('minDate', minEndDate);
+            updateTotalPrice();
+            }
+        }
         });
 
         endPicker = flatpickr('#end_date', {
-            minDate: new Date(availableDate).setDate(new Date(availableDate).getDate() + 1)
-        })
+        minDate: new Date(availableDate),
+        onChange: updateTotalPrice
+        });
 
-        
+        // also update if user manually types or edits date
+        startInput.addEventListener('change', updateTotalPrice);
+        endInput.addEventListener('change', updateTotalPrice);
+
+        // change the display if user click borrow or buy
         document.getElementById('buying_type').addEventListener('change', function() {
             const rentalOptions = document.getElementById('rental_options');
-            const purchaseButton = document.getElementById('purchase_button')
+            const purchaseButton = document.getElementById('purchase_button');
+            const priceElement = document.getElementById('price');
+            const priceSaleElement = document.getElementById('price_sale');
             if (this.value === 'BORROW'){
                 rentalOptions.style.display = 'block';
                 purchaseButton.value = 'Borrow'
+                priceElement.style.display = 'block'
+                priceSaleElement.style.display = 'none'
             } else{
                 rentalOptions.style.display = 'none';
                 purchaseButton.value = 'Buy'
+                priceElement.style.display = 'none'
+                priceSaleElement.style.display = 'block'
+                totalPriceDisplay.innerText = `Total Price: $${priceSale.toFixed(2)}`;
+                totalPriceInput.value = priceSale
             }
         })
 
-        // Calculate rating distribution from the reviews
         function calculateRatingDistribution() {
-            const reviews = [
-                //My review
-                {% if my_review %}
-                    { star: {{ my_review.star }} },
-                {% endif %}
+            // combine own review and others into one array
+            const reviews = [myReview, ...noteReviews].filter(Boolean);
 
-                //Others Reviews
-                {% if note_reviews %}
-                    {% for review in note_reviews %}
-                        { star: {{ review.star }} },
-                    {% endfor %}
-                {% endif %}
-            ];
-            
+            // initialize distribution
             const distribution = { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 };
+
+            // count stars
             reviews.forEach(review => {
-                if (review.star >= 1 && review.star <= 5) {
-                    distribution[review.star]++;
-                }
+            if (review.star >= 1 && review.star <= 5) {
+                distribution[review.star]++;
+            }
             });
-            
+
             return {
                 totalReviews: reviews.length,
                 distribution: distribution

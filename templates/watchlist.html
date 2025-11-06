@@ -7,7 +7,7 @@
     <title>Watchlist</title>
 </head>
 <body>
-    <a href="{{url_for('dashboard')}}">Dashboard</a>
+    {% include 'components/navbar.html'%}
     <div class="flex justify-center text-center space-x-1">
         {% for note in notes %}
             <div>
@@ -16,6 +16,7 @@
                 <p>{{note.price}}</p>
                 <p>{{note.description}}</p>
                 <form action="{{ url_for('watchlist.remove_watchlist', note_id=note.note_id)}}" method="POST">
+                    <input type="hidden" name="source" value="watchlist">
                     <input type="submit" value="Remove from watchlist">
                 </form>
             </div>

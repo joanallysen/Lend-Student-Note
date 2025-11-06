@@ -4,21 +4,8 @@
     <title>Dashboard</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
 </head>
-<body>
-    <h1>Dashboard</h1>
-    <ul class="flex justify-center-safe text-center space-x-10">
-        <li><a href="{{url_for('explore')}}">Explore</a></li>
-        <li><a href="{{url_for('dashboard')}}">Dashboard</a></li>
-        <li><a href="{{url_for('borrowed.show_borrowed')}}">See Borrowed Book</a></li>
-        <li><a href="{{url_for('history')}}">See History</a></li>
-        <li><a href="{{url_for('watchlist')}}">See Watchlist</a></li>
-        <li><a href="{{url_for('shopping_cart.user_cart')}}">See Cart</a></li>
-        <form action='/search' method="get">
-            <input type="text" name="user_input" value="{{user_input}}">  
-            <input type="submit" value="Search"><br><br>
-        </form>
-    </ul>
-    
+
+<body class="max-w-7xl mx-auto mt-10">
     {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
             {% for category, message in messages %}
@@ -27,85 +14,79 @@
         {% endif %}
     {% endwith %}
 
-    <h2>User Information</h2>
-    <p><strong>Username:</strong> {{ user.username }}</p>
-    <p><strong>Email:</strong> {{ user.email }}</p>
-    <p><strong>User ID:</strong> {{ user.user_id }}</p>
+    {% include '/components/navbar.html' %}
+    {% include '/components/user_profile.html' %}
     
+    <!-- Tab Navigation -->
+    <nav class="border-b border-gray-200 mb-6">
+        <ul class="flex justify-center gap-8">
+            <li>
+                <button 
+                    class="tab-button px-4 py-3 font-medium text-gray-600 border-b-2 border-transparent hover:text-gray-900 hover:border-gray-300 transition-colors"
+                    data-tab="lended_notes"
+                    onclick="switchTab('lended_notes')">
+                    Lended Notes
+                </button>
+            </li>
+            <li>
+                <button 
+                    class="tab-button px-4 py-3 font-medium text-gray-600 border-b-2 border-transparent hover:text-gray-900 hover:border-gray-300 transition-colors"
+                    data-tab="borrowed_notes"
+                    onclick="switchTab('borrowed_notes')">
+                    Borrowed Notes
+                </button>
+            </li>
+            <li>
+                <button 
+                    class="tab-button px-4 py-3 font-medium text-gray-600 border-b-2 border-transparent hover:text-gray-900 hover:border-gray-300 transition-colors"
+                    data-tab="reviews"
+                    onclick="switchTab('reviews')">
+                    Reviews
+                </button>
+            </li>
+        </ul>
+    </nav>
 
-    <div class="flex justify-center text-center space-y-1">
-        {% for note in owned_notes %}
-            <div class="bg-gray-200 w-50">
-                <img src="{{url_for('static', filename='uploads/' + note.image_filename)}}" alt="Current Image">
-                <p class="text-xl font-bold">{{note.title}}</p>
-                <p>{{note.description}}</p>
-                <a href="{{ url_for('notes.update_note', note_id=note.note_id) }}" class="cursor-pointer border-b-black border-2">Edit this book/note</a>
-                <form action="{{ url_for('notes.delete_note', note_id=note.note_id) }}" method="POST">
-                    <button type="submit" onclick="return confirm('Are you sure you want to delete this book?');">
-                        Delete
-                    </button>
-                </form>
-                <p>{{note.status}}</p>
-                {%if note.status == 'NEED ACTION' %}
-                    <form action="{{ url_for('borrowed.confirmed_returned', note_id=note.note_id) }}" method="POST">
-                        <label for="submit"> Buyer has tagged this book as returned, click below if it has been returned</label>
-                        <input type="submit" name="submit" class="cursor-pointer" value="Returned">
-                    </form>
-                {%elif note.status == 'LENT' %}
-                    <form action="{{ url_for('borrowed.confirmed_returned', note_id=note.note_id) }}" method="POST">
-                        <label for="submit">Click below if buyer has returned the book</label>
-                        <input type="submit" name="submit" class="cursor-pointer" value="Returned">
-                    </form>
-                {%endif%}
-            </div>
-        {% endfor %}
-    </div>
-    <div class="flex justify-center text-center items-center space-y-1 mt-5 flex-col">
-        <strong>Seller Dashboard</strong>
-        <div class="flex justify-center text-center items-center space-y-1 mt-5 flex-row">
-            {% for note in notes_transaction_list %}
-                <div class="bg-gray-200 w-50 ">
-                    
-                    <p class="text-xl font-bold">{{note["note"].title}}</p>
-                    <p>Total Lended: {{note["lended_count"]}}</p>
-                    <p>Total Sold: {{note["sold_count"]}}</p>
-                    
-                </div>
-            {% endfor %}
-        </div>
+    <!-- Tab Content Containers -->
+    <div id="lended_notes_container" class="tab-content hidden">
+        {% include '/components/lended_notes.html' %}
     </div>
     
-
-    <div class="flex justify-center text-center space-y-1 m-10 " style="display: flex; flex-direction: column;"> 
-        <strong>Borrower Dashboard</strong>
-        {% if borrowed_notes %}
-        <h1>(Next Returning Date: )(Currently Borrowed Notes: {{borrowed_notes|length}}) (Total Borrowed Notes= {{total_books}})</h1>  
-        <div class="flex justify-center text-center space-x-1">
-            {% for note in borrowed_notes %}
-                <div>
-                    <img src="{{url_for('static', filename='uploads/' + note.image_filename)}}" alt="Current Image" class="w-80 h-auto">
-                    <a class="underline" href="{{url_for('detail', note_id=note.note_id)}}">{{note.title}}</a>
-                    <p>{{note.price}}</p>
-                    <p>{{note.description}}</p>
-
-                    {% if note.status == 'LENT' %}
-                    <form action="{{ url_for('borrowed.return_borrowed', note_id = note.note_id) }}" method="POST">
-                        <label for="returned">Click below if you have returned this book</label>
-                        <input name="returned" class="cursor-pointer" type="submit" value="Book Returned">
-                    </form>
-                    
-                    {% elif note.status == 'NEED ACTION' %}
-                        <p>This note has been tagged as returned!</p>
-                    {% endif %}
-                </div>
-
-            {% endfor %}
-            
-        </div>
-        {% endif %} 
+    <div id="borrowed_notes_container" class="tab-content hidden">
+        {% include '/components/borrowed_notes.html' %}
     </div>
     
-    <a href="{{ url_for('notes.add_note') }}" class="cursor-pointer border-b-black border-2">Add owned book/note</a>
-    <p><a href="{{ url_for('index') }}">Home</a> | <a href="{{ url_for('logout') }}">Logout</a></p>
+    <div id="reviews_container" class="tab-content hidden">
+        {% include '/components/reviews.html' %}
+    </div>
 </body>
+
+<script>
+    // switch between tabs
+    function switchTab(tabName) {
+        // hide all the content first
+        document.querySelectorAll('.tab-content').forEach(content => {
+            content.classList.add('hidden');
+        });
+        
+        // remove active state from all buttons
+        document.querySelectorAll('.tab-button').forEach(button => {
+            button.classList.remove('text-blue-600', 'border-blue-600');
+            button.classList.add('text-gray-600', 'border-transparent');
+        });
+        
+        // show selected tab content
+        document.getElementById(tabName + '_container').classList.remove('hidden');
+        
+        // add active state to clicked button
+        const activeButton = document.querySelector(`[data-tab="${tabName}"]`);
+        activeButton.classList.remove('text-gray-600', 'border-transparent');
+        activeButton.classList.add('text-blue-600', 'border-blue-600');
+    }
+    
+    // set default tab on page load
+    document.addEventListener('DOMContentLoaded', () => {
+        switchTab('lended_notes');
+    });
+</script>
 </html>

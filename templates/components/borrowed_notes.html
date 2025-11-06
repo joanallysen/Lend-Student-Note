@@ -1,0 +1,82 @@
+{% set current_path = request.path %}
+{% import 'components/macros.html' as comp %}
+
+{# Calculate statistics from History #}
+{% set borrowed_notes = user.notes_bought | selectattr('status', 'equalto', 'LENT') | list %}
+{% set current_borrowed = borrowed_notes | list | length %}
+{% set total_borrowed = user.purchases | selectattr('transaction_type', 'equalto', 'BORROW') | list | length %}
+{% set next_return_date = borrowed_notes | map(attribute='incoming_return_date') | select('ne', None) | sort | first %}
+{% set total_purchased = user.purchases | list | length %}
+
+<div class="mb-8">
+    <h1 class="text-4xl font-bold mb-6">Borrowed Notes</h1>
+
+    {# Statistics Cards #}
+        <div class="grid grid-cols-4 gap-4 mb-8">
+            {# Current Borrowed #}
+        <div class="bg-white rounded-lg shadow p-6 flex items-start gap-4">
+            <div class="bg-gray-100 rounded-lg p-3">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-gray-700" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+                    <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+                </svg>
+            </div>
+            <div>
+                <p class="text-gray-600 text-sm mb-1">Current Borrowed</p>
+                <p class="text-2xl font-semibold">{{ current_borrowed }} notes</p>
+            </div>
+        </div>
+        {# Total Borrowed #}
+        <div class="bg-white rounded-lg shadow p-6 flex items-start gap-4">
+            <div class="bg-gray-100 rounded-lg p-3">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-gray-700" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+                    <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+                </svg>
+            </div>
+            <div>
+                <p class="text-gray-600 text-sm mb-1">Total Borrowed</p>
+                <p class="text-2xl font-semibold">{{ total_borrowed }} notes</p>
+            </div>
+        </div>
+        {# Next Return Date #}
+        <div class="bg-white rounded-lg shadow p-6 flex items-start gap-4">
+            <div class="bg-gray-100 rounded-lg p-3">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-gray-700" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+                    <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+                </svg>
+            </div>
+            <div>
+                <p class="text-gray-600 text-sm mb-1">Next Return Date</p>
+                <p class="text-xl font-semibold">
+                    {% if next_return_date %}
+                        {{ next_return_date.strftime("%d %B %Y") }}
+                    {% else %}
+                        No incoming return date!
+                    {% endif %}
+                </p>
+            </div>
+        </div>
+        {# Notes Since Start #}
+        <div class="bg-white rounded-lg shadow p-6 flex items-start gap-4">
+            <div class="bg-gray-100 rounded-lg p-3">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-gray-700" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+                    <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+                </svg>
+            </div>
+            <div>
+                <p class="text-gray-600 text-sm mb-1">Borrowed or Buyed Notes</p>
+                <p class="text-2xl font-semibold">{{ total_purchased }} notes</p>
+            </div>
+        </div>
+        </div>
+
+        {# Notes Grid #}
+        <div class="grid grid-cols-4 gap-6">
+            {% for note in borrowed_notes %}
+                {{ comp.borrowed_card(note) }}
+            {% endfor %}
+        </div>
+</div>

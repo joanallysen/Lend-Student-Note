@@ -56,21 +56,15 @@ def add_to_cart(note_id):
           
         # adding new cart item
         buying_type = request.form.get('buying_type')
+        total_price = request.form.get('total_price')
         new_item = None
         if buying_type == 'BORROW':
-            try:
-                #Checking if user entered both start date and end date
-                start_date = datetime.strptime(request.form.get('start_date'), '%Y-%m-%d').date()
-                end_date = datetime.strptime(request.form.get('end_date'), '%Y-%m-%d').date()
-            except:
-                flash("Please choose start date and return date!")
-                return(redirect(url_for("detail", note_id=note_id)))
+            start_date = datetime.strptime(request.form.get('start_date'), '%Y-%m-%d').date()
+            end_date = datetime.strptime(request.form.get('end_date'), '%Y-%m-%d').date()
             
-            if start_date and end_date:
-                new_item = CartItem(cart_id = user_cart.cart_id, note_id=note_id, buying_type='BORROW', start_date=start_date, end_date=end_date)
-           
+            new_item = CartItem(cart_id = user_cart.cart_id, note_id=note_id, buying_type='BORROW', start_date=start_date, end_date=end_date, total_price=total_price)
         elif buying_type == 'BUY':
-            new_item = CartItem(cart_id = user_cart.cart_id, note_id=note_id, buying_type='BUY')
+            new_item = CartItem(cart_id = user_cart.cart_id, note_id=note_id, buying_type='BUY', total_price=total_price)
             
         if new_item:
             db.session.add(new_item)
@@ -114,31 +108,41 @@ def checkout():
             if item.buying_type == 'BUY':
                 note.status = 'SOLD'
                 note.buyer_id = user_id
+                
                 db.session.add(note)
                 new_history = History(
-                    user_id = user_id,
+                    buyer_id = user_id,
+                    owner_id = note.owner_id,
                     note_id = note.note_id,
                     transaction_type = item.buying_type,
-                    transaction_date = db.func.now()
+                    transaction_date = datetime.now(),
+                    total_price = item.total_price
                 )
+                db.session.add(new_history)
                 
             elif item.buying_type == 'BORROW':
                 if item.start_date and item.end_date:
                     note.status = 'LENT'
                     note.buyer_id = user_id
+                    note.incoming_return_date = item.end_date
+
                     db.session.add(note)
                     new_history = History(
-                        user_id = user_id,
+                        buyer_id = user_id,
+                        owner_id = note.owner_id,
                         note_id = note.note_id,
                         transaction_type = item.buying_type,
-                        borrow_start_date = db.func.now(),
-                        transaction_date = None
+                        borrow_start_date = datetime.now(),
+                        transaction_date = None,
+                        total_price = item.total_price
                     )
 
             note.rating_count+=1
-            
+            db.session.add(new_history)
+            db.session.flush()
 
-        db.session.add(new_history)
+            note.current_history_id = new_history.history_id
+            note.buyer_id = user_id
 
         # delete the cart item
         CartItem.query.filter_by(cart_id=cart.cart_id).delete()
