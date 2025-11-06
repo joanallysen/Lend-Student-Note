@@ -1,3 +1,5 @@
+{% import 'components/user_profile.html' as comp %}
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -103,6 +105,9 @@
             </div>
         </div>
 
+        <!-- Seller Profile -->
+         <h1 class="text-3xl font-bold mb-2">Seller Profile</h1>
+        {{comp.user_profile(user=note.owner)}}
         <!-- Reviews -->
         <div class="bg-white rounded-2xl shadow-lg p-8 mb-8">
             <!-- Add Review  -->
@@ -365,9 +370,9 @@
 
         // simpler calendar
         const listingType = '{{note.listing_type}}';
-        const availableDate = '{{note.available_date}}';;
-        const pricePerWeek = parseFloat('{{ note.price }}');
-        const priceSale = parseFloat('{{note.price_sale}}')
+        const availableDate = '{{note.available_date}}';
+        const pricePerWeek = parseFloat('{{ note.price }}');s
+        const priceSale = parseFloat('{{ note.price_sale }}');
 
         let startPicker, endPicker;
 
