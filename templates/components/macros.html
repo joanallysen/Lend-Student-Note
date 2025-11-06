@@ -182,14 +182,15 @@
                     </button>
                 </form>
             {% else %}
-                <div class="p-4 pt-0">
-                    <div class="flex items-center justify-center gap-2 px-4 py-2 bg-gray-100 rounded-lg text-sm font-medium text-gray-600">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>
-                        </svg>
-                        In watchlist
-                    </div>
-                </div>
+            <form action="{{url_for('watchlist.remove_watchlist', note_id=note.note_id)}}", method="POST" class="p-4 pt-0">
+                <input type="hidden" name="source" value="explore">
+                <button type="submit" class=" w-full flex items-center justify-center gap-2 px-4 py-2 bg-gray-100 rounded-lg text-sm font-medium text-gray-600">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>
+                    </svg>
+                    In watchlist
+                </button>
+            </form>
             {% endif %}
         {% endif %}
     </div>
