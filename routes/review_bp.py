@@ -1,5 +1,5 @@
 from flask import Blueprint, request, render_template, url_for, session, redirect
-from models import db, Review, Note
+from models import db, Review, Note, History
 from datetime import datetime
 from sqlalchemy import and_
 import os
@@ -9,9 +9,12 @@ review_bp = Blueprint('review', __name__)
 #TODO make login required
 @review_bp.route('/add_review/<int:note_id>', methods=['POST', 'GET'])
 def add_review(note_id):
-    error = None
+    
     note = Note.query.get_or_404(note_id)
-    if note.buyer_id != session['user_id']:
+    user_history= History.query.filter(and_(History.user_id==session['user_id'],History.note_id == note_id)).first()
+
+    #Checking if user has bought/borrowed the note
+    if not user_history:
         return 'Error, user_id does not match buyer_id please try again.'
 
     if request.method == 'POST':

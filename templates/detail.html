@@ -42,7 +42,7 @@
 
                     <div class="mb-6">
                         <p class="text-lg text-gray-500 mb-1 leading-relaxed">Description:</p>
-                        <p class="text-gray-700 mb-6 leading-relaxed">{{note.description}}</p>
+                        <p class="text-gray-700 mb-6 leading-relaxed break-all">{{note.description}}</p>
                     </div>
                     
 
@@ -91,8 +91,13 @@
                         <div id="total_display" class="text-lg font-semibold text-gray-700 mb-2"></div>
                         <input type="hidden" name="total_price" id="total_price">
                     
-                        <input id="purchase_button" class="py-4 w-full bg-blue-700 text-white rounded-2xl font-bold cursor-pointer disabled:bg-gray-300 disabled:cursor-not-allowed" type="submit" value="{% if note.listing_type == 'BOTH' %}Borrow{% else %}Buy{% endif %}"
-                {%if note.buyer_id%} disabled{%endif%}>
+                        <input id="purchase_button" class="py-4 w-full bg-blue-700 text-white rounded-2xl font-bold cursor-pointer disabled:bg-red-500 disabled:cursor-not-allowed" type="submit" 
+                        value="  {% if note.status != 'AVAILABLE' %}
+                                    Not Available
+                                {% else %}
+                                    {% if note.listing_type == 'BOTH' %}Borrow{% else %}Buy
+                                {% endif %}"
+                        {%if note.buyer_id%} disabled{%endif%}>
                     </form>
                 </div>
             </div>
