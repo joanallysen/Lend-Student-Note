@@ -94,11 +94,7 @@
                         <input type="hidden" name="total_price" id="total_price">
                     
                         <input id="purchase_button" class="py-4 w-full bg-blue-700 text-white rounded-2xl font-bold cursor-pointer disabled:bg-red-500 disabled:cursor-not-allowed" type="submit" 
-                        value="  {% if note.status != 'AVAILABLE' %}
-                                    Not Available
-                                {% else %}
-                                    {% if note.listing_type == 'BOTH' %}Borrow{% else %}Buy
-                                {% endif %}"
+                        value="{% if note.status != 'AVAILABLE' %} Not Available{% else %} {% if note.listing_type == 'BOTH' %}Borrow{% else %}Buy {% endif %}{%endif%}"
                         {%if note.buyer_id%} disabled{%endif%}>
                     </form>
                 </div>
@@ -341,7 +337,30 @@
 
 
     <script id="review-data" type="application/json">
-         {{ {"my_review": (my_review or {}), "note_reviews": (note_reviews or {})} | tojson | safe }}
+        {% set my_review_dict = {} %}
+        {% if my_review %}
+            {% set my_review_dict = {
+                'review_id': my_review.review_id,
+                'star': my_review.star,
+                'review': my_review.review,
+                'user': {
+                    'username': my_review.user.username
+                }
+            } %}
+        {% endif %}
+        
+        {% set note_reviews_list = [] %}
+        {% for review in note_reviews %}
+            {% set _ = note_reviews_list.append({
+                'star': review.star,
+                'review': review.review,
+                'user': {
+                    'username': review.user.username
+                }
+            }) %}
+        {% endfor %}
+        
+        {{ {"my_review": my_review_dict, "note_reviews": note_reviews_list} | tojson | safe }}
     </script>
     <script>
         const data = JSON.parse(document.getElementById('review-data').textContent);
@@ -371,7 +390,7 @@
         // simpler calendar
         const listingType = '{{note.listing_type}}';
         const availableDate = '{{note.available_date}}';
-        const pricePerWeek = parseFloat('{{ note.price }}');s
+        const pricePerWeek = parseFloat('{{ note.price }}');
         const priceSale = parseFloat('{{ note.price_sale }}');
 
         let startPicker, endPicker;
