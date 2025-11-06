@@ -17,6 +17,7 @@ def search_note():
     user_input = request.args.get('user_input','')
     #Additional Filter
     sort_by = request.args.get('sort_by','')
+    availability = request.args.get('is_available')
     condition = request.args.get('condition','')
     min_price =  request.args.get('min_price')
     max_price = request.args.get('max_price')
@@ -33,6 +34,9 @@ def search_note():
 
         if condition:
             search_filter.append(Note.condition == condition)
+        
+        if availability == 'available':
+            search_filter.append(Note.status == 'AVAILABLE')
 
         if min_price:
             if is_eligible(min_price):
@@ -49,4 +53,5 @@ def search_note():
 
         else:
             search_output = Note.query.filter(*search_filter).all()
-    return render_template("search.html", results = search_output, user_input = cleaned_input, condition=condition, sort_by=sort_by) 
+    return render_template("search.html", results = search_output, user_input = cleaned_input
+                           , condition=condition, sort_by=sort_by, availability =availability) 

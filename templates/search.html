@@ -18,7 +18,12 @@
             <option value="Popularity" {% if sort_by == "Popularity" %}selected{% endif %}>Popularity</option>
             
         
-        </select><br><br>
+        </select>
+        
+        <label>Availability:</label>
+        <input type="checkbox" name="is_available" value="available" {%if availability == 'available'%}checked{% endif %}> <br><br>
+
+        
 
         <label>Condition:</label>
         <select name="condition">
