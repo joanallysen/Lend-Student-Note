@@ -87,8 +87,19 @@
                             </div>
                         </div>
                     
-                        <button id="purchase_button" type="submit" class="w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white px-6 py-4 rounded-xl font-bold text-lg hover:from-blue-700 hover:to-blue-800 transition-all shadow-lg hover:shadow-xl transform hover:scale-[1.02]">
-                            {% if note.listing_type == 'BOTH' %}📖 Borrow{% elif note.listing_type == 'RENTAL' %}📖 Borrow{% else %}🛒 Buy{% endif %}
+                        <button id="purchase_button" type="submit" {% if note.status != 'AVAILABLE' %}disabled{% endif %} class="w-full text-white px-6 py-4 rounded-xl font-bold text-lg
+                        {% if note.status != 'AVAILABLE' %}
+                            bg-red-500 cursor-not-allowed
+                        {% else %}
+                            bg-gradient-to-r from-blue-600 to-blue-700  hover:from-blue-700 hover:to-blue-800 transition-all shadow-lg hover:shadow-xl transform hover:scale-[1.02]
+                        {% endif %} "
+                        >   {% if note.status != 'AVAILABLE' %}
+                                Not Available
+                                {% else %}
+                                    {% if note.listing_type == 'BOTH' %}📖 Borrow{% elif note.listing_type == 'RENTAL' %}📖 Borrow{% else %}🛒 Buy{% endif %}
+                            {% endif %}
+                            
+                            
                         </button>
                     </form>
                 </div>
