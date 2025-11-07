@@ -159,7 +159,7 @@
             <div class="p-4 pt-0 mt-auto">
                 {% if note.note_id not in watchlisted_note_ids %}
                     <form action="{{ url_for('watchlist.add_watchlist', note_id=note.note_id) }}" method="POST">
-                        <button type="submit" class="w-full flex items-center justify-center gap-2 px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors">
+                        <button type="submit" class="cursor-pointer w-full flex items-center justify-center gap-2 px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors">
                             <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>
                             </svg>

@@ -9,22 +9,21 @@
             <!-- Cards Grid -->
             <div class="grid grid-cols-4 gap-6">
                 {% for item in items %}
-                <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow flex flex-col h-full">
+                <div class="rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow flex flex-col h-full">
                     
-                    {# Image #}
+                    <!-- Image and badge -->
                     <div class="relative h-100 bg-gray-100 shrink-0">
                         <img src="{{ url_for('static', filename='uploads/' + item['note'].image_filename) }}" 
                              alt="{{ item['note'].title }}" 
                              class="w-full h-full object-cover">
                         
-                        {# Transaction Type Badge #}
                         <div class="absolute top-2 right-2">
                             {% if item['transaction_type'] == 'BORROW' %}
-                                <span class="bg-blue-300 text-black text-xs font-semibold px-3 py-1 rounded-full">
+                                <span class="bg-blue-300 text-xs font-semibold px-3 py-1 rounded-full">
                                     Borrowed
                                 </span>
                             {% else %}
-                                <span class="bg-green-300 text-black text-xs font-semibold px-3 py-1 rounded-full">
+                                <span class="bg-green-300 text-xs font-semibold px-3 py-1 rounded-full">
                                     Sold
                                 </span>
                             {% endif %}
