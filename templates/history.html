@@ -33,13 +33,15 @@
         </ul>
     </nav>
 
+    <div id="lended_notes_container" class="tab-content hidden">
+        {% include '/components/history_owner.html' %}
+    </div>
+
     <div id="borrowed_notes_container" class="tab-content hidden">
         {% include '/components/history_buyer.html' %}
     </div>
 
-    <div id="lended_notes_container" class="tab-content hidden">
-        {% include '/components/history_owner.html' %}
-    </div>
+
 </body>
 <script>
     // switch between tabs

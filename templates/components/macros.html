@@ -139,6 +139,11 @@
                         </svg>
                         <span class="font-medium">Your listing</span>
                     </div>
+                {% else %}
+                <div class="flex items-center gap-2 text-sm text-blue-600 bg-blue-50 px-3 py-1.5 rounded-md {%if note.listing_type == 'BOTH'%} text-green-600 bg-green-50{%endif%}">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24"><path fill="currentColor" d="m9.55 18l-5.7-5.7l1.425-1.425L9.55 15.15l9.175-9.175L20.15 7.4z"/></svg>
+                    <span class="font-medium">{%if note.listing_type == 'RENTAL'%}Rental only{%elif note.listing_type == 'SALE'%}Sale only {%else%} Sale and rental available {%endif%}</span>
+                </div>
                 {% endif %}
 
                 {% if cart_note_ids and note.note_id in cart_note_ids %}
@@ -151,6 +156,8 @@
                         <span class="font-medium">In cart</span>
                     </div>
                 {% endif %}
+
+
             </div>
         </div>
 
