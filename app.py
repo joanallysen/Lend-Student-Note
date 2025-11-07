@@ -1,6 +1,6 @@
 from flask import Flask, render_template, request, redirect, url_for, session, flash
 from werkzeug.security import generate_password_hash, check_password_hash
-from functools import wraps
+from utility import login_required
 from sqlalchemy import and_
 
 from models import db, User, Note, Watchlist,Tag,note_tag_association,CartItem, Cart,not_, History, Review
@@ -29,17 +29,6 @@ app.register_blueprint(review_bp)
 # create the database tables
 with app.app_context():
     db.create_all()
-
-# login required decorator
-def login_required(f):
-    @wraps(f)
-    def decorated_function(*args, **kwargs):
-        print(f"Session check - user_id present: {'user_id' in session}")
-        if 'user_id' not in session:
-            flash('Please log in to access this page.', 'warning')
-            return redirect(url_for('login'))
-        return f(*args, **kwargs)
-    return decorated_function
 
 
 # routes
