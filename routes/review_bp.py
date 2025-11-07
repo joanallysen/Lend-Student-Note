@@ -31,8 +31,14 @@ def add_review(note_id):
         db.session.add(new_review)
         
         note.rating_count += 1
-       
 
+        #Update the average rating
+        total_star= sum(int(review.star) for review in note.reviews) 
+        if total_star == 0:
+            note.avg_rating = 0
+        else:
+            note.avg_rating = total_star/note.rating_count
+            
         db.session.commit()
         return redirect(url_for('detail',note_id = note_id))
     return render_template('review_form.html')

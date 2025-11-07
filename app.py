@@ -81,6 +81,7 @@ def detail(note_id):
     else:
         note.avg_rating = total_star/note.rating_count
 
+    db.session.commit()
     #Categorize all reviews
     my_review = None
     other_reviews = []
