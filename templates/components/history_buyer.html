@@ -44,9 +44,8 @@
                                     <p class="text-gray-900 mb-2">{{ item['borrow_start_date'].strftime("%d %b %Y")}}</p>
                                     
                                     {% if item['transaction_date'] == None %}
-                                        <div class="bg-yellow-100 border border-yellow-300 rounded px-2 py-1 mt-2">
-                                            <p class="text-yellow-800 font-medium text-xs"> Not returned yet</p>
-                                        </div>
+                                        <p class="text-gray-600 font-medium mb-1">Return Date</p>
+                                        <p class="text-yellow-800 mb-2">Not Returned Yet</p>
                                     {% else %}
                                         <p class="text-gray-600 font-medium mb-1">Return Date</p>
                                         <p class="text-gray-900 mb-2">{{ item['transaction_date'].strftime("%d %b %Y") }}</p>

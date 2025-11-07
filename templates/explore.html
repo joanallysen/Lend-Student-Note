@@ -9,13 +9,6 @@
     <title>Explore</title>
 </head>
 <body class="max-w-7xl mx-auto mt-10">
-    {% with messagges = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-            {% for category, message in messages %}
-                <p><strong>{{ category }}:</strong> {{ message }}</p>
-            {% endfor %}
-        {%endif%}
-    {% endwith %}
 
     {% include '/components/navbar.html' %}
     <h1 class="text-3xl font-bold mb-2">Explore</h1>

@@ -3,47 +3,122 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script><script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-    <title>Document</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <title>Shopping Cart</title>
 </head>
-<body>
+<body class="max-w-7xl mx-auto mt-10">
     {% include 'components/navbar.html'%}
-    <h1 class="text-center font-bold m-5">User Cart </h1>
-    <div  class="flex justify-center text-center space-x-1">
+    
+    <div class="container mx-auto px-4 py-8 max-w-7xl">
+        <h1 class="text-3xl font-bold text-gray-800 mb-2">Shopping Cart</h1>
+        <p class="text-gray-600 mb-8">Review the items you have added to your cart. You can update quantities, remove items, or proceed to checkout when ready.</p>
+        
         {% if items %}
-            {% for item in items%}
-                <div class="justify-center items-center bg-gray-100">
-                    <a href="/remove_item/{{item.note_details.note_id}}">X</a>
-                    <img src="{{url_for('static',filename='uploads/'+item.note_details.image_filename)}} "alt="Current Image" class="w-80 min-h-90">
-                    Note ID: {{item.note_details.note_id}}<br>
-                    Title: {{item.note_details.title}}<br>
-                    Price: {{item.total_price}}<br>
-                    Description: {{item.note_details.description}}<br>
-                    Buying Type: {{item.buying_type}}<br>
-                    {% if item.buying_type == 'BORROW' %}
-                        Start Date: {{item.start_date}}
-                        End Date: {{item.end_date}}
-                        Total Week Borrowing : {{item.weeks_borrowed()}}
-                    {% endif %}
+        <div class="grid grid-cols-3 gap-8">
+            <!-- Cart Items Section -->
+            <div class="col-span-2 space-y-4">
+                {% for item in items %}
+                <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow p-6">
+                    <div class="flex gap-6">
+
+                        
+                        <!-- Item Image -->
+                        <div class="shrink-0 h-72 w-54">
+                            <img src="{{url_for('static',filename='uploads/'+item.note_details.image_filename)}}" 
+                                 alt="{{item.note_details.title}}" 
+                                 class="w-full h-full object-cover">
+                        </div>
+                        
+                        <!-- Item Details -->
+                        <div class="grow">
+                            <div class="flex flex-row justify-between">
+                                <span class="mb-6 text-sm font-medium text-green-700 bg-green-50 px-3 py-1.5 rounded-md">{{item.buying_type}}</span>
+                                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" viewBox="0 0 24 24"><path fill="currentColor" d="M7 21q-.825 0-1.412-.587T5 19V6H4V4h5V3h6v1h5v2h-1v13q0 .825-.587 1.413T17 21zM17 6H7v13h10zM9 17h2V8H9zm4 0h2V8h-2zM7 6v13z"/></svg>
+                            </div>
+                             
+                            <a href="{{ url_for('detail', note_id=item.note_details.note_id) }}" class="text-lg font-semibold text-gray-900 mb-1 underline hover:text-blue-600 transition-colors">{{ item.note_details.title }}</a>
+                            <p class="text-gray-600 text-sm mb-3 line-clamp-2">{{item.note_details.description}}</p>
+                            
+                            <div class="space-y-2">
+                                <div class="flex items-center gap-2">
+                                    <span class="text-5xl font-bold mb-6">${{item.total_price}}</span>
+                                </div>
+                                
+                                {% if item.buying_type == 'BORROW' %}
+                                <div class="bg-gray-50 rounded-md p-3 mt-3">
+                                    <div class="grid grid-cols-2 gap-2 text-sm">
+                                        <div>
+                                            <p class="text-gray-600 font-medium mb-1">Start Date:</p>
+                                            <p class="text-gray-900">{{item.start_date}}</p>
+                                        </div>
+                                        <div>
+                                            <p class="text-gray-600 font-medium mb-1">End Date:</p>
+                                            <p class="text-gray-900">{{item.end_date}}</p>
+                                        </div>
+                                    </div>
+                                    <div class="mt-2 text-sm">
+                                        <p class="text-gray-600 font-medium mb-1">Duration:</p>
+                                        <p class="text-gray-900">{{item.weeks_borrowed()}} weeks</p>
+                                    </div>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
                 </div>
-            {% endfor %}
-                <div>
-                    Checkout Summary:<br>
-                    Discount:<br>
-                    Delivery fees: 
+                {% endfor %}
+            </div>
+            
+            <!-- Checkout Summary Section -->
+            <div class="lg:col-span-1">
+                <div class="bg-white rounded-lg shadow-md p-6 sticky top-4">
+                    <h2 class="text-xl font-bold text-gray-800 mb-6">Order Summary</h2>
+                    
+                    <div class="space-y-4 mb-6">
+                        <div class="flex justify-between text-gray-600">
+                            <span>Subtotal</span>
+                            <span id="subTotal" class="font-medium">${{ items | sum(attribute='total_price') }}</span>
+                        </div>
+                        <div class="flex justify-between text-gray-600">
+                            <span>Discount</span>
+                            <span class="font-medium text-green-600">-$0.00</span>
+                        </div>
+                        
+                        <div class="border-t pt-4">
+                            <div class="flex justify-between">
+                                <span>Total</span>
+                                <span id="total" class="font-medium">${{ items | sum(attribute='total_price') }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    
                     <form action="{{url_for('shopping_cart.checkout')}}" method="POST">
-                        <input type="submit" name="submit" value="Checkout" class="cursor-pointer">
+                        <button type="submit" 
+                                class="cursor-pointer w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors shadow-md hover:shadow-lg">
+                            Proceed to Checkout
+                        </button>
                     </form>
+                    
+                    <a href="/explore" 
+                       class="block text-center text-blue-600 hover:text-blue-700 font-medium mt-4 transition-colors">
+                        Continue Shopping
+                    </a>
                 </div>
-            {% else %}
-                <div>
-                    <label class="font-bold">Nothing</label>
-                </div>
+            </div>
+        </div>
+        
+        {% else %}
+        <!-- Empty Cart State -->
+        <div class='flex justify-center text-center flex-col min-h-[50vh]'>
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-32 h-32 text-gray-400 mx-auto" viewBox="0 0 24 24"><path fill="currentColor" d="M5.525 21q-.675 0-1.2-.413T3.6 19.525l-2.55-9.25Q.925 9.8 1.213 9.4T2 9h4.75l4.4-6.55q.125-.2.35-.325T11.975 2t.475.125t.35.325L17.2 9H22q.5 0 .788.4t.162.875l-2.55 9.25q-.2.65-.725 1.063t-1.2.412zM5.5 19h13l2.2-8H3.3zm6.5-2q.825 0 1.413-.587T14 15t-.587-1.412T12 13t-1.412.588T10 15t.588 1.413T12 17M9.175 9H14.8l-2.825-4.2zM12 15"/></svg>
+            <h2 class="text-2xl font-bold text-gray-400 mb-2">Your cart is empty</h2>
+            <p class="text-gray-400 mb-6">Looks like you haven't added any items to your cart yet.</p>
+            <a href="/explore" 
+                class="inline-block mx-auto bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-8 rounded-lg transition-colors shadow-md hover:shadow-lg">
+                Start Shopping
+            </a>
+        </div>
         {% endif %}
     </div>
-    
-   
-    
-    <a href="/dashboard">Dashboard</a>
 </body>
 </html>
