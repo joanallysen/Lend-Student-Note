@@ -4,14 +4,16 @@ from datetime import datetime
 from sqlalchemy import and_
 import os
 
+from utility import login_required
 review_bp = Blueprint('review', __name__)
 
 #TODO make login required
 @review_bp.route('/add_review/<int:note_id>', methods=['POST', 'GET'])
+@login_required
 def add_review(note_id):
     
     note = Note.query.get_or_404(note_id)
-    user_history= History.query.filter(and_(History.user_id==session['user_id'],History.note_id == note_id)).first()
+    user_history= History.query.filter(and_(History.buyer_id==session['user_id'],History.note_id == note_id)).first()
 
     #Checking if user has bought/borrowed the note
     if not user_history:
@@ -27,10 +29,9 @@ def add_review(note_id):
         )
 
         db.session.add(new_review)
-
-        total_star= sum(int(review.star) for review in note.reviews)
-        total_reviews = len(note.reviews)
-        note.avg_rating = total_star/total_reviews
+        
+        note.rating_count += 1
+       
 
         db.session.commit()
         return redirect(url_for('detail',note_id = note_id))
@@ -47,6 +48,7 @@ def delete_review(review_id):
     if request.method == "POST":
   
         if review:
+            review.note.rating_count-=1
             db.session.delete(review)
             db.session.commit()
       

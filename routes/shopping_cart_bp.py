@@ -1,6 +1,7 @@
 from flask import Flask, Blueprint, render_template, url_for, redirect, session, request, render_template_string, flash
 from models import db, Cart, CartItem, Note, History
 from datetime import datetime
+from utility import login_required
 
 shopping_cart = Blueprint('shopping_cart',__name__)
 
@@ -21,6 +22,7 @@ def check_user_cart_exist():
     return user_cart
 
 @shopping_cart.route('/user_cart')
+@login_required
 def user_cart():
     user_id= session.get('user_id')
 
@@ -38,6 +40,7 @@ def user_cart():
 
 
 @shopping_cart.route('/add_to_cart/<int:note_id>', methods=['POST'])
+@login_required
 def add_to_cart(note_id):
     if request.method == 'POST':
         user_id = session.get('user_id')
@@ -137,7 +140,6 @@ def checkout():
                         total_price = item.total_price
                     )
 
-            note.rating_count+=1
             db.session.add(new_history)
             db.session.flush()
 

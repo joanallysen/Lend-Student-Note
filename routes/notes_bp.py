@@ -104,8 +104,8 @@ def clean_tags(tags):
 
         if not existing_tag:
             existing_tag = Tag(name=tag)
-            db.session.add(Tag(name=tag))
-            db.session.commit()
+            db.session.add(existing_tag)
+            
 
         tags_list.append(existing_tag)
 
