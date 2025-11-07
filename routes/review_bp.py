@@ -4,10 +4,12 @@ from datetime import datetime
 from sqlalchemy import and_
 import os
 
+from utility import login_required
 review_bp = Blueprint('review', __name__)
 
 #TODO make login required
 @review_bp.route('/add_review/<int:note_id>', methods=['POST', 'GET'])
+@login_required
 def add_review(note_id):
     
     note = Note.query.get_or_404(note_id)
