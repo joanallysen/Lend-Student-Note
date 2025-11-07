@@ -1,3 +1,5 @@
+{% import 'components/search_bar.html' as sb %}
+{% import 'components/macros.html' as comp %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6,155 +8,28 @@
     <title>Book Search - Library System</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gray-50 min-h-screen">
-    <div class="container mx-auto px-4 py-8 max-w-7xl">
-        <!-- Header -->
-        <div class="mb-8">
-            <h1 class="text-4xl font-bold text-gray-800 mb-2">Book Search</h1>
-            <p class="text-gray-600">Find your next great read</p>
-        </div>
+<body class="bg-gray-50 max-w-7xl mx-auto mt-10">
+    {% include '/components/navbar.html' %}
+    <div class="max-w-7xl mx-auto mt-10">
 
-        <!-- Search Form -->
-        <form action='/search' method="get" class="bg-white rounded-lg shadow-md p-6 pb-[1px] mb-8">
-            <!-- Search Bar -->
-            <div class="mb-3">
-                <div class="flex gap-2">
-                    <input 
-                        type="text" 
-                        name="user_input" 
-                        value="{{user_input}}"
-                        placeholder="Search by title, author, or ISBN..."
-                        class="flex-1 px-4 py-3 border border-gray-30  outline-none"
-                    >
-                    <button 
-                        type="submit"
-                        class="px-8 py-3 bg-blue-600 text-white font-semibold rounded-lg"
-                    >
-                        Search
-                    </button>
-                </div>
-            </div>
+        <p class="text-3xl font-bold mb-2">Search books</p>
+        <p class="text-gray-600">Browse all books in our website</p>
 
-            <!-- Filters -->
-            <div class="border-t pt-2.5 ">
-                <div class="flex justify-between items-center mb-4">
-                    <h3 id="filterText" class="invisible text-lg font-semibold text-gray-700">Filters</h3>
-                    <button 
-                        type="button"
-                        onclick="toggleFilters()"
-                        class="text-blue-600 font-medium text-sm flex items-center gap-1"
-                    >
-                        <span id="filterToggleText" class="justify-end">Show Filters</span>
-                        <svg id="filterToggleIcon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" class="transition-transform">
-                            <path fill="currentColor" d="m12 15.4l-6-6L7.4 8l4.6 4.6L16.6 8L18 9.4z"/>
-                        </svg>
-                    </button>
-                </div>
-                
-                <div id="filtersContent" class="hidden grid pb-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    <!-- Condition -->
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Condition:</label>
-                        <select 
-                            name="condition"
-                            class="w-full px-3 py-2 border border-gray-300 rounded-lg outline-none"
-                        >
-                            <option value="">All Conditions</option>
-                            <option value="Brand New" {% if condition == "Brand New" %}selected{% endif %}>Brand New</option>
-                            <option value="Good" {% if condition == "Good" %}selected{% endif %}>Good</option>
-                            <option value="Minimum" {% if condition == "Minimum" %}selected{% endif %}>Minimum</option>
-                        </select>
-                    </div>
-
-                    <!-- Price Filter -->
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Min. Price:</label>
-                        <input 
-                            type="number" 
-                            name="min_price"
-                            placeholder="$0"
-                            class="w-full px-3 py-2 border border-gray-300 rounded-lg outline-none"
-                        >
-                    </div>
-
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Max. Price:</label>
-                        <input 
-                            type="number" 
-                            name="max_price"
-                            placeholder="$100"
-                            class="w-full px-3 py-2 border border-gray-300 rounded-lg outline-none"
-                        >
-                    </div>
-
-                    <!-- Availability Checkbox -->
-                    <div >
-                        <label class="flex items-center cursor-pointer">
-                            <input 
-                                type="checkbox" 
-                                name="is_available" 
-                                value="available"
-                                {% if availability == 'available' %}checked{% endif %}
-                                class="w-4 h-4 text-blue-600 border-gray-300 rounded "
-                            >
-                            <span class="ml-2 text-sm font-medium text-gray-700">Show only available books</span>
-                        </label>
-                    </div>
-                </div>
-
-                
-            </div>
-        </form>
-
-        <!-- Sort By Section -->
-        <form action='/search' method="get" class="bg-white rounded-lg shadow-md p-4 mb-8">
-            <div class="flex justify-end items-center gap-4">
-                <label class="text-sm font-medium text-gray-700">Sort by:</label>
-                <select 
-                    name="sort_by" 
-                    onchange="this.form.submit()"
-                    class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
-                >
-                    <option value="Default" {% if sort_by == "Default" %}selected{% endif %}>Default</option>
-                    <option value="Rating" {% if sort_by == "Rating" %}selected{% endif %}>Rating</option>
-                    <option value="Popularity" {% if sort_by == "Popularity" %}selected{% endif %}>Popularity</option>
-                </select>
-            </div>
-        </form>
-
+        {{sb.search_bar(user_input, condition, availability, sort_by, min_price, max_price)}}
         <!-- Results Section -->
-        {% if results %}
+        <div>
+            {% if results %}
             <div class="mb-4">
                 <h2 class="text-2xl font-semibold text-gray-800">Search Results</h2>
                 <p class="text-gray-600 mt-1">Found {{ results|length }} book(s)</p>
             </div>
 
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                {% for note in results %}
-                <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition duration-300">
-                    <!-- Book Image -->
-                    <div class="aspect-[3/4] bg-gray-200 overflow-hidden">
-                        <img 
-                            src="{{url_for('static',filename='uploads/'+note.image_filename)}}" 
-                            alt="{{note.title}}"
-                            class="w-full h-full object-cover"
-                        >
-                    </div>
-                    
-                    <!-- Book Details -->
-                    <div class="p-4">
-                        <h3 class="font-bold text-lg text-gray-800 mb-2 line-clamp-2">{{note.title}}</h3>
-                        <p class="text-gray-600 text-sm mb-3 line-clamp-3">{{note.description}}</p>
-                        
-                        <div class="border-t pt-3 mt-3">
-                            <div class="flex justify-between items-center">
-                                <span class="text-xs text-gray-500">ID: {{note.note_id}}</span>
-                                <span class="text-xl font-bold text-blue-600">${{note.price}}</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                
+                {% for result in results %}
+                    {{ comp.explore_card(result, user_id, cart_note_ids, watchlisted_note_ids) }}
                 {% endfor %}
+                
             </div>
         {% else %}
             <div class="bg-white rounded-lg shadow-md p-12 text-center">
@@ -165,6 +40,8 @@
                 <p class="text-gray-600">Try adjusting your search filters or search terms</p>
             </div>
         {% endif %}
+         </div>
+        
     </div>
 
     <style>

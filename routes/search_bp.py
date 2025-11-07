@@ -1,6 +1,6 @@
-from flask import Flask, redirect, url_for, request, render_template,Blueprint
+from flask import Flask, redirect, url_for, request, render_template, Blueprint, session
 from sqlalchemy import or_
-from models import db, Note
+from models import db, Note, Cart, CartItem, Watchlist
 import re
 
 search_bp = Blueprint("search_bp",__name__)
@@ -13,6 +13,16 @@ def is_eligible(num):
 
 @search_bp.route('/search', methods=["GET"])
 def search_note():
+    user_id = session.get('user_id')
+    watchlisted_note_ids = {nid[0] for nid in db.session.query(Watchlist.note_id).filter_by(user_id=user_id).all()}
+
+    user_cart = Cart.query.filter_by(user_id=user_id).first()
+    
+    # user cart is not created upon initialization but when opening user_cart
+    if not user_cart:
+        cart_note_ids = None
+    else:
+        cart_note_ids = {nid[0] for nid in db.session.query(CartItem.note_id).filter_by(cart_id=user_cart.cart_id).all()}
     
     user_input = request.args.get('user_input','')
     #Additional Filter
@@ -53,5 +63,6 @@ def search_note():
 
         else:
             search_output = Note.query.filter(*search_filter).all()
-    return render_template("search.html", results = search_output, user_input = cleaned_input
-                           , condition=condition, sort_by=sort_by, availability =availability) 
+    return render_template("search.html", user_id=user_id, watchlisted_note_ids=watchlisted_note_ids, cart_note_ids=cart_note_ids
+                           , results = search_output, user_input = cleaned_input
+                           , condition=condition, sort_by=sort_by, availability =availability, min_price=min_price, max_price=max_price) 

@@ -26,6 +26,7 @@ app.register_blueprint(search_bp)
 app.register_blueprint(shopping_cart)
 app.register_blueprint(borrowed_bp)
 app.register_blueprint(review_bp)
+
 # create the database tables
 with app.app_context():
     db.create_all()
