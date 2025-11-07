@@ -1,30 +1,87 @@
 {% set current_path = request.path %}
 
-<div class="flex justify-center text-center flex-col">
+<div class="space-y-8">
     {% for date, items in history_owner.items() %}
-        <p class="font-bold text-2xl text-left">{{date}}</p>
-        <div class="flex justify-center text-center">
-            {% for item in items %}
-            <div>
-                <img src="{{url_for('static', filename='uploads/' + item['note'].image_filename)}}" alt="Current Image" class="w-80 h-auto">
-                <a class="underline" href="{{url_for('detail', note_id=item['note'].note_id)}}">{{item['note'].title}}</a>
-                <p>{{item['note'].description}}</p>
-                <p>{{item['transaction_type']}}</p>
-                {% if item['transaction_type'] == 'BORROW'%}
-                    <p>Borrow start date:{{item['borrow_start_date']}}</p>
-                    {% if item['transaction_date'] == None %}
-                        <p>Book has not returned yet</p>
-                    {% endif %}
-                    <p>Return date:{{item['transaction_date']}}</p>
-                {% endif%}
-                {% if item['transaction_type'] == 'BUY' %}
-                    <p>Buy date : {{item['transaction_date']}}</p>
-                {% endif %}
-                <p>${{item['total_price']}}</p>
-            </div>
-            {% endfor %}
-        </div>
+        <!-- Date Header -->
+        <div>
+            <h2 class="text-2xl font-bold mb-4">{{ date }}</h2>
+            
+            <!-- Cards Grid -->
+            <div class="grid grid-cols-4 gap-6">
+                {% for item in items %}
+                <div class="rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow flex flex-col h-full">
+                    
+                    <!-- Image and badge -->
+                    <div class="relative h-100 bg-gray-100 shrink-0">
+                        <img src="{{ url_for('static', filename='uploads/' + item['note'].image_filename) }}" 
+                             alt="{{ item['note'].title }}" 
+                             class="w-full h-full object-cover">
+                        
+                        <div class="absolute top-2 right-2">
+                            {% if item['transaction_type'] == 'BORROW' %}
+                                <span class="bg-blue-300 text-xs font-semibold px-3 py-1 rounded-full">
+                                    Borrowed
+                                </span>
+                            {% else %}
+                                <span class="bg-green-300 text-xs font-semibold px-3 py-1 rounded-full">
+                                    Sold
+                                </span>
+                            {% endif %}
+                        </div>
+                    </div>
 
-        
-        {% endfor %}
+                    {# Content #}
+                    <div class="p-4 flex flex-col grow">
+                        {# Title and Description #}
+                        <a href="{{ url_for('detail', note_id=item['note'].note_id) }}" 
+                           class="text-lg font-semibold text-gray-900 mb-1 underline hover:text-blue-600 transition-colors">
+                            {{ item['note'].title }}
+                        </a>
+                        
+                        <p class="text-sm text-gray-600 mb-4">
+                            {{ item['note'].description[:50] }}{% if item['note'].description|length > 50 %}...{% endif %}
+                        </p>
+
+                        {# Transaction Details #}
+                        <div class="space-y-2 mb-4">
+                            {% if item['transaction_type'] == 'BORROW' %}
+                                <div class="bg-blue-50 border border-blue-200 rounded-md p-3 text-sm">
+                                    <p class="text-gray-600 font-medium mb-1">Borrow Start Date</p>
+                                    <p class="text-gray-900 mb-2">{{ item['borrow_start_date'].strftime("%d %b %Y")}}</p>
+                                    
+                                    {% if item['transaction_date'] == None %}
+                                        <div class="bg-yellow-100 border border-yellow-300 rounded px-2 py-1 mt-2">
+                                            <p class="text-yellow-800 font-medium text-xs"> Not returned yet</p>
+                                        </div>
+                                    {% else %}
+                                        <p class="text-gray-600 font-medium mb-1">Return Date</p>
+                                        <p class="text-gray-900 mb-2">{{ item['transaction_date'].strftime("%d %b %Y") }}</p>
+                                    {% endif %}
+
+                                    <p class="text-gray-600 font-medium mb-1">Borrowed to</p>
+                                    <p class="text-gray-900 mb-2">{{item['buyer'].username}}</p>
+                                </div>
+                            {% endif %}
+                            
+                            {% if item['transaction_type'] == 'BUY' %}
+                                <div class="bg-green-50 border border-green-200 rounded-md p-3 text-sm">
+                                    <p class="text-gray-600 font-medium mb-1">Purchase Date</p>
+                                    <p class="text-gray-900">{{ item['transaction_date'].strftime("%d %b %Y")}}</p>
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        {# Price - Pushed to bottom #}
+                        <div class="mt-auto">
+                            <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                                <span class="text-sm text-gray-600 font-medium">Total Earned</span>
+                                <span class="text-xl font-bold text-gray-900">${{ item['total_price'] }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    {% endfor %}
 </div>

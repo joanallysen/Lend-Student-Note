@@ -103,6 +103,7 @@ def detail(note_id):
             my_review = review
 
     return render_template('detail.html', 
+                        user_id=user_id,
                         note=note, 
                         related_books=related_books,
                         my_review=my_review,
@@ -203,7 +204,8 @@ def make_history_dictionary(history):
             'transaction_type': h.transaction_type,
             'borrow_start_date': h.borrow_start_date,
             'transaction_date': h.transaction_date,
-            'total_price': h.total_price
+            'total_price': h.total_price,
+            'buyer' : h.buyer
         })
         print(f'this are the borrow start date: {h.borrow_start_date}')
     return history_dict
