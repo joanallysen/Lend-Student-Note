@@ -137,7 +137,6 @@ def checkout():
                         total_price = item.total_price
                     )
 
-            note.rating_count+=1
             db.session.add(new_history)
             db.session.flush()
 

@@ -84,6 +84,15 @@ def detail(note_id):
         .filter(note_tag_association.c.note_id == note_id)
     ),
     Note.note_id != note_id ).distinct().all()
+
+    #Update the average rating
+    total_star= sum(int(review.star) for review in note.reviews) 
+    if total_star == 0:
+        note.avg_rating = 0
+    else:
+        note.avg_rating = total_star/note.rating_count
+
+    #Categorize all reviews
     my_review = None
     other_reviews = []
     
@@ -94,11 +103,11 @@ def detail(note_id):
             my_review = review
 
     return render_template('detail.html', 
-                            user_id=user_id,
-                            note=note,
-                            related_books=related_books,
-                            my_review=my_review.to_dict() if my_review else None, 
-                            note_reviews=[review.to_dict() for review in other_reviews])
+                        user_id=user_id,
+                        note=note, 
+                        related_books=related_books,
+                        my_review=my_review,
+                        note_reviews=other_reviews)
 
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
