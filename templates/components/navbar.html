@@ -1,11 +1,63 @@
 {% set current_path = request.path %}
-<nav>
-    <ul class="flex justify-center-safe text-center space-x-10">
-        <li class="{% if current_path == '/explore' %}font-bold{% endif %}"><a href="{{url_for('explore')}}">Explore</a></li>
-        <li class="{% if current_path == '/dashboard' %}font-bold{% endif %}"><a href="{{url_for('dashboard')}}">Dashboard</a></li>
-        <li class="{% if current_path == '/history' %}font-bold{% endif %}"><a href="{{url_for('history')}}">See History</a></li>
-        <li class="{% if current_path == '/watchlist' %}font-bold{% endif %}"><a href="{{url_for('watchlist')}}">See Watchlist</a></li>
-        <li class="{% if current_path == '/user_cart' %}font-bold{% endif %}"><a href="{{url_for('shopping_cart.user_cart')}}">See Cart</a></li>
-        <li class="{% if current_path == '/user_cart' %}font-bold{% endif %}"><a href="{{url_for('logout')}}">Logout</a></li>
-    </ul>
+{% import 'components/navbar_macros.html' as comp %}
+<nav class="relative bg-linear-to-r from-green-600 via-emerald-500 to-lime-400 shadow-2xl rounded-2xl my-6 overflow-hidden">
+    
+    <!-- Navigation content -->
+    <div class="relative px-8 py-5">
+        <div class="flex items-center justify-between mb-4">
+            <div class="flex items-center gap-3">
+                <div>
+                    <h1 class="text-5xl font-black text-white tracking-tight">Student Lend Note</h1>
+                    <p class="text-xs text-white/80 font-medium">Student Lending Network</p>
+                </div>
+            </div>
+            
+            <!-- User badge -->
+            <div class="bg-white/20 backdrop-blur-sm px-4 py-2 rounded-full flex items-center gap-2">
+                <div class="w-8 h-8 bg-linear-to-br from-purple-400 to-purple-500 rounded-full flex items-center justify-center text-white font-bold text-sm shadow-md">
+                    {{ session.get('username', 'Guest')[:1] }}
+                </div>
+                <span class="text-white font-semibold text-sm">{{ session.get('username', 'Guest') }}</span>
+            </div>
+        </div>
+        
+        <!-- Main Navigation -->
+        <ul class="flex flex-wrap justify-center gap-2">
+            <li>
+                {{ comp.navbar_element(endpoint='explore', label='Explore', current_path=request.path, icon_path="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z")}}
+            </li>
+
+            <li>
+                {{comp.navbar_element(endpoint='dashboard', label='Dashboard', current_path=request.path, icon_path="M4 5a1 1 0 011-1h4a1 1 0 011 1v7a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM14 5a1 1 0 011-1h4a1 1 0 011 1v3a1 1 0 01-1 1h-4a1 1 0 01-1-1V5zM4 16a1 1 0 011-1h4a1 1 0 011 1v3a1 1 0 01-1 1H5a1 1 0 01-1-1v-3zM14 12a1 1 0 011-1h4a1 1 0 011 1v7a1 1 0 01-1 1h-4a1 1 0 01-1-1v-7z")}}
+            </li>
+            
+            <li>
+                {{comp.navbar_element(endpoint='history', label='History', current_path=request.path, icon_path="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z")}}
+            
+            </li>
+            
+            <li>
+                {{comp.navbar_element(endpoint='watchlist', label='Watchlist', current_path=request.path, icon_path="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z")}}
+                </a>
+            </li>
+            
+            <li>
+                {{comp.navbar_element(endpoint='shopping_cart.user_cart', label='Cart', current_path=request.path, icon_path="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z")}}
+            </li>
+            
+            <li>
+                <a href="{{url_for('logout')}}" 
+                   class="group relative flex items-center gap-2 px-5 py-3 rounded-xl transition-all duration-300
+                          bg-red-500/20 text-white hover:bg-red-500 hover:scale-105 border-2 border-white/30">
+                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+                    </svg>
+                    <span class="font-bold text-sm">Logout</span>
+                </a>
+            </li>
+        </ul>
+    </div>
+    
+    <!-- Bottom accent line -->
+    <div class="h-1 bg-purple-400"></div>
 </nav>

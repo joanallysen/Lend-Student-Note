@@ -94,7 +94,7 @@
                         <input type="hidden" name="total_price" id="total_price">
                     
                         <input id="purchase_button" class="py-4 w-full bg-blue-700 text-white rounded-2xl font-bold cursor-pointer disabled:bg-red-500 disabled:cursor-not-allowed" type="submit" 
-                         value="{% if note.status != 'AVAILABLE' %}Not Available{%elif note.owner_id == user_id %}Cannot Buy/Borrow Own Notes{% else %}{{ 'Borrow' if note.listing_type == 'BOTH' else 'Buy' }}{% endif %}"
+                         value="{% if note.status != 'AVAILABLE' %}Not Available{%elif note.owner_id == user_id %}Cannot Buy/Borrow Own Notes{% else %}{{ 'Borrow' if note.listing_type == 'BOTH' or note.listing_type=='RENTAL' else 'Buy' }}{% endif %}"
                         {% if note.status != 'AVAILABLE' or note.owner_id == user_id %} disabled{% endif %}>
 
                     </form>
@@ -453,6 +453,15 @@
         const isAvailable = '{{note.status}}';
         const userId = '{{user_id}}'
         const ownerId = '{{note.owner_id}}'
+
+        // make sure the initial value work.
+        if (listingType === 'SALE') {
+            document.getElementById('price').style.display = 'none';
+            document.getElementById('price_sale').style.display = 'block';
+            totalPriceDisplay.innerText = `Total Price: $${priceSale.toFixed(2)}`;
+            totalPriceInput.value = priceSale;
+        } 
+
         if (isAvailable == 'AVAILABLE' || userId == ownerId){
             document.getElementById('buying_type').addEventListener('change', function() {
             const rentalOptions = document.getElementById('rental_options');

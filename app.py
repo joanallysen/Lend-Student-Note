@@ -152,7 +152,8 @@ def login():
         if user and check_password_hash(user.password, password):
             session['user_id'] = user.user_id
             session['email'] = user.email
-            flash(f'Welcome back, {user.username}!', 'success')
+            session['username'] = user.username
+            print('Adding to session')
             return redirect(url_for('dashboard'))
         else:
             flash('Invalid email or password!', 'error')
