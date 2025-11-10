@@ -32,7 +32,7 @@ def add_review(note_id):
         update_avg_rating(note)
 
         note.owner.rating_count += 1
-        update_avg_rating(note.owner)
+        update_seller_avg_rating(note.owner)
  
         db.session.commit()
         return redirect(url_for('detail',note_id = note_id))
@@ -53,7 +53,7 @@ def delete_review(review_id):
             review.note.rating_count -= 1
             review.note.owner.rating_count -= 1
             update_avg_rating(review.note)
-            update_avg_rating(review.note.owner)
+            update_seller_avg_rating(review.note.owner)
             db.session.delete(review)
             db.session.commit()
       
@@ -72,15 +72,28 @@ def edit_review(review_id):
         review.review = request.form["edited_review"]
         review.star = request.form["star"]
         update_avg_rating(review.note)
-        update_avg_rating(review.note.owner)
+        update_seller_avg_rating(review.note.owner)
         db.session.commit()
     return redirect(url_for('detail',note_id = review.note_id))
 
-def update_avg_rating(model): # could either be user or note
+def update_avg_rating(model): # nvm, if user it will show the review that we do to other people not people to us.
     if model.rating_count == 0:
         model.avg_rating = 0
     else:
         total_star = sum(int(review.star) for review in model.reviews)
         model.avg_rating = total_star / model.rating_count
 
+# rather than this, how about using memory, so less cost intensive, probably for future development
+def update_seller_avg_rating(owner):
+    if owner.rating_count == 0:
+        owner.avg_rating = 0
+    else:
+        # each note has its own avg_rating, sum them all up and get the avg
+        total_avg = 0
+        for note in owner.notes_owned:
+            total_avg += note.avg_rating or 0
+
+        # only count the average with notes that has a rating on them (unrated note doesnt count)
+        rated_notes = len([note for note in owner.notes_owned if note.rating_count >= 1])
+        owner.avg_rating = total_avg / rated_notes
         

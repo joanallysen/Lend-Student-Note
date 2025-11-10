@@ -9,7 +9,8 @@
 </head>
 <body class="max-w-7xl mx-auto mt-10">
     {% include 'components/navbar.html'%}
-    <h1 class="text-3xl font-bold mb-2">Watchlist</h1>
+    {% include '/components/bg.html' %}
+    <h1 class="text-3xl font-bold mb-2 mt-6">Watchlist</h1>
     <p class="text-gray-600 mb-8">Save interesting notes and books</p>
     <div class="grid grid-cols-4 gap-6">
         {% for note in notes %}

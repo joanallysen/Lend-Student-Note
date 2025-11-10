@@ -1,9 +1,9 @@
 {# components/search_bar.html #}
 {% macro search_bar(user_input, condition, availability, sort_by, price_type, min_price, max_price) %}
-<div class="container mx-auto  pt-8 max-w-7xl">
+<div class="container mx-auto pt-2">
         
         <!-- Search Form -->
-        <form action='/search' method="get" class="bg-white rounded-lg shadow-md p-6 pb-[1px] mb-8">
+        <form action='/search' method="get" class="bg-white rounded-2xl shadow-md p-6 pb-px mb-2">
             <!-- Search Bar -->
             <div class="mb-3">
                 <div class="flex gap-2">
@@ -12,11 +12,11 @@
                         name="user_input" 
                         value="{{user_input}}"
                         placeholder="Search by title, author, or ISBN..."
-                        class="flex-1 px-4 py-3 border border-gray-30  outline-none"
+                        class="flex-1 px-4 py-3 border border-gray-300  outline-none"
                     >
                     <button 
                         type="submit"
-                        class="px-8 py-3 bg-blue-600 text-white font-semibold rounded-lg"
+                        class="px-8 py-3 bg-indigo-600 text-white font-semibold rounded-lg"
                     >
                         Search
                     </button>
@@ -30,9 +30,9 @@
                     <button 
                         type="button"
                         onclick="toggleFilters()"
-                        class="text-blue-600 font-medium text-sm flex items-center gap-1"
+                        class="text-indigo-600 font-medium text-sm flex items-center gap-1"
                     >
-                        <span id="filterToggleText" class="justify-end">Show Filters</span>
+                        <span id="filterToggleText" class="justify-end cursor-pointer hover:text-indigo-700">Show Filters</span>
                         <svg id="filterToggleIcon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" class="transition-transform">
                             <path fill="currentColor" d="m12 15.4l-6-6L7.4 8l4.6 4.6L16.6 8L18 9.4z"/>
                         </svg>
@@ -112,26 +112,30 @@
         </form>
 
         <!-- Sort By Section -->
-        <form action='/search' method="get" class="bg-white rounded-lg shadow-md p-4 mb-8">
-            <input type="hidden" name="user_input" value="{{ user_input }}">
-            <input type="hidden" name="condition" value="{{ condition }}">
-            <input type="hidden" name="availability" value="{{ availability }}">
-            <input type="hidden" name="price_type" value="{{ price_type }}">
-            <input type="hidden" name="min_price" value="{{ min_price }}">
-            <input type="hidden" name="max_price" value="{{ max_price }}">
-            <div class="flex justify-end items-center gap-4">
-                <label class="text-sm font-medium text-gray-700">Sort by:</label>
-                <select 
-                    name="sort_by" 
-                    onchange="this.form.submit()"
-                    class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
-                >
-                    <option value="Default" {% if sort_by == "Default" %}selected{% endif %}>Default</option>
-                    <option value="Rating" {% if sort_by == "Rating" %}selected{% endif %}>Rating</option>
-                    <option value="Popularity" {% if sort_by == "Popularity" %}selected{% endif %}>Popularity</option>
-                </select>
-            </div>
-        </form>
+        <div class="flex justify-end">
+            <form action='/search' method="get" class="bg-white rounded-lg shadow-md px-4 py-1 mb-4 inline-block">
+                <input type="hidden" name="user_input" value="{{ user_input }}">
+                <input type="hidden" name="condition" value="{{ condition }}">
+                <input type="hidden" name="availability" value="{{ availability }}">
+                <input type="hidden" name="price_type" value="{{ price_type }}">
+                <input type="hidden" name="min_price" value="{{ min_price }}">
+                <input type="hidden" name="max_price" value="{{ max_price }}">
+                
+                <div class="flex justify-end items-center gap-4">
+                    <label class="text-sm font-medium text-gray-700">Sort by:</label>
+                    <select 
+                        name="sort_by" 
+                        onchange="this.form.submit()"
+                        class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
+                    >
+                        <option value="Default" {% if sort_by == "Default" %}selected{% endif %}>Default</option>
+                        <option value="Rating" {% if sort_by == "Rating" %}selected{% endif %}>Rating</option>
+                        <option value="Popularity" {% if sort_by == "Popularity" %}selected{% endif %}>Popularity</option>
+                    </select>
+                </div>
+            </form>
+        </div>
+        
 </div>
 
  <script>
