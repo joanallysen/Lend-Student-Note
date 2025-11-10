@@ -111,8 +111,12 @@
                 {{ note.description[:50] }}{% if note.description|length > 50 %}...{% endif %}
             </p>
             
-            <div class="flex items-center justify-between mb-4">
-                <span class="text-xl font-semibold text-gray-900">${{ note.price }}<span class="text-sm text-gray-600">/week</span></span>
+            
+            <div class="flex items-center mb-4">
+                <span class="text-xl font-semibold text-gray-900">${{ note.price_sale }}</span>
+                <span class="text-sm text-gray-600 mx-1">or</span>
+                <span class="text-xl font-semibold text-gray-900">${{ note.price }}</span>
+                <span class="text-sm text-gray-600">/week</span>
             </div>
 
             {# Rating #}
@@ -251,4 +255,5 @@
         </div>
     </div>
 </div>
+
 {% endmacro %}

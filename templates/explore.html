@@ -21,7 +21,7 @@
     <h1 class="text-3xl font-bold mb-2">Explore</h1>
     <p class="text-gray-600 mb-8">Browse through notes and books</p>
     
-    {{sb.search_bar(user_input, condition, availability, sort_by, min_price, max_price)}}
+    {{sb.search_bar(user_input, condition, availability, sort_by, price_type, min_price, max_price)}}
     <div class="grid grid-cols-4 gap-6">
         {% for note in notes %}
             {{ comp.explore_card(note, user_id, cart_note_ids, watchlisted_note_ids) }}
