@@ -30,38 +30,38 @@ def search_note():
     cleaned_input = re.sub(r'\s+', ' ', user_input).strip().lower()
     
     search_output=[]
-    if cleaned_input or condition or availability or min_price or max_price:
             
-        search_filter=[
-            Note.title.ilike(f'%{cleaned_input}%')
-        ]
+    search_filter=[Note.status != 'HIDDEN']
+
+    if cleaned_input:
+        search_filter.append( Note.title.ilike(f'%{cleaned_input}%'))
+
+    if condition:
+        search_filter.append(Note.condition == condition)
     
-        if condition:
-            search_filter.append(Note.condition == condition)
-        
-        if availability == 'available':
-            search_filter.append(Note.status == 'AVAILABLE')
+    if availability == 'available':
+        search_filter.append(Note.status == 'AVAILABLE')
 
-        if min_price or max_price:
-            if price_type == 'rental':
-                if min_price:
-                    search_filter.append(Note.price >= float(min_price))
-                if max_price:
-                    search_filter.append(Note.price <= float(max_price))
-            elif price_type == 'purchase':
-                if min_price:
-                    search_filter.append(Note.price_sale >= float(min_price))
-                if max_price:
-                    search_filter.append(Note.price_sale <= float(max_price))
+    if min_price or max_price:
+        if price_type == 'rental':
+            if min_price:
+                search_filter.append(Note.price >= float(min_price))
+            if max_price:
+                search_filter.append(Note.price <= float(max_price))
+        elif price_type == 'purchase':
+            if min_price:
+                search_filter.append(Note.price_sale >= float(min_price))
+            if max_price:
+                search_filter.append(Note.price_sale <= float(max_price))
 
-        if sort_by == "Rating":
-            search_output = Note.query.filter(*search_filter).order_by(Note.avg_rating.desc()).all()
+    if sort_by == "Rating":
+        search_output = Note.query.filter(*search_filter).order_by(Note.avg_rating.desc()).all()
 
-        elif sort_by == "Popularity":
-            search_output = Note.query.filter(*search_filter).order_by(Note.rating_count.desc()).all()
+    elif sort_by == "Popularity":
+        search_output = Note.query.filter(*search_filter).order_by(Note.rating_count.desc()).all()
 
-        else:
-            search_output = Note.query.filter(*search_filter).all()
+    else:
+        search_output = Note.query.filter(*search_filter).all()
     return render_template("search.html", user_id=user_id, watchlisted_note_ids=watchlisted_note_ids, cart_note_ids=cart_note_ids
                            , results = search_output, user_input = cleaned_input
                            , condition=condition, sort_by=sort_by, availability =availability
