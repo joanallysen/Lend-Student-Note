@@ -1,0 +1,157 @@
+{# components/search_bar.html #}
+{% macro search_bar(user_input, condition, availability, sort_by, price_type, min_price, max_price) %}
+<div class="container mx-auto  pt-8 max-w-7xl">
+        
+        <!-- Search Form -->
+        <form action='/search' method="get" class="bg-white rounded-lg shadow-md p-6 pb-[1px] mb-8">
+            <!-- Search Bar -->
+            <div class="mb-3">
+                <div class="flex gap-2">
+                    <input 
+                        type="text" 
+                        name="user_input" 
+                        value="{{user_input}}"
+                        placeholder="Search by title, author, or ISBN..."
+                        class="flex-1 px-4 py-3 border border-gray-30  outline-none"
+                    >
+                    <button 
+                        type="submit"
+                        class="px-8 py-3 bg-blue-600 text-white font-semibold rounded-lg"
+                    >
+                        Search
+                    </button>
+                </div>
+            </div>
+
+            <!-- Filters -->
+            <div class="border-t pt-2.5 ">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 id="filterText" class="invisible text-lg font-semibold text-gray-700">Filters</h3>
+                    <button 
+                        type="button"
+                        onclick="toggleFilters()"
+                        class="text-blue-600 font-medium text-sm flex items-center gap-1"
+                    >
+                        <span id="filterToggleText" class="justify-end">Show Filters</span>
+                        <svg id="filterToggleIcon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" class="transition-transform">
+                            <path fill="currentColor" d="m12 15.4l-6-6L7.4 8l4.6 4.6L16.6 8L18 9.4z"/>
+                        </svg>
+                    </button>
+                </div>
+                
+                <div id="filtersContent" class="{% if condition or availability or price_type or min_price or max_price %}block{% else %}hidden{% endif %} grid pb-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <!-- Condition -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Condition:</label>
+                        <select 
+                            name="condition"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg outline-none"
+                        >
+                            <option value="">All Conditions</option>
+                            <option value="BRAND NEW" {% if condition == "Brand New" %}selected{% endif %}>Brand New</option>
+                            <option value="GOOD" {% if condition == "Good" %}selected{% endif %}>Good</option>
+                            <option value="MINIMUM" {% if condition == "Minimum" %}selected{% endif %}>Minimum</option>
+                        </select>
+                    </div>
+
+                    <!-- Price Type -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Price Type:</label>
+                        <select 
+                            name="price_type"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg outline-none"
+                        >
+                            <option value="rental" {% if price_type == "rental" or not price_type %}selected{% endif %}>Rental Price</option>
+                            <option value="purchase" {% if price_type == "purchase" %}selected{% endif %}>Purchase Price</option>
+                        </select>
+                    </div>
+                    <!-- Price Filter -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Min. Price:</label>
+                        <input 
+                            type="number" 
+                            min="0"
+                            name="min_price"
+                            value="{{min_price}}"
+                            placeholder="$0"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg outline-none"
+                            
+                        >
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Max. Price:</label>
+                        <input 
+                            type="number" 
+                            min="0"
+                            name="max_price"
+                            value="{{max_price}}"
+                            placeholder="$100"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg outline-none"
+                            
+                        >
+                    </div>
+
+                    <!-- Availability Checkbox -->
+                    <div >
+                        <label class="flex items-center cursor-pointer">
+                            <input 
+                                type="checkbox" 
+                                name="is_available" 
+                                value="available"
+                                {% if availability == 'available' %}checked{% endif %}
+                                class="w-4 h-4 text-blue-600 border-gray-300 rounded "
+                            >
+                            <span class="ml-2 text-sm font-medium text-gray-700">Show only available books</span>
+                        </label>
+                    </div>
+                </div>
+
+                <input type="hidden" name="sort_by" value="{{ sort_by }}">
+            </div>
+        </form>
+
+        <!-- Sort By Section -->
+        <form action='/search' method="get" class="bg-white rounded-lg shadow-md p-4 mb-8">
+            <input type="hidden" name="user_input" value="{{ user_input }}">
+            <input type="hidden" name="condition" value="{{ condition }}">
+            <input type="hidden" name="availability" value="{{ availability }}">
+            <input type="hidden" name="price_type" value="{{ price_type }}">
+            <input type="hidden" name="min_price" value="{{ min_price }}">
+            <input type="hidden" name="max_price" value="{{ max_price }}">
+            <div class="flex justify-end items-center gap-4">
+                <label class="text-sm font-medium text-gray-700">Sort by:</label>
+                <select 
+                    name="sort_by" 
+                    onchange="this.form.submit()"
+                    class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
+                >
+                    <option value="Default" {% if sort_by == "Default" %}selected{% endif %}>Default</option>
+                    <option value="Rating" {% if sort_by == "Rating" %}selected{% endif %}>Rating</option>
+                    <option value="Popularity" {% if sort_by == "Popularity" %}selected{% endif %}>Popularity</option>
+                </select>
+            </div>
+        </form>
+</div>
+
+ <script>
+        function toggleFilters() {
+            const filtersContent = document.getElementById('filtersContent');
+            const toggleText = document.getElementById('filterToggleText');
+            const toggleIcon = document.getElementById('filterToggleIcon');
+            const filterHeaderText = document.getElementById('filterText')
+            
+            if (filtersContent.classList.contains('hidden')) {
+                filtersContent.classList.remove('hidden');
+                filterHeaderText.classList.remove('invisible');
+                toggleText.textContent = 'Hide Filters';
+                toggleIcon.style.transform = 'rotate(-90deg)';
+            } else {
+                filtersContent.classList.add('hidden');
+                filterHeaderText.classList.add('invisible');
+                toggleText.textContent = 'Show Filters';
+                toggleIcon.style.transform = 'rotate(0deg)';
+            }
+        }
+    </script>
+{% endmacro %}

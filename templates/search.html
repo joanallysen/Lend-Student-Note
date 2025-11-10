@@ -1,68 +1,62 @@
+{% import 'components/search_bar.html' as sb %}
+{% import 'components/macros.html' as comp %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Book Search - Library System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
-    <h1>Search</h1>
-    <form action='/search' method="get">
-        <input type="text" name="user_input" value="{{user_input}}">  
-        <input type="submit" value="Search">
+<body class="bg-gray-50 max-w-7xl mx-auto mt-10">
+    {% include '/components/navbar.html' %}
+    <div class="max-w-7xl mx-auto mt-10">
 
-        <label>Sort by:</label>
-        <select name="sort_by" onchange="this.form.submit()">
-            <option value="Default" {% if sort_by == "Default" %}selected {% endif %}>Default</option>
-            <option value="Rating" {% if sort_by == "Rating" %}selected{% endif %}>Rating</option>
-            <option value="Popularity" {% if sort_by == "Popularity" %}selected{% endif %}>Popularity</option>
-            
-        
-        </select>
-        
-        <label>Availability:</label>
-        <input type="checkbox" name="is_available" value="available" {%if availability == 'available'%}checked{% endif %}> <br><br>
+        <p class="text-3xl font-bold mb-2">Search books</p>
+        <p class="text-gray-600">Browse all books in our website</p>
 
-        
-
-        <label>Condition:</label>
-        <select name="condition">
-            <option value="">==Select==</option>
-            <option value="Brand New" {% if condition == "Brand New" %}selected{% endif %}>Brand New</option>
-            <option value="Good" {% if condition == "Good" %}selected {% endif %}>Good</option>
-            <option value="Minimum" {%if condition == "Minimum" %}selected{% endif %}>Minimum</option>
-        
-        </select><br>
-
-        <label>Min. Price</label>
-        <input type="number" name="min_price">
-
-        <label>Max. Price</label>
-        <input type="number" name="max_price">
-    </form>
-    <p> User Input: {{ user_input }}</p>
-    <p> Condition: {{ condition }}</p>
-    
-        {% if results %}
-            <div class="flex justify-center text-center space-y-1">
-                {% for note in results %}
-                <div class="justify-center items-center bg-gray-100">
-                   
-                    <img src="{{url_for('static',filename='uploads/'+note.image_filename)}} "alt="Current Image" class="w-80 min-h-90"><br>
-                    Note ID: {{note.note_id}}<br>
-                    Title: {{note.title}}<br>
-                    Description: {{note.description}}<br>
-                    <br>
-                    Price: ${{note.price}}
-                </div>
-                {% endfor %}
+        {{sb.search_bar(user_input, condition, availability, sort_by, price_type, min_price, max_price)}}
+        <!-- Results Section -->
+        <div>
+            {% if results %}
+            <div class="mb-4">
+                <h2 class="text-2xl font-semibold text-gray-800">Search Results</h2>
+                <p class="text-gray-600 mt-1">Found {{ results|length }} book(s)</p>
             </div>
-            {% else %}
-                <li>Not Found</li>
-            
-            
-        
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                
+                {% for result in results %}
+                    {{ comp.explore_card(result, user_id, cart_note_ids, watchlisted_note_ids) }}
+                {% endfor %}
+                
+            </div>
+        {% else %}
+            <div class="bg-white rounded-lg shadow-md p-12 text-center">
+                <svg class="mx-auto h-16 w-16 text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+                </svg>
+                <h3 class="text-xl font-semibold text-gray-800 mb-2">No books found</h3>
+                <p class="text-gray-600">Try adjusting your search filters or search terms</p>
+            </div>
         {% endif %}
-    
+         </div>
+        
+    </div>
+
+    <style>
+        .line-clamp-2 {
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        .line-clamp-3 {
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+    </style>
 </body>
 </html>

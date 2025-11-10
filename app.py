@@ -26,6 +26,7 @@ app.register_blueprint(search_bp)
 app.register_blueprint(shopping_cart)
 app.register_blueprint(borrowed_bp)
 app.register_blueprint(review_bp)
+
 # create the database tables
 with app.app_context():
     db.create_all()
@@ -81,6 +82,7 @@ def detail(note_id):
     else:
         note.avg_rating = total_star/note.rating_count
 
+    db.session.commit()
     #Categorize all reviews
     my_review = None
     other_reviews = []

@@ -494,8 +494,9 @@
 
             // count stars
             reviews.forEach(review => {
-            if (review.star >= 1 && review.star <= 5) {
-                distribution[review.star]++;
+            const star = Number(review.star); // <-- convert here
+            if (star >= 1 && star <= 5) {
+                distribution[star]++;
             }
             });
 
@@ -514,7 +515,7 @@
             
             for (let rating = 5; rating >= 1; rating--) {
                 const count = distribution[rating];
-                const percentage = totalReviews > 0 ? (count / totalReviews * 100) : 0;
+                const percentage = totalReviews > 0 ? (Number(count) / Number(totalReviews)) * 100 : 0;
                 
                 const barHTML = `
                     <div class="flex items-center gap-3 mb-2">
