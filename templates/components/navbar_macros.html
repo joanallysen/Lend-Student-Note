@@ -1,0 +1,21 @@
+{# components/navbar_macros.html #}
+
+<!-- path is like 'explore' string -->
+{% macro navbar_element(label, endpoint, current_path, icon_path) %}
+    <a href="{{ url_for(endpoint) }}" 
+        class="group relative flex items-center gap-2 px-5 py-3 rounded-xl transition-all duration-300 
+                {% if current_path == url_for(endpoint) %}bg-white text-purple-600 shadow-xl scale-105{% else %}text-white hover:bg-white/20 hover:scale-105{% endif %}">
+
+
+        <svg class="w-5 h-5 {% if current_path == url_for(endpoint) %}text-purple-600{% else %}text-white{% endif %}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="{{ icon_path }}"/>
+        </svg>
+
+        <span class="font-bold text-sm"> {{label}} </span>
+        
+        {% if current_path == url_for(endpoint) %}
+            <span class="absolute -top-1 -right-1 w-3 h-3 bg-purple-400 rounded-full animate-ping"></span>
+            <span class="absolute -top-1 -right-1 w-3 h-3 bg-purple-400 rounded-full"></span>
+        {% endif %}
+    </a>
+{% endmacro %}
