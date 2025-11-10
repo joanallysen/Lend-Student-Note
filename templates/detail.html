@@ -328,7 +328,7 @@
                             </div>
                         {% endif %}
                     </div>
-                    <p class="text-sm text-center font-semibold text-gray-800 line-clamp-2">{{book.title}}</p>
+                    <p class="text-sm text-center font-semibold text-gray-800 ">{{book.title}}</p>
                 </div>
                 {% endfor %}
             </div>
@@ -536,6 +536,7 @@
             const maxStars = 5;
             let currentRating = initialStarRating;
 
+            starContainer.innerHTML = '';
             for (let i = 1; i <= maxStars; i++) {
                 const star = document.createElement('span');
                 star.innerHTML = '★';
