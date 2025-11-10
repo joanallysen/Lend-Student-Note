@@ -11,7 +11,6 @@ review_bp = Blueprint('review', __name__)
 @review_bp.route('/add_review/<int:note_id>', methods=['POST', 'GET'])
 @login_required
 def add_review(note_id):
-    
     note = Note.query.get_or_404(note_id)
     user_history= History.query.filter(and_(History.buyer_id==session['user_id'],History.note_id == note_id)).first()
 
@@ -25,20 +24,16 @@ def add_review(note_id):
             user_id = session['user_id'],
             star = request.form.get('star'),
             review = request.form.get('review'),
-            added_at = datetime.today().date()
         )
 
+        # will automatically link to note.reviews too.
         db.session.add(new_review)
-        
         note.rating_count += 1
+        update_avg_rating(note)
 
-        #Update the average rating
-        total_star= sum(int(review.star) for review in note.reviews) 
-        if total_star == 0:
-            note.avg_rating = 0
-        else:
-            note.avg_rating = total_star/note.rating_count
-            
+        note.owner.rating_count += 1
+        update_avg_rating(note.owner)
+ 
         db.session.commit()
         return redirect(url_for('detail',note_id = note_id))
     return render_template('review_form.html')
@@ -51,15 +46,20 @@ def delete_review(review_id):
     if not review:
         return 'It is not your review'
     
+    note_id = review.note_id
+
     if request.method == "POST":
-  
         if review:
-            review.note.rating_count-=1
+            review.note.rating_count -= 1
+            review.note.owner.rating_count -= 1
+            update_avg_rating(review.note)
+            update_avg_rating(review.note.owner)
             db.session.delete(review)
             db.session.commit()
       
-    return redirect(url_for('detail',note_id = review.note_id))
+    return redirect(url_for('detail', note_id = note_id))
 
+# con, needing to recalculate every review star every edit.
 @review_bp.route('/edit_review/<int:review_id>',methods=["POST"])
 def edit_review(review_id):
     
@@ -71,6 +71,16 @@ def edit_review(review_id):
     if request.method == "POST":
         review.review = request.form["edited_review"]
         review.star = request.form["star"]
+        update_avg_rating(review.note)
+        update_avg_rating(review.note.owner)
         db.session.commit()
     return redirect(url_for('detail',note_id = review.note_id))
+
+def update_avg_rating(model): # could either be user or note
+    if model.rating_count == 0:
+        model.avg_rating = 0
+    else:
+        total_star = sum(int(review.star) for review in model.reviews)
+        model.avg_rating = total_star / model.rating_count
+
         

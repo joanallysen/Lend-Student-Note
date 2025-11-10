@@ -108,6 +108,8 @@ class CartItem(db.Model):
             return (delta.days // 7) + (1 if delta.days % 7 > 0 else 0)
         return 0
 
+# change to have owner_id, so can immediately access owner.gotten_review so owner can see the review they got
+# so all review in owned owned notes will be the review to the seller ? Maybe in the future.
 class Review(db.Model):
     review_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     note_id = db.Column(db.Integer, db.ForeignKey('note.note_id'), nullable=False)
