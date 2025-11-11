@@ -515,6 +515,7 @@
             const maxStars = 5;
             let currentRating = initialStarRating;
 
+            starContainer.innerHTML = '';
             for (let i = 1; i <= maxStars; i++) {
                 const star = document.createElement('span');
                 star.innerHTML = '★';

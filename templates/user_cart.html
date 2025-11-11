@@ -38,7 +38,7 @@
                             </div>
                              
                             <a href="{{ url_for('detail', note_id=item.note_details.note_id) }}" class="text-lg font-semibold text-gray-900 mb-1 underline hover:text-blue-600 transition-colors">{{ item.note_details.title }}</a>
-                            <p class="text-gray-600 text-sm mb-3 line-clamp-2">{{item.note_details.description}}</p>
+                            <p class="text-gray-600 text-sm mb-3">{{item.note_details.description}}</p>
                             
                             <div class="space-y-2">
                                 <div class="flex items-center gap-2">
