@@ -1,6 +1,6 @@
 {# components/search_bar.html #}
 {% macro search_bar(user_input, condition, availability, sort_by, price_type, min_price, max_price) %}
-<div class="container mx-auto pt-8 max-w-7xl">
+<div class="container pt-8 w-7xl mx-auto">
         
     <!-- Search Form -->
     <form action='/search' method="get" class="bg-white rounded-2xl shadow-md p-6 pb-px mb-2">
@@ -140,7 +140,7 @@
     </form>
 
     <!-- Sort By Section -->
-    <form action='/search' method="get" class="bg-white rounded-lg shadow-md px-4 py-1 mb-4 inline-block">
+    <form action='/search' method="get" class=" px-4 py-1 mb-4 flex justify-end">
         <input type="hidden" name="user_input" value="{{ user_input }}">
         <input type="hidden" name="condition" value="{{ condition }}">
         <input type="hidden" name="availability" value="{{ availability }}">
@@ -157,7 +157,7 @@
             <select 
                 name="sort_by" 
                 onchange="this.form.submit()"
-                class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
+                class="px-3 py-2 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
             >
                 <option value="Default" {% if sort_by == "Default" %}selected{% endif %}>Default</option>
                 <option value="Rating" {% if sort_by == "Rating" %}selected{% endif %}>Rating</option>

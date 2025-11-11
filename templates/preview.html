@@ -217,41 +217,6 @@
         </div>
 
 
-        <div id="price_sale_container" style="display:none">
-            <label for="price">Price (per sale)</label><br>
-            <input type="number" step="0.01" id="price_sale" name="price_sale" value="{{note.price_sale if note else ''}}"> <br>
-        </div>
-
-        <label for="description">Description</label><br>
-        <textarea id="description" name="description">{{ note.description if note else '' }}</textarea><br><br>
-
-        <label for="condition">Condition</label><br>
-        <select name="condition" id="condition" required>
-            <option value="MINIMUM" {% if note and note.condition =='MINIMUM' %}selected{%endif%}>Minimum</option>
-            <option value="GOOD" {% if note and note.condition =='GOOD' %}selected{%endif%}>Good</option>
-            <option value="BRAND NEW" {% if note and note.condition =='BRAND NEW' %}selected{%endif%}>Brand New</option>
-        </select><br><br>
-
-        <label for="pickup_location">Pickup Location</label><br>
-        <input type="text" id="pickup_location" name="pickup_location" required value="{{ note.pickup_location if note else '' }}"><br><br>
-
-        <label for="available_date">Available Date</label><br>
-        <input type="date" id="available_date" name="available_date" required value="{{ note.available_date.strftime('%Y-%m-%d') if note else '' }}"><br><br>
-
-        <label for="status">Status</label><br>
-        <select name="status" id="status">
-            <option value="AVAILABLE" {% if note and note.status=='AVAILABLE' %}selected{% endif %}>Available</option>
-            <option value="HIDDEN" {% if note and note.status=='HIDDEN' %}selected{% endif %}>Hidden</option>
-        </select><br><br>
-
-        <label for="tags">Tags (Comma separated)</label><br>
-        <input type="text" id="tags" name="tags" value="{{note.tags if note else ''}}"><br><br>
-
-        <button class='cursor-pointer' type="submit">{{ 'Update Note' if action == 'notes.update_note' else 'Add Note' }}</button>
-    </form>
-
-    </div>
-
 
     <script>
         function previewImage(event){
