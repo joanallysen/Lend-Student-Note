@@ -3,10 +3,10 @@
 <div class="container mx-auto pt-8 max-w-7xl">
         
     <!-- Search Form -->
-    <form action='/search' method="get" class="bg-gradient-to-br from-white via-purple-50 to-green-50 rounded-2xl shadow-xl p-8 pb-4 mb-8 border-2 border-purple-200">
+    <form action='/search' method="get" class="bg-white rounded-2xl shadow-md p-6 pb-px mb-2">
         <!-- Search Bar -->
-        <div class="mb-6">
-            <div class="flex gap-3">
+        <div class="mb-3">
+            <div class="flex gap-2">
                 <div class="relative flex-1">
                     <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                         <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -18,8 +18,14 @@
                         name="user_input" 
                         value="{{user_input}}"
                         placeholder="Search by title, author, or ISBN..."
-                        class="w-full pl-12 pr-4 py-4 border-2 border-purple-200 rounded-xl outline-none focus:border-purple-500 focus:ring-4 focus:ring-purple-100 transition-all duration-200 bg-white"
+                        class="flex-1 px-4 py-3 border border-gray-300  outline-none"
                     >
+                    <button 
+                        type="submit"
+                        class="px-8 py-3 bg-indigo-600 text-white font-semibold rounded-lg"
+                    >
+                        Search
+                    </button>
                 </div>
                 <button 
                     type="submit"
@@ -36,7 +42,7 @@
         <!-- Filters -->
         <div class="border-t-2 border-purple-200 pt-4">
             <div class="flex justify-between items-center mb-4">
-                <h3 id="filterText" class="{% if condition or availability or price_type or min_price or max_price %}visible{% else %}invisible{% endif %} text-lg font-bold text-purple-700 flex items-center gap-2">
+                <h3 id="filterText" class="{% if condition or availability or price_type or min_price or max_price %}visible{% else %}invisible{% endif %}text-lg font-semibold text-gray-700 flex items-center gap-2">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/>
                     </svg>
@@ -144,12 +150,12 @@
                 </div>
             </div>
 
-            <input type="hidden" name="sort_by" value="{{ sort_by }}">
+ <input type="hidden" name="sort_by" value="{{ sort_by }}">
         </div>
     </form>
 
     <!-- Sort By Section -->
-    <form action='/search' method="get" class="bg-gradient-to-r from-purple-600 to-green-500 rounded-xl shadow-lg p-5 mb-8 border-2 border-purple-300">
+    <form action='/search' method="get" class="bg-white rounded-lg shadow-md px-4 py-1 mb-4 inline-block">
         <input type="hidden" name="user_input" value="{{ user_input }}">
         <input type="hidden" name="condition" value="{{ condition }}">
         <input type="hidden" name="availability" value="{{ availability }}">
@@ -157,7 +163,7 @@
         <input type="hidden" name="min_price" value="{{ min_price }}">
         <input type="hidden" name="max_price" value="{{ max_price }}">
         <div class="flex justify-end items-center gap-4">
-            <label class="text-sm font-bold text-white flex items-center gap-2">
+            <label class="text-sm font-bold text-gray-700 flex items-center gap-2">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4h13M3 8h9m-9 4h6m4 0l4-4m0 0l4 4m-4-4v12"/>
                 </svg>
@@ -166,7 +172,7 @@
             <select 
                 name="sort_by" 
                 onchange="this.form.submit()"
-                class="px-4 py-2 border-2 border-white rounded-lg focus:ring-4 focus:ring-purple-300 focus:border-white outline-none font-semibold text-purple-700 bg-white hover:bg-purple-50 transition-all duration-200"
+                class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
             >
                 <option value="Default" {% if sort_by == "Default" %}selected{% endif %}>Default</option>
                 <option value="Rating" {% if sort_by == "Rating" %}selected{% endif %}>Rating</option>

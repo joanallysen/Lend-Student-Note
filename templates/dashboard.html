@@ -8,11 +8,10 @@
 </head>
 
 <body class="max-w-7xl mx-auto mt-10">
-
+    {% include '/components/bg.html' %}
     {% include '/components/navbar.html' %}
-    <h1 class="text-3xl font-bold mb-2">Student Profile</h1>
-    <p class="text-gray-600 mb-8">View borrowing history, lended materials, and community reputation</p>
 
+    <h1 class="text-3xl font-bold mb-2 mt-6">Your Profile</h1>
     {{comp.user_profile(user)}}
     
     <!-- Tab Navigation -->

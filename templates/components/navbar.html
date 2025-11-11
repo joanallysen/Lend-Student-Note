@@ -1,28 +1,29 @@
 {% set current_path = request.path %}
 {% import 'components/navbar_macros.html' as comp %}
-<nav class="relative bg-linear-to-r from-green-600 via-emerald-500 to-lime-400 shadow-2xl rounded-2xl my-6 overflow-hidden">
+<nav class="bg-white border-b border-gray-200 shadow-sm">
     
     <!-- Navigation content -->
-    <div class="relative px-8 py-5">
-        <div class="flex items-center justify-between mb-4">
+    <div class="max-w-7xl mx-auto px-6 py-4">
+        <div class="flex items-center justify-between mb-6">
             <div class="flex items-center gap-3">
+                
                 <div>
-                    <h1 class="text-5xl font-black text-white tracking-tight">Student Lend Note</h1>
-                    <p class="text-xs text-white/80 font-medium">Student Lending Network</p>
+                    <h1 class="text-4xl font-bold text-gray-900">Student Lend Note</h1>
+                    <p class="text-xs text-gray-500 font-medium">Student Lending Network</p>
                 </div>
             </div>
             
             <!-- User badge -->
-            <div class="bg-white/20 backdrop-blur-sm px-4 py-2 rounded-full flex items-center gap-2">
-                <div class="w-8 h-8 bg-linear-to-br from-purple-400 to-purple-500 rounded-full flex items-center justify-center text-white font-bold text-sm shadow-md">
-                    {{ session.get('username', 'Guest')[:1] }}
+            <div class="bg-gray-100 px-4 py-2 rounded-lg flex items-center gap-3 border border-gray-200">
+                <div class="w-7 h-7 bg-indigo-600 rounded-full flex items-center justify-center text-white font-bold text-sm shadow-sm">
+                    {{ session.get('username', 'Guest')[:1].upper() }}
                 </div>
-                <span class="text-white font-semibold text-sm">{{ session.get('username', 'Guest') }}</span>
+                <span class="text-gray-900 font-semibold text-sm">{{ session.get('username', 'Guest') }}</span>
             </div>
         </div>
         
         <!-- Main Navigation -->
-        <ul class="flex flex-wrap justify-center gap-2">
+        <ul class="flex flex-wrap items-center gap-2">
             <li>
                 {{ comp.navbar_element(endpoint='explore', label='Explore', current_path=request.path, icon_path="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z")}}
             </li>
@@ -33,12 +34,10 @@
             
             <li>
                 {{comp.navbar_element(endpoint='history', label='History', current_path=request.path, icon_path="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z")}}
-            
             </li>
             
             <li>
                 {{comp.navbar_element(endpoint='watchlist', label='Watchlist', current_path=request.path, icon_path="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z")}}
-                </a>
             </li>
             
             <li>
@@ -47,17 +46,14 @@
             
             <li>
                 <a href="{{url_for('logout')}}" 
-                   class="group relative flex items-center gap-2 px-5 py-3 rounded-xl transition-all duration-300
-                          bg-red-500/20 text-white hover:bg-red-500 hover:scale-105 border-2 border-white/30">
-                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                   class="flex items-center gap-2 px-4 py-2.5 rounded-lg transition-all
+                          bg-white border-2 border-red-200 text-red-600 hover:bg-red-50 hover:border-red-300 font-semibold text-sm">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
                     </svg>
-                    <span class="font-bold text-sm">Logout</span>
+                    <span>Logout</span>
                 </a>
             </li>
         </ul>
     </div>
-    
-    <!-- Bottom accent line -->
-    <div class="h-1 bg-purple-400"></div>
 </nav>

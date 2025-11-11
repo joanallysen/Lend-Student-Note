@@ -75,14 +75,6 @@ def detail(note_id):
     ),
     Note.note_id != note_id ).distinct().all()
 
-    #Update the average rating
-    total_star= sum(int(review.star) for review in note.reviews) 
-    if total_star == 0:
-        note.avg_rating = 0
-    else:
-        note.avg_rating = total_star/note.rating_count
-
-    db.session.commit()
     #Categorize all reviews
     my_review = None
     other_reviews = []
@@ -197,7 +189,8 @@ def make_history_dictionary(history):
             'borrow_start_date': h.borrow_start_date,
             'transaction_date': h.transaction_date,
             'total_price': h.total_price,
-            'buyer' : h.buyer
+            'buyer' : h.buyer,
+            'owner': h.owner
         })
         print(f'this are the borrow start date: {h.borrow_start_date}')
     return history_dict
@@ -207,12 +200,15 @@ def make_history_dictionary(history):
 def history():
     print(f"Adding to history")
     user_id = session['user_id']
-    history_buyer = History.query.filter_by(buyer_id=user_id).order_by(History.transaction_date).all()
-    history_owner = History.query.filter_by(owner_id=user_id).order_by(History.transaction_date).all()
+    history_buyer = History.query.filter_by(buyer_id=user_id).order_by(History.transaction_date.desc()).all()
+    history_owner = History.query.filter_by(owner_id=user_id).order_by(History.transaction_date.desc()).all()
     history_buyer = make_history_dictionary(history_buyer) 
     history_owner = make_history_dictionary(history_owner)
     
     return render_template('history.html', history_buyer=history_buyer, history_owner=history_owner)
 
+@app.route('/test')
+def test():
+    return render_template('successful.html')
 if __name__ == '__main__':
     app.run(debug=True)
