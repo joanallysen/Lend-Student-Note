@@ -133,10 +133,18 @@
             
 
             <div class="flex items-center mb-4">
+                {% if note.price_sale %}
                 <span class="text-xl font-semibold text-gray-900">${{ note.price_sale }}</span>
+                {% endif %}
+
+                {% if note.price_sale and note.price %}
                 <span class="text-sm text-gray-600 mx-1">or</span>
+                {% endif %}
+
+                {% if note.price %}
                 <span class="text-xl font-semibold text-gray-900">${{ note.price }}</span>
                 <span class="text-sm text-gray-600">/week</span>
+                {% endif %}
             </div>
 
             {# Rating #}

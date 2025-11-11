@@ -1,0 +1,31 @@
+{% macro pop_up_message() %}
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+            <div id="toast" class="fixed top-6 left-1/2 transform -translate-x-1/2 z-50">
+                <div class="flex items-center gap-3 {{ 'bg-green-500' if category == 'success' else 'bg-red-500' }} text-white px-6 py-4 rounded-lg shadow-lg">
+                    {% if category == 'success' %}
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                    </svg>
+                    {% else %}
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                    {% endif %}
+                    <span class="font-semibold">{{ message }}</span>
+                </div>
+            </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <script>
+        const toast = document.getElementById('toast');
+        if (toast) {
+            setTimeout(() => {
+                toast.remove();
+            }, 3000);
+        }
+    </script>
+{% endmacro %}
