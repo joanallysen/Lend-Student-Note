@@ -68,7 +68,7 @@
         </select><br><br>
 
         <label for="tags">Tags (Comma separated)</label><br>
-        <input type="text" id="tags" name="tags" value="{{note.tags|map(attribute='name')|join(', ') if note.tags}}"><br><br>
+        <input type="text" id="tags" name="tags" value="{{note.tags if note else ''}}"><br><br>
 
         <button class='cursor-pointer' type="submit">{{ 'Update Note' if action == 'notes.update_note' else 'Add Note' }}</button>
     </form>

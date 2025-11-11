@@ -1,7 +1,8 @@
 from flask import Blueprint, request, render_template, session, url_for, redirect, flash
 from werkzeug.utils import secure_filename
-from models import db, Note, Tag
+from models import db, Note
 from datetime import datetime
+from embedding_service import encode_note
 import os
 
 notes_bp = Blueprint('notes', __name__)
@@ -69,12 +70,10 @@ def add_note():
             listing_type = request.form.get('listing_type'),
             # listing date just default value
             owner_id = session['user_id'],
-            buyer_id = None
-        )
-        #Adding Tags
-        tags = request.form.get('tags','')
-        if tags:
-                new_note.tags = clean_tags(tags)
+            buyer_id = None,
+            tags= request.form.get('tags'),
+            embedding = encode_note(title=request.form.get('title'), description=request.form.get('description'), tags=request.form.get('tags'))
+        )   
 
 
         # try: TODO WILL ADD THE EXCEPTION BACK THIS IS FOR ERROR DEBUGGING
@@ -88,29 +87,6 @@ def add_note():
         
     return render_template('preview.html', error=error, action='notes.add_note', note=None)
 
-def clean_tags(tags):
-    cleaned_tags= [tag.strip().title() for tag in tags.split(',') if tag.strip()]
-
-    
-    #Remove duplicate iin the list of strings
-    cleaned_tags = list(set(cleaned_tags))
-
-    #List of tags
-    tags_list=[]
-    for tag in cleaned_tags:
-
-        #Check if tag exists in the tag pool
-        existing_tag = Tag.query.filter(Tag.name==tag).first()
-
-        if not existing_tag:
-            existing_tag = Tag(name=tag)
-            db.session.add(existing_tag)
-            
-
-        tags_list.append(existing_tag)
-
-        
-    return tags_list
 
 @notes_bp.route('/update_note/<int:note_id>', methods=['GET', 'POST'])
 def update_note(note_id):
@@ -131,13 +107,12 @@ def update_note(note_id):
         note.pickup_location = request.form.get('pickup_location')
         note.available_date = datetime.strptime(request.form.get('available_date'), '%Y-%m-%d').date()
         note.listing_type = request.form.get('listing_type')
+        note.embedding = encode_note(title=request.form.get('title'), description=request.form.get('description'), tags=request.form.get('tags'))
+        note.tags = request.form.get('tags')
         
         if request.form.get('status'):
             note.status = request.form.get('status')
         
-        tags = request.form.get('tags','')
-
-        note.tags = clean_tags(tags)
         db.session.commit()
         return redirect(url_for('dashboard'))
 

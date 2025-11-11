@@ -1,0 +1,13 @@
+{% import 'components/macros.html' as comp %}
+{% set current_path = request.path %}
+
+
+<div class="mb-8">
+    <h1 class="text-4xl font-bold mb-6">Related Notes</h1>
+    {# Notes Grid #}
+    <div class="grid grid-cols-4 gap-6">
+        {% for note in related_books %}
+            {{ comp.related_notes_card(note) }}
+        {% endfor %}
+    </div>
+</div>

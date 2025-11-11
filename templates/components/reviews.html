@@ -1,1 +1,44 @@
 {% set current_path = request.path %}
+
+<div>
+    <div class="space-y-4">
+        {% if gotten_reviews %}
+            {% for review in gotten_reviews %}
+            <div class="bg-gray-50 rounded-xl p-6 border border-gray-200 hover:border-gray-300 transition-all hover:shadow-md">
+                <div class="flex items-start gap-4">
+                    <div class="w-12 h-12 rounded-full  bg-gray-600  flex items-center justify-center text-white font-bold text-sm shadow-md flex-shrink-0">
+                        {{ review.user.username[0]|upper }}
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <div class="text-base font-bold text-gray-800 mb-1">{{ review.user.username }}</div>
+                        <div class="text-xs text-gray-500 mb-2">{{ review.added_at.strftime('%B %d, %Y') }}</div>
+                        <div class="flex gap-1 mb-2">
+                            {% for i in range(5) %}
+                                {% if i < review.star %}
+                                    <span class="text-yellow-400 text-lg">★</span>
+                                {% else %}
+                                    <span class="text-gray-300 text-lg">★</span>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                        <p class="text-sm text-gray-700 leading-relaxed wrap-break-words">{{ review.review }}</p>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="text-center py-16 rounded-xl">
+                <svg class="w-20 h-20 mx-auto mb-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
+                </svg>
+                <p class="text-lg font-semibold text-gray-600 mb-1">No reviews yet</p>
+                <p class="text-sm text-gray-500">You have not gotten any reviews!</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+    let gotten_reviews = '{{gotten_reviews}}'
+    console.log('this is gotten reviews: ', gotten_reviews) 
+</script>

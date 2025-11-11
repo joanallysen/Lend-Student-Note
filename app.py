@@ -2,8 +2,9 @@ from flask import Flask, render_template, request, redirect, url_for, session, f
 from werkzeug.security import generate_password_hash, check_password_hash
 from utility import login_required
 from sqlalchemy import and_
+from embedding_service import cosine_similarity
 
-from models import db, User, Note, Watchlist,Tag,note_tag_association,CartItem, Cart,not_, History, Review
+from models import db, User, Note, Watchlist, CartItem, Cart,not_, History, Review
 
 from routes.notes_bp import notes_bp
 from routes.watchlist_bp import watchlist_bp
@@ -43,6 +44,7 @@ def index():
 
 @app.route('/explore')
 def explore():
+    
     user_id = session.get('user_id')
     notes = Note.query.filter(not_(Note.status == 'HIDDEN')).all()
 
@@ -58,6 +60,22 @@ def explore():
 
     return render_template('explore.html', notes=notes, user_id=user_id, watchlisted_note_ids=watchlisted_note_ids, cart_note_ids=cart_note_ids)
 
+def find_similar_notes(note, top_n=4):
+    other_notes = Note.query.filter(Note.note_id != note.note_id).all()
+    scored = []
+    for other_note in other_notes:
+        if other_note.embedding:
+            score = cosine_similarity(note.embedding, other_note.embedding)
+            if score >= 0.2:
+                scored.append((other_note, score))
+
+
+    scored.sort(key=lambda x: x[1], reverse=True)
+    similar_note = [other_note for other_note, score in scored[:top_n]]
+    print ('This is the similar note and the score: ', [scored[:top_n]]) 
+    return similar_note
+
+
 @app.route('/detail/<int:note_id>', methods=['POST', 'GET'])
 def detail(note_id):
     user_id= session.get('user_id')
@@ -66,14 +84,8 @@ def detail(note_id):
 
     note = Note.query.get_or_404(note_id)
 
-    related_books = db.session.query(Note).join(
-    note_tag_association, Note.note_id == note_tag_association.c.note_id
-    ).filter(
-    note_tag_association.c.tag_id.in_(
-        db.session.query(note_tag_association.c.tag_id)
-        .filter(note_tag_association.c.note_id == note_id)
-    ),
-    Note.note_id != note_id ).distinct().all()
+    # list of note that is related
+    related_books = find_similar_notes(note)
 
     #Categorize all reviews
     my_review = None
@@ -156,11 +168,12 @@ def login():
 @app.route('/dashboard')
 @login_required
 def dashboard():
-    user = db.session.get(User, int(session['user_id']))
-    # notes_owned is redundant
-    owned_notes = user.notes_owned
+    # session problem where session is still there even if database removed
+    user = User.query.get_or_404(session['user_id'])
+    
+    gotten_reviews = Review.query.join(Note).filter(Note.owner_id == session['user_id']).all()
 
-    return render_template('dashboard.html', user=user, owned_notes=owned_notes)
+    return render_template('dashboard.html', user=user, gotten_reviews=gotten_reviews)
 
 
 @app.route('/logout')

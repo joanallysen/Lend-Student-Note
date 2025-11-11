@@ -1,7 +1,7 @@
 {% set current_path = request.path %}
 {% import 'components/macros.html' as comp %}
 
-{# Calculate statistics from History #}
+{# Calculate statistics from History, not that efficinet #}
 {% set borrowed_notes = user.notes_bought | selectattr('status', 'in', ['LENT', 'NEED ACTION']) | list %}
 {% set current_borrowed = borrowed_notes | list | length %}
 {% set total_borrowed = user.purchases | selectattr('transaction_type', 'equalto', 'BORROW') | list | length %}

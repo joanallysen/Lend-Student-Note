@@ -18,11 +18,6 @@ class User(db.Model):
     def __repr__(self):
         return f'<User {self.username}>'
 
-note_tag_association=db.Table(
-    'note_tag_association', 
-    db.Column('note_id',db.Integer, db.ForeignKey('note.note_id', primary_key=True)),
-    db.Column('tag_id',db.Integer, db.ForeignKey('tag.tag_id', primary_key=True))
-)
 class Note(db.Model):
     note_id = db.Column(db.Integer, primary_key=True)
     image_filename = db.Column(db.String(255), nullable=True)
@@ -64,15 +59,13 @@ class Note(db.Model):
     buyer = db.relationship('User', foreign_keys=[buyer_id], backref='notes_bought')
     current_history = db.relationship('History', foreign_keys=[current_history_id], post_update=True)
 
-    tags = db.relationship('Tag', secondary=note_tag_association, back_populates='notes')
+    tags = db.Column(db.String(200), nullable=True)
+
+    # embed for similarity later
+    embedding = db.Column(db.PickleType, nullable=True)
     def __repr__(self):
         return f'<Note {self.title}>'
     
-class Tag(db.Model):
-    tag_id = db.Column(db.Integer, nullable=False, primary_key=True)
-    name = db.Column(db.String(100), nullable = False)
-
-    notes = db.relationship('Note', secondary=note_tag_association, back_populates='tags')
 
 class Watchlist(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.user_id'), nullable=False, primary_key=True)

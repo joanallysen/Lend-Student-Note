@@ -1,7 +1,7 @@
 {% set current_path = request.path %}
 
 {# Calculate statistics from History #}
-{% set current_lended = owned_notes | selectattr('status', 'equalto', 'LENT') | list | length %}
+{% set current_lended = user.notes_owned | selectattr('status', 'equalto', 'LENT') | list | length %}
 
 {# Get all completed borrow transactions where user is the owner #}
 {% set borrow_history = user.sales | selectattr('transaction_type', 'equalto', 'BORROW') | selectattr('transaction_date', 'ne', None) | list %}
@@ -107,7 +107,7 @@
 
     {# Notes Grid #}
     <div class="grid grid-cols-4 gap-6">
-        {% for note in owned_notes %}
+        {% for note in user.notes_owned %}
             {{ comp.dashboard_card(note) }}
         {% endfor %}
     </div>
@@ -121,3 +121,7 @@
         <span class="hidden sm:inline">Add Note</span>
     </a>
 </div>
+
+<script>
+    console.log('{{user.notes_owned}}')
+</script>
