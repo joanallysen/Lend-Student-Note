@@ -54,7 +54,7 @@
                 </button>
             </div>
             
-            <div id="filtersContent" class="{% if condition or availability or price_type or min_price or max_price %}block{% else %}hidden{% endif %} grid pb-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div id="filtersContent" class="{% if condition or availability or (price_type and (min_price or max_price)) %}block{% else %}hidden{% endif %} grid pb-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                 <!-- Condition -->
                 <div class="bg-white rounded-xl p-4 border-2 border-gray-200 hover:border-purple-300 transition-all duration-200">
                     <label class="block text-sm font-bold text-gray-700 mb-2 flex items-center gap-2">
