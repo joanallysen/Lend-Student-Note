@@ -1,5 +1,5 @@
 {% import 'components/user_profile.html' as comp %}
-
+{% import 'components/pop_up_message.html' as pop_up %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -14,6 +14,8 @@
     <!-- Book -->
     <!-- <div class="max-w-7xl mx-auto px-6 py-8"> -->
     {% include '/components/navbar.html' %}
+
+    {{pop_up.pop_up_message()}}
 <!-- copy here -->
         
         <div class="bg-white rounded-2xl shadow-lg overflow-hidden mb-8">
@@ -430,6 +432,9 @@
         // Initialize Flatpickr
         startPicker = flatpickr('#start_date', {
         minDate: availableDate,
+        dateFormat: 'Y-m-d',     
+        altInput: true,        
+        altFormat: 'd F Y', 
         onChange: function(selectedDates) {
             if (selectedDates.length > 0) {
             const minEndDate = new Date(selectedDates[0]);
@@ -441,6 +446,9 @@
         });
 
         endPicker = flatpickr('#end_date', {
+        dateFormat: 'Y-m-d',     
+        altInput: true,        
+        altFormat: 'd F Y', 
         minDate: new Date(availableDate),
         onChange: updateTotalPrice
         });

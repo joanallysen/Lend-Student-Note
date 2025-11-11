@@ -62,6 +62,13 @@ def add_to_cart(note_id):
         total_price = request.form.get('total_price')
         new_item = None
         if buying_type == 'BORROW':
+            #Make sure the borrowing dates are filled
+            start_date_str = request.form.get('start_date')
+            end_date_str = request.form.get('end_date')
+
+            if not start_date_str or not end_date_str:
+                flash('Please enter the start and end date!')
+                return redirect(url_for('detail', note_id=note_id))
             start_date = datetime.strptime(request.form.get('start_date'), '%Y-%m-%d').date()
             end_date = datetime.strptime(request.form.get('end_date'), '%Y-%m-%d').date()
             

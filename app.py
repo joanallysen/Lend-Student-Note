@@ -124,7 +124,7 @@ def signup():
         try:
             db.session.add(new_user)
             db.session.commit()
-            flash('Account created successfully! Please log in.', 'success')
+            flash('Account created successfully! Please log in!', 'success')
             return redirect(url_for('login'))
         except:
             db.session.rollback()
@@ -146,6 +146,7 @@ def login():
             session['email'] = user.email
             session['username'] = user.username
             print('Adding to session')
+            flash('Login successful! Welcome back!', 'success')
             return redirect(url_for('dashboard'))
         else:
             flash('Invalid email or password!', 'error')
@@ -167,7 +168,7 @@ def dashboard():
 @login_required
 def logout():
     session.clear()
-    flash('You have been logged out.', 'success')
+    flash('You have logged out successfully!', 'success')
     return redirect(url_for('login'))
 
 @app.route('/watchlist')
