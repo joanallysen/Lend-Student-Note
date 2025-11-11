@@ -1,5 +1,5 @@
 {% import 'components/user_profile.html' as comp%}
-
+{% import 'components/pop_up_message.html' as pop_up %}
 <!DOCTYPE html>
 <html>
 <head>
@@ -11,6 +11,8 @@
     {% include '/components/bg.html' %}
     {% include '/components/navbar.html' %}
 
+    <!-- Pop Up Message -->
+    {{pop_up.pop_up_message()}}
     <h1 class="text-3xl font-bold mb-2 mt-6">Your Profile</h1>
     {{comp.user_profile(user)}}
     

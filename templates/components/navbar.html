@@ -1,4 +1,5 @@
 {% set current_path = request.path %}
+{% set is_guest = session.get('username','Guest') == 'Guest' %}
 {% import 'components/navbar_macros.html' as comp %}
 <nav class="bg-white border-b border-gray-200 shadow-sm">
     
@@ -45,13 +46,13 @@
             </li>
             
             <li>
-                <a href="{{url_for('logout')}}" 
+                <a href="{{ url_for('login') if is_guest else url_for('logout') }}" 
                    class="flex items-center gap-2 px-4 py-2.5 rounded-lg transition-all
-                          bg-white border-2 border-red-200 text-red-600 hover:bg-red-50 hover:border-red-300 font-semibold text-sm">
+                          bg-white border-2 {{'text-indigo-600 hover:bg-indigo-50 hover:indigo-red-300' if is_guest else 'text-red-600 hover:bg-red-50 hover:border-red-300'}} font-semibold text-sm">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
                     </svg>
-                    <span>Logout</span>
+                    <span>{{ 'Login' if session.get('username', 'Guest') == 'Guest' else 'Logout' }}</span>
                 </a>
             </li>
         </ul>
