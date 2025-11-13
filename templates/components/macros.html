@@ -189,7 +189,11 @@
                     </div>
                 {% endif %}
 
-
+                <div>
+                    <form action="{{url_for('watchlist.add_watchlist',note_id=note.note_id)}}" method="post">
+                        <input type="submit" value="Add to watchlist">
+                    </form>
+                </div>
             </div>
         </div>
         

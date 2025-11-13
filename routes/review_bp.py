@@ -91,7 +91,7 @@ def update_seller_avg_rating(owner):
         # each note has its own avg_rating, sum them all up and get the avg
         total_avg = 0
         for note in owner.notes_owned:
-            total_avg += note.avg_rating or 0
+            total_avg += float(note.avg_rating) or 0
 
         # only count the average with notes that has a rating on them (unrated note doesnt count)
         rated_notes = len([note for note in owner.notes_owned if note.rating_count >= 1])

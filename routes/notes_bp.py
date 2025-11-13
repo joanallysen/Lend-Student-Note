@@ -1,6 +1,6 @@
 from flask import Blueprint, request, render_template, session, url_for, redirect, flash
 from werkzeug.utils import secure_filename
-from models import db, Note
+from models import db, Note, Watchlist, CartItem
 from datetime import datetime
 from embedding_service import encode_note
 import os
@@ -122,7 +122,21 @@ def update_note(note_id):
 def delete_note(note_id):
     note = Note.query.get_or_404(note_id)
 
-    db.session.delete(note)
+    if note.status == 'LENT':
+        flash('Unable to delete! Note is currently lent!')
+        return redirect(url_for('dashboard'))
+    
+    note.status = 'DELETED'
+
+    note_watchlisted = Watchlist.query.filter(Watchlist.note_id ==  note.note_id).all()
+    for w in note_watchlisted:
+        db.session.delete(w)
+
+    note_cartitem = CartItem.query.filter(CartItem.note_id==note.note_id).all()
+    for c in note_cartitem:
+        db.session.delete(c)
+    
+    
     db.session.commit()
     flash('Note successfully deleted!', 'success')
     return redirect(url_for('dashboard'))

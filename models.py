@@ -33,7 +33,7 @@ class Note(db.Model):
     pickup_location = db.Column(db.String(200), nullable=False)
     available_date = db.Column(db.DateTime, nullable=False)
     status = db.Column(
-        db.Enum('AVAILABLE', 'LENT', 'SOLD', 'RESERVED', 'HIDDEN', 'NEED ACTION', name='status_enum'),
+        db.Enum('AVAILABLE', 'LENT', 'SOLD', 'RESERVED', 'HIDDEN', 'NEED ACTION','DELETED', name='status_enum'),
         default='AVAILABLE',
         nullable=False
     )
