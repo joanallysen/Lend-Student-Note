@@ -15,7 +15,7 @@
     {{pop_up.pop_up_message()}}
     
     {{sb.search_bar(user_input, condition, availability, sort_by, price_type, min_price, max_price)}}
-    <div class="grid grid-cols-5 gap-8 mx-18">
+    <div class="grid grid-cols-5 gap-8 mx-18 my-8">
         {% for note in notes %}
             {{ comp.explore_card(note, user_id, cart_note_ids, watchlisted_note_ids) }}
         {% endfor %}

@@ -23,7 +23,7 @@
           <div class="flex items-center gap-2">
             <div class="flex items-center">
               {% for i in range(5) %}
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 {% if i < user.avg_rating %}text-blue-600{% else %}text-gray-300{% endif %}" viewBox="0 0 24 24" fill="currentColor">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 {% if i < user.avg_rating %}text-indigo-600{% else %}text-gray-300{% endif %}" viewBox="0 0 24 24" fill="currentColor">
                   <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/>
                 </svg>
               {% endfor %}

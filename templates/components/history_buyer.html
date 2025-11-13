@@ -17,7 +17,7 @@
 
                         <div class="absolute top-2 right-2">
                             {% if item['transaction_type'] == 'BORROW' %}
-                                <span class="bg-blue-300 text-xs font-semibold px-3 py-1 rounded-full">Borrowed</span>
+                                <span class="bg-indigo-300 text-xs font-semibold px-3 py-1 rounded-full">Borrowed</span>
                             {% else %}
                             <span class="bg-green-300 text-xs font-semibold px-3 py-1 rounded-full">Bought</span>
                             {% endif %}
@@ -28,7 +28,7 @@
                     <div class="p-4 flex flex-col grow">
                         {# Title and Description #}
                         <a href="{{ url_for('detail', note_id=item['note'].note_id) }}" 
-                           class="text-lg font-semibold text-gray-900 mb-1 underline hover:text-blue-600 transition-colors">
+                           class="text-lg font-semibold text-gray-900 mb-1 underline hover:text-indigo-600 transition-colors">
                             {{ item['note'].title }}
                         </a>
                         
@@ -39,7 +39,7 @@
                         {# Transaction Details #}
                         <div class="space-y-2 mb-4">
                             {% if item['transaction_type'] == 'BORROW' %}
-                                <div class="bg-blue-50 border border-blue-200 rounded-md p-3 text-sm">
+                                <div class="bg-indigo-50 border border-indigo-200 rounded-md p-3 text-sm">
                                     <p class="text-gray-600 font-medium mb-1">Borrow Start Date</p>
                                     <p class="text-gray-900 mb-2">{{ item['borrow_start_date'].strftime("%d %b %Y")}}</p>
                                     

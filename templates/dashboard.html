@@ -7,56 +7,60 @@
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
 </head>
 
-<body class="max-w-7xl mx-auto mt-10">
+<body>
     {% include '/components/bg.html' %}
     {% include '/components/navbar.html' %}
 
     <!-- Pop Up Message -->
     {{pop_up.pop_up_message()}}
-    <h1 class="text-3xl font-bold mb-2 mt-6">Your Profile</h1>
-    {{comp.user_profile(user)}}
-    
-    <!-- Tab Navigation -->
-    <nav class="border-b border-gray-200 mb-6">
-        <ul class="flex justify-center gap-8">
-            <li>
-                <button 
-                    class="tab-button cursor-pointer px-4 py-3 font-medium text-gray-600 border-b-2 border-transparent hover:text-gray-900 hover:border-gray-300 transition-colors"
-                    data-tab="lended_notes"
-                    onclick="switchTab('lended_notes')">
-                    Lended Notes
-                </button>
-            </li>
-            <li>
-                <button 
-                    class="tab-button cursor-pointer px-4 py-3 font-medium text-gray-600 border-b-2 border-transparent hover:text-gray-900 hover:border-gray-300 transition-colors"
-                    data-tab="borrowed_notes"
-                    onclick="switchTab('borrowed_notes')">
-                    Borrowed Notes
-                </button>
-            </li>
-            <li>
-                <button 
-                    class="tab-button cursor-pointer px-4 py-3 font-medium text-gray-600 border-b-2 border-transparent hover:text-gray-900 hover:border-gray-300 transition-colors"
-                    data-tab="reviews"
-                    onclick="switchTab('reviews')">
-                    Reviews
-                </button>
-            </li>
-        </ul>
-    </nav>
+    <div class="mx-26">
 
-    <!-- Tab Content Containers -->
-    <div id="lended_notes_container" class="tab-content hidden">
-        {% include '/components/lended_notes.html' %}
-    </div>
-    
-    <div id="borrowed_notes_container" class="tab-content hidden">
-        {% include '/components/borrowed_notes.html' %}
-    </div>
-    
-    <div id="reviews_container" class="tab-content hidden">
-        {% include '/components/reviews.html' %}
+        <h1 class="text-3xl font-bold mb-2 mt-6">Your Profile</h1>
+        {{comp.user_profile(user)}}
+        
+        <!-- Tab Navigation -->
+        <nav class="border-b border-gray-200 mb-6">
+            <ul class="flex justify-center gap-8">
+                <li>
+                    <button 
+                        class="tab-button cursor-pointer px-4 py-3 font-medium text-gray-600 border-b-2 border-transparent hover:text-gray-900 hover:border-gray-300 transition-colors"
+                        data-tab="lended_notes"
+                        onclick="switchTab('lended_notes')">
+                        Lended Notes
+                    </button>
+                </li>
+                <li>
+                    <button 
+                        class="tab-button cursor-pointer px-4 py-3 font-medium text-gray-600 border-b-2 border-transparent hover:text-gray-900 hover:border-gray-300 transition-colors"
+                        data-tab="borrowed_notes"
+                        onclick="switchTab('borrowed_notes')">
+                        Borrowed Notes
+                    </button>
+                </li>
+                <li>
+                    <button 
+                        class="tab-button cursor-pointer px-4 py-3 font-medium text-gray-600 border-b-2 border-transparent hover:text-gray-900 hover:border-gray-300 transition-colors"
+                        data-tab="reviews"
+                        onclick="switchTab('reviews')">
+                        Reviews
+                    </button>
+                </li>
+            </ul>
+        </nav>
+
+        <!-- Tab Content Containers -->
+        <div id="lended_notes_container" class="tab-content hidden">
+            {% include '/components/lended_notes.html' %}
+        </div>
+        
+        <div id="borrowed_notes_container" class="tab-content hidden">
+            {% include '/components/borrowed_notes.html' %}
+        </div>
+        
+        <div id="reviews_container" class="tab-content hidden">
+            {% include '/components/reviews.html' %}
+        </div>
+
     </div>
 </body>
 

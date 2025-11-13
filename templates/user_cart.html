@@ -6,11 +6,11 @@
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <title>Shopping Cart</title>
 </head>
-<body class="max-w-7xl mx-auto mt-10">
+<body>
     {% include 'components/navbar.html'%}
     {% include '/components/bg.html' %}
 
-    <div class="container mx-auto mt-6">
+    <div class="container mx-auto mx-20 mt-6 ">
         <h1 class="text-3xl font-bold text-gray-800 mb-2">Shopping Cart</h1>
         <p class="text-gray-600 mb-8">Review the items you have added to your cart. You can update quantities, remove items, or proceed to checkout when ready.</p>
         
@@ -44,7 +44,7 @@
                                 
                             </div>
                              
-                            <a href="{{ url_for('detail', note_id=item.note_details.note_id) }}" class="text-lg font-semibold text-gray-900 mb-1 underline hover:text-blue-600 transition-colors">{{ item.note_details.title }}</a>
+                            <a href="{{ url_for('detail', note_id=item.note_details.note_id) }}" class="text-lg font-semibold text-gray-900 mb-1 underline hover:text-indigo-600 transition-colors">{{ item.note_details.title }}</a>
                             <p class="text-gray-600 text-sm mb-3">{{item.note_details.description}}</p>
                             
                             <div class="space-y-2">
@@ -102,13 +102,13 @@
                     
                     <form action="{{url_for('shopping_cart.checkout')}}" method="POST">
                         <button type="submit" 
-                                class="cursor-pointer w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors shadow-md hover:shadow-lg">
+                                class="cursor-pointer w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors shadow-md hover:shadow-lg">
                             Proceed to Checkout
                         </button>
                     </form>
                     
                     <a href="/explore" 
-                       class="block text-center text-blue-600 hover:text-blue-700 font-medium mt-4 transition-colors">
+                       class="block text-center text-indigo-600 hover:text-indigo-700 font-medium mt-4 transition-colors">
                         Continue Shopping
                     </a>
                 </div>
@@ -122,7 +122,7 @@
             <h2 class="text-2xl font-bold text-gray-400 mb-2">Your cart is empty</h2>
             <p class="text-gray-400 mb-6">Looks like you haven't added any items to your cart yet.</p>
             <a href="/explore" 
-                class="inline-block mx-auto bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-8 rounded-lg transition-colors shadow-md hover:shadow-lg">
+                class="inline-block mx-auto bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 px-8 rounded-lg transition-colors shadow-md hover:shadow-lg">
                 Start Shopping
             </a>
         </div>

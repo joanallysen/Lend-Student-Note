@@ -25,7 +25,7 @@
         {% endif %}
 
         {# Title and Description #}
-        <a href="{{ url_for('detail', note_id=note.note_id) }}" class="text-lg font-semibold text-gray-900 mb-1 underline hover:text-blue-600 transition-colors">{{ note.title }}</a>
+        <a href="{{ url_for('detail', note_id=note.note_id) }}" class="text-lg font-semibold text-gray-900 mb-1 underline hover:text-indigo-600 transition-colors">{{ note.title }}</a>
         <p class="text-sm text-gray-600 mb-3">
             {{ note.description[:50] }}{% if note.description|length > 50 %}...{% endif %}
         </p>
@@ -77,7 +77,7 @@
                     </form>
                 {% elif note.status == 'LENT' %}
                     <form action="{{ url_for('borrowed.confirmed_returned', note_id=note.note_id) }}" method="POST" class="w-full">
-                        <button type="submit" class="cursor-pointer w-full bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition-colors text-sm font-medium">
+                        <button type="submit" class="cursor-pointer w-full bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 transition-colors text-sm font-medium">
                             Mark as Returned
                         </button>
                     </form>
@@ -103,7 +103,7 @@
 </div>
 {% endmacro %}
 
-{% macro explore_card(note, user_id, cart_note_ids=[], watchlisted_note_ids=[]) %}
+{% macro explore_card(note, user_id, cart_note_ids=[], watchlisted_note_ids=[], cur_path='explore') %}
 
     <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow flex flex-col h-full">
         
@@ -120,18 +120,21 @@
         {# Content #}
         <div class="p-4 flex flex-col grow">
             <div class="flex flex-row justify-between">
-                <a href="{{ url_for('detail', note_id=note.note_id) }}" class="text-lg font-semibold text-gray-900 mb-1 underline hover:text-blue-600 transition-colors">{{ note.title }}</a>
+                <a href="{{ url_for('detail', note_id=note.note_id) }}" class="text-lg font-semibold text-gray-900 mb-1 underline hover:text-indigo-600 transition-colors">{{ note.title }}</a>
             
                 {% if note.note_id not in watchlisted_note_ids %}
                     <form action="{{ url_for('watchlist.add_watchlist', note_id=note.note_id) }}" method="POST">
-                        <input type="hidden" name="source" value="explore">
+                        <input type="hidden" name="source" value="detail">
+                        {% if cur_path == 'detail' %} <input type="hidden" name="note_id" value="{{note.note_id}}"> {% endif %}
+                        
                         <button type="submit" class="cursor-pointer w-full flex items-center justify-center gap-2 px-4 py-2 transition-colors">
                             <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24"><path fill="currentColor" d="M5 21V5q0-.825.588-1.412T7 3h10q.825 0 1.413.588T19 5v16l-7-3zm2-3.05l5-2.15l5 2.15V5H7zM7 5h10z"/></svg>
                         </button>
                     </form>
                 {% else %}
                     <form action="{{ url_for('watchlist.remove_watchlist', note_id=note.note_id) }}" method="POST">
-                        <input type="hidden" name="source" value="explore">
+                        <input type="hidden" name="source" value="detail">
+                        {% if cur_path == 'detail' %} <input type="hidden" name="note_id" value="{{note.note_id}}"> {% endif %}
                         <button type="submit" class="cursor-pointer w-full flex items-center justify-center gap-2 px-4 py-2 transition-colors">
                             <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-red-700" viewBox="0 0 24 24"><path fill="currentColor" d="M5 21V5q0-.825.588-1.412T7 3h10q.825 0 1.413.588T19 5v16l-7-3z"/></svg>
                         </button>
@@ -176,7 +179,7 @@
             {# Status Indicators - pushed to bottom #}
             <div class="mt-auto flex flex-wrap gap-2">
                 {% if note.owner_id == user_id %}
-                    <div class="flex items-center gap-2 text-sm text-blue-600 bg-blue-50 px-3 py-1.5 rounded-md">
+                    <div class="flex items-center gap-2 text-sm text-indigo-600 bg-indigo-50 px-3 py-1.5 rounded-md">
                         <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
                             <circle cx="12" cy="7" r="4"></circle>
@@ -184,7 +187,7 @@
                         <span class="font-medium">Your listing</span>
                     </div>
                 {% else %}
-                <div class="flex items-center gap-2 text-sm text-blue-600 bg-blue-50 px-3 py-1.5 rounded-md {%if note.listing_type == 'BOTH'%} text-green-600 bg-green-50{%endif%}">
+                <div class="flex items-center gap-2 text-sm text-indigo-600 bg-indigo-50 px-3 py-1.5 rounded-md {%if note.listing_type == 'BOTH'%} text-green-600 bg-green-50{%endif%}">
                     <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24"><path fill="currentColor" d="m9.55 18l-5.7-5.7l1.425-1.425L9.55 15.15l9.175-9.175L20.15 7.4z"/></svg>
                     <span class="font-medium">{%if note.listing_type == 'RENTAL'%}Rental only{%elif note.listing_type == 'SALE'%}Sale only {%else%} Sale and rental available {%endif%}</span>
                 </div>
@@ -201,11 +204,6 @@
                     </div>
                 {% endif %}
 
-                <div>
-                    <form action="{{url_for('watchlist.add_watchlist',note_id=note.note_id)}}" method="post">
-                        <input type="submit" value="Add to watchlist">
-                    </form>
-                </div>
             </div>
         </div>
         
@@ -236,7 +234,7 @@
         {% endif %}
 
         {# Title and Description #}
-        <a href="{{ url_for('detail', note_id=note.note_id) }}" class="text-lg font-semibold text-gray-900 mb-1 underline hover:text-blue-600 transition-colors">{{ note.title }}</a>
+        <a href="{{ url_for('detail', note_id=note.note_id) }}" class="text-lg font-semibold text-gray-900 mb-1 underline hover:text-indigo-600 transition-colors">{{ note.title }}</a>
         <p class="text-sm text-gray-600 mb-3">
             {{ note.description[:50] }}{% if note.description|length > 50 %}...{% endif %}
         </p>
@@ -267,7 +265,7 @@
                     <p class="text-xsm text-gray-600 mt-1">You have marked this as returned!</p>
             {% elif note.status == 'LENT' %}
                 <form action="{{ url_for('borrowed.return_borrowed', note_id=note.note_id) }}" method="POST" class="w-full">
-                    <button type="submit" class="cursor-pointer w-full bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition-colors text-sm font-medium">
+                    <button type="submit" class="cursor-pointer w-full bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 transition-colors text-sm font-medium">
                         Mark as Returned
                     </button>
                 </form>
@@ -294,7 +292,7 @@
     {# Content #}
     <div class="p-4 flex flex-col grow">
         <div class="flex flex-row justify-between">
-            <a href="{{ url_for('detail', note_id=note.note_id) }}" class="text-lg font-semibold text-gray-900 mb-1 underline hover:text-blue-600 transition-colors">{{ note.title }}</a>
+            <a href="{{ url_for('detail', note_id=note.note_id) }}" class="text-lg font-semibold text-gray-900 mb-1 underline hover:text-indigo-600 transition-colors">{{ note.title }}</a>
                 <form action="{{ url_for('watchlist.remove_watchlist', note_id=note.note_id) }}" method="POST">
                     <input type="hidden" name="source" value="watchlist">
                     <button type="submit" class="cursor-pointer w-full flex items-center justify-center gap-2 px-4 py-2 transition-colors">
@@ -327,7 +325,7 @@
         {# Status Indicators - pushed to bottom #}
         <div class="mt-auto flex flex-wrap gap-2">
             {% if note.owner_id == user_id %}
-                <div class="flex items-center gap-2 text-sm text-blue-600 bg-blue-50 px-3 py-1.5 rounded-md">
+                <div class="flex items-center gap-2 text-sm text-indigo-600 bg-indigo-50 px-3 py-1.5 rounded-md">
                     <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
                         <circle cx="12" cy="7" r="4"></circle>
@@ -335,7 +333,7 @@
                     <span class="font-medium">Your listing</span>
                 </div>
             {% else %}
-            <div class="flex items-center gap-2 text-sm text-blue-600 bg-blue-50 px-3 py-1.5 rounded-md {%if note.listing_type == 'BOTH'%} text-green-600 bg-green-50{%endif%}">
+            <div class="flex items-center gap-2 text-sm text-indigo-600 bg-indigo-50 px-3 py-1.5 rounded-md {%if note.listing_type == 'BOTH'%} text-green-600 bg-green-50{%endif%}">
                 <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24"><path fill="currentColor" d="m9.55 18l-5.7-5.7l1.425-1.425L9.55 15.15l9.175-9.175L20.15 7.4z"/></svg>
                 <span class="font-medium">{%if note.listing_type == 'RENTAL'%}Rental only{%elif note.listing_type == 'SALE'%}Sale only {%else%} Sale and rental available {%endif%}</span>
             </div>

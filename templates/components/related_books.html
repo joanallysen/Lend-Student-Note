@@ -7,7 +7,7 @@
     {# Notes Grid #}
     <div class="grid grid-cols-4 gap-6">
         {% for note in related_books %}
-            {{ comp.explore_card(note, user_id, cart_note_ids, watchlisted_note_ids) }}
+            {{ comp.explore_card(note, user_id, cart_note_ids, watchlisted_note_ids, cur_path='detail') }}
         {% endfor %}
     </div>
 </div>
