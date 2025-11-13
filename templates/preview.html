@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <title>{{ 'Update' if action == 'notes.update_note' else 'Add' }} Note</title>
 </head>
-<body class="bg-gradient-to-br from-purple-50 via-white to-indigo-50 min-h-screen py-8 px-4">
+<body class="bg-gradient-to-br from-purple-50 via-white to-indigo-50 min-h-screen py-8 px-4">    
     <div class="max-w-3xl mx-auto">
         {%include '/components/bg.html' %}
         <!-- Header -->
@@ -277,11 +277,29 @@
         listingType.addEventListener('change', updatePriceFields);
 
         // Initialize Flatpickr
-        flatpickr('#available_date', {
-            minDate: 'today',        // Can't select past dates
-            dateFormat: 'Y-m-d',     // Format for form submission
-            altInput: true,          // Show user-friendly format
-            altFormat: 'd F Y'      // e.g., "January 15, 2024"
+        // Initialize Flatpickr with required validation
+        const availableDateInput = document.getElementById('available_date');
+        const fp = flatpickr('#available_date', {
+            minDate: 'today',
+            dateFormat: 'Y-m-d',
+            altInput: true,
+            altFormat: 'd F Y',
+            onChange: function(selectedDates, dateStr) {
+                // Update the original input value when date is selected
+                if (dateStr) {
+                    availableDateInput.value = dateStr;
+                }
+            }
+        });
+
+        // Add custom validation for the form
+        const form = document.querySelector('form');
+        form.addEventListener('submit', function(e) {
+            if (!availableDateInput.value) {
+                e.preventDefault();
+                alert('Please select an available date!');
+                return false;
+            }
         });
 
         
