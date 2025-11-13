@@ -63,6 +63,6 @@ def search_note():
     else:
         search_output = Note.query.filter(*search_filter).all()
     return render_template("search.html", user_id=user_id, watchlisted_note_ids=watchlisted_note_ids, cart_note_ids=cart_note_ids
-                           , results = search_output, user_input = cleaned_input
+                           , results = search_output, user_input = user_input
                            , condition=condition, sort_by=sort_by, availability =availability
                            , price_type=price_type, min_price=min_price, max_price=max_price) 
