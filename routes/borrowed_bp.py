@@ -18,7 +18,7 @@ def return_borrowed(note_id):
     borrowed_note.status = 'NEED ACTION'
     db.session.commit()
     flash(f'{borrowed_note.title} has been successfully tagged as returned! Please wait for the lender\'s response!','success')
-    return redirect(url_for('dashboard'))
+    return redirect(url_for('dashboard', current_tab='borrowed_notes'))
 
 @borrowed_bp.route('/confirmed_returned/<int:note_id>', methods=['POST'])
 def confirmed_returned(note_id):

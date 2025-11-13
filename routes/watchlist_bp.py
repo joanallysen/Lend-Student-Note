@@ -19,7 +19,12 @@ def add_watchlist(note_id, destination='explore'):
     flash('Watchlist successfully added!', 'success')
 
     destination =  request.form.get('source') or 'explore'
-    return redirect(url_for(destination))
+    note_id = request.form.get('note_id')
+    print('THSI IS THE NOTE ID:', note_id)
+    if note_id:
+        return redirect(url_for(destination, note_id=note_id))
+    else:
+        return redirect(url_for(destination))
         
 
 @watchlist_bp.route('/remove_watchlist/<int:note_id>', methods=['POST'])
@@ -32,10 +37,12 @@ def remove_watchlist(note_id):
     db.session.delete(watchlist_item)
     db.session.commit()
     flash('Watchlist successfully deleted!', 'success')
-    if source == 'explore':
-        return redirect(url_for('explore'))
+    destination =  request.form.get('source') or 'explore'
+    note_id = request.form.get('note_id')
+    if note_id:
+        return redirect(url_for(destination, note_id=note_id))
     else:
-        return redirect(url_for('watchlist'))
+        return redirect(url_for(destination))
     
 
 

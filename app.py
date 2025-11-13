@@ -46,7 +46,9 @@ def index():
 def explore():
     
     user_id = session.get('user_id')
-    notes = Note.query.filter(not_(Note.status == 'HIDDEN')).all()
+    notes = Note.query.filter(
+    not_(Note.status.in_(['HIDDEN', 'SOLD', 'DELETED']))
+    ).all()
 
     watchlisted_note_ids = {nid[0] for nid in db.session.query(Watchlist.note_id).filter_by(user_id=user_id).all()}
 
@@ -186,10 +188,12 @@ def login():
 def dashboard():
     # session problem where session is still there even if database removed
     user = User.query.get_or_404(session['user_id'])
-    
+    # this is only to support js tab menu
+    current_tab = request.args.get('current_tab', 'lended_notes')
+
     gotten_reviews = Review.query.join(Note).filter(Note.owner_id == session['user_id']).all()
 
-    return render_template('dashboard.html', user=user, gotten_reviews=gotten_reviews)
+    return render_template('dashboard.html', user=user, gotten_reviews=gotten_reviews, current_tab=current_tab)
 
 
 @app.route('/logout')

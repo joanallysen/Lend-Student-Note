@@ -49,7 +49,20 @@
             {% set note_lend_count = note.history_records | selectattr('transaction_type', 'equalto', 'BORROW') | selectattr('transaction_date', 'ne', None) | list | length %}
             <div class="flex items-center justify-between mb-4">
                 <span class="text-sm text-gray-600">Lended {{ note_lend_count }}x</span>
-                <span class="text-xl font-semibold text-gray-900">${%if note.price <= 0 %}{{note.price_sale}}{% else %}{{ note.price }}<span class="text-sm text-gray-600">/week</span>{%endif%}</span>
+                <div class="flex items-baseline">
+                    {% if note.price_sale %}
+                    <span class="text-xl font-semibold text-gray-900">${{ note.price_sale }}</span>
+                    {% endif %}
+
+                    {% if note.price_sale and note.price %}
+                    <span class="text-sm text-gray-600 mx-1">or</span>
+                    {% endif %}
+
+                    {% if note.price %}
+                    <span class="text-xl font-semibold text-gray-900">${{ note.price }}</span>
+                    <span class="text-sm text-gray-600">/week</span>
+                    {% endif %}
+                </div>
             </div>
 
             {# Action Buttons #}
@@ -109,21 +122,20 @@
             <div class="flex flex-row justify-between">
                 <a href="{{ url_for('detail', note_id=note.note_id) }}" class="text-lg font-semibold text-gray-900 mb-1 underline hover:text-blue-600 transition-colors">{{ note.title }}</a>
             
-                {% if note.owner_id == user_id %}
-                    {% if note.note_id not in watchlisted_note_ids %}
-                        <form action="{{ url_for('watchlist.add_watchlist', note_id=note.note_id) }}" method="POST">
-                            <button type="submit" class="cursor-pointer w-full flex items-center justify-center gap-2 px-4 py-2 transition-colors">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24"><path fill="currentColor" d="M5 21V5q0-.825.588-1.412T7 3h10q.825 0 1.413.588T19 5v16l-7-3zm2-3.05l5-2.15l5 2.15V5H7zM7 5h10z"/></svg>
-                            </button>
-                        </form>
-                    {% else %}
-                        <form action="{{ url_for('watchlist.remove_watchlist', note_id=note.note_id) }}" method="POST">
-                            <input type="hidden" name="source" value="explore">
-                            <button type="submit" class="cursor-pointer w-full flex items-center justify-center gap-2 px-4 py-2 transition-colors">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-red-700" viewBox="0 0 24 24"><path fill="currentColor" d="M5 21V5q0-.825.588-1.412T7 3h10q.825 0 1.413.588T19 5v16l-7-3z"/></svg>
-                            </button>
-                        </form>
-                    {% endif %}
+                {% if note.note_id not in watchlisted_note_ids %}
+                    <form action="{{ url_for('watchlist.add_watchlist', note_id=note.note_id) }}" method="POST">
+                        <input type="hidden" name="source" value="explore">
+                        <button type="submit" class="cursor-pointer w-full flex items-center justify-center gap-2 px-4 py-2 transition-colors">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24"><path fill="currentColor" d="M5 21V5q0-.825.588-1.412T7 3h10q.825 0 1.413.588T19 5v16l-7-3zm2-3.05l5-2.15l5 2.15V5H7zM7 5h10z"/></svg>
+                        </button>
+                    </form>
+                {% else %}
+                    <form action="{{ url_for('watchlist.remove_watchlist', note_id=note.note_id) }}" method="POST">
+                        <input type="hidden" name="source" value="explore">
+                        <button type="submit" class="cursor-pointer w-full flex items-center justify-center gap-2 px-4 py-2 transition-colors">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-red-700" viewBox="0 0 24 24"><path fill="currentColor" d="M5 21V5q0-.825.588-1.412T7 3h10q.825 0 1.413.588T19 5v16l-7-3z"/></svg>
+                        </button>
+                    </form>
                 {% endif %}
             </div>
 
