@@ -55,35 +55,38 @@ def add_note():
     error = None
 
     if request.method =='POST':
-        new_note = Note(
-            image_filename = add_image(),
-            title=request.form.get('title'),
-            isbn=request.form.get('isbn'),
-            price = request.form.get('price') or 0,
-            price_sale = request.form.get('price_sale') or 0,
-            description = request.form.get('description'),
-            condition = request.form.get('condition'),
-            pickup_location = request.form.get('pickup_location'),
-            available_date = datetime.strptime(request.form.get('available_date'), '%Y-%m-%d').date(),
-            status = 'AVAILABLE',
-            
-            listing_type = request.form.get('listing_type'),
-            # listing date just default value
-            owner_id = session['user_id'],
-            buyer_id = None,
-            tags= request.form.get('tags'),
-            embedding = encode_note(title=request.form.get('title'), description=request.form.get('description'), tags=request.form.get('tags'))
-        )   
+        available_date= request.form.get('available_date')
+        if  available_date:
+            # flash('Please enter the available date!')
+            # return redirect(url_for)
+            new_note = Note(
+                image_filename = add_image(),
+                title=request.form.get('title'),
+                isbn=request.form.get('isbn'),
+                price = request.form.get('price') or 0,
+                price_sale = request.form.get('price_sale') or 0,
+                description = request.form.get('description'),
+                condition = request.form.get('condition'),
+                pickup_location = request.form.get('pickup_location'),
+                available_date=  datetime.strptime(available_date, '%Y-%m-%d').date(),
+                status = 'AVAILABLE',
+                
+                listing_type = request.form.get('listing_type'),
+                # listing date just default value
+                owner_id = session['user_id'],
+                buyer_id = None,
+                tags= request.form.get('tags'),
+                embedding = encode_note(title=request.form.get('title'), description=request.form.get('description'), tags=request.form.get('tags'))
+            )   
 
-
-        # try: TODO WILL ADD THE EXCEPTION BACK THIS IS FOR ERROR DEBUGGING
-        db.session.add(new_note)
-        db.session.commit()
-        return redirect(url_for('dashboard'))
-        # except:
-        #     db.session.rollback()
-        #     error = 'Failed to add to database, please try again...'
-        #     return render_template('preview.html', error=error, action='notes.add_note', note=None)
+            # try: TODO WILL ADD THE EXCEPTION BACK THIS IS FOR ERROR DEBUGGING
+            db.session.add(new_note)
+            db.session.commit()
+            return redirect(url_for('dashboard'))
+            # except:
+            #     db.session.rollback()
+            #     error = 'Failed to add to database, please try again...'
+            #     return render_template('preview.html', error=error, action='notes.add_note', note=None)
         
     return render_template('preview.html', error=error, action='notes.add_note', note=None)
 

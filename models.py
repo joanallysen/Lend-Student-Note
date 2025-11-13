@@ -22,7 +22,7 @@ class Note(db.Model):
     note_id = db.Column(db.Integer, primary_key=True)
     image_filename = db.Column(db.String(255), nullable=True)
     title = db.Column(db.String(200), nullable=False)
-    isbn = db.Column(db.String(17), nullable=False, default=0)
+    isbn = db.Column(db.String(17), nullable=True)
     price = db.Column(db.Numeric(10, 2), nullable=False)
     price_sale = db.Column(db.Numeric(10, 2), nullable=False)
     description = db.Column(db.Text, nullable=True)
