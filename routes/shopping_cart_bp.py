@@ -51,12 +51,8 @@ def add_to_cart(note_id):
         # check if the note is already in the cart or not
         item_exist= CartItem.query.filter(CartItem.cart_id == user_cart.cart_id, CartItem.note_id == note_id ).first()
         if item_exist:
-            return render_template_string("""
-                Item is already on cart! 
-                <a href='{{ url_for('shopping_cart.user_cart') }}'>Go to your cart?</a> 
-                <a href='{{ url_for('explore') }}'>Return to explore page</a>
-            """)
-          
+            flash('Item is already in your cart! Go to cart to checkout!')
+            return redirect(url_for('detail', note_id=note_id))
         # adding new cart item
         buying_type = request.form.get('buying_type')
         total_price = request.form.get('total_price')
@@ -79,11 +75,8 @@ def add_to_cart(note_id):
         if new_item:
             db.session.add(new_item)
             db.session.commit()
-            return render_template_string("""
-                Item added to cart! 
-                <a href='{{ url_for('shopping_cart.user_cart') }}'>Go to your cart?</a> 
-                <a href='{{ url_for('explore') }}'>Return to explore page</a>
-            """)
+            flash('Item added to cart successfully! Go to cart to checkout!', 'success')
+            return redirect(url_for('detail', note_id=note_id))
 
 
 @shopping_cart.route('/remove_item/<int:note_id>')

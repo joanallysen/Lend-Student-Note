@@ -1,4 +1,4 @@
-from flask import Blueprint, request, render_template, session, url_for, redirect
+from flask import Blueprint, request, render_template, session, url_for, redirect,flash
 from models import db, Note, History, CartItem
 from datetime import datetime
 
@@ -17,8 +17,8 @@ def return_borrowed(note_id):
     borrowed_note = Note.query.filter_by(buyer_id=user_id, note_id=note_id).first()
     borrowed_note.status = 'NEED ACTION'
     db.session.commit()
-    return f"{borrowed_note.title} sucessfully tagged as returned! Please wait for lender respond <a href='/show_borrowed'>Return to borrowed note/book page</a>"
-
+    flash(f'{borrowed_note.title} has been successfully tagged as returned! Please wait for the lender\'s response!','success')
+    return redirect(url_for('dashboard'))
 
 @borrowed_bp.route('/confirmed_returned/<int:note_id>', methods=['POST'])
 def confirmed_returned(note_id):
@@ -35,6 +35,7 @@ def confirmed_returned(note_id):
     note.current_history_id = None
 
     db.session.commit()
-    return f"{history.note.title} successfully returned! Deposit money will be returned to buyer. By default book / note is set to hidden, You can update to available if you want to lend again<a href='/dashboard'>Return to dashboard</a>"
-
+    flash(f'{history.note.title} has been successfully returned! Deposit money will be returned to the buyer. By default book / note is set to hidden, You can update to available if you want to lend it again','success')
+          
+    return redirect(url_for('dashboard'))
 
