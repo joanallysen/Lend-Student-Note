@@ -10,12 +10,13 @@ def add_watchlist(note_id, destination='explore'):
 
     exist = Watchlist.query.filter_by(user_id=user_id, note_id=note_id).first()
     # hardly possible but what can you expect
-    if not exist:
+    if exist:
         flash('Already on watchlist!', 'error')
 
     new_watchlist = Watchlist(user_id=user_id, note_id=note_id)
     db.session.add(new_watchlist)
     db.session.commit()
+    flash('Watchlist successfully added!', 'success')
 
     destination =  request.form.get('source') or 'explore'
     return redirect(url_for(destination))

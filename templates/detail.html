@@ -10,14 +10,16 @@
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <title>Detail Before Buying</title>
 </head>
-<body class="max-w-7xl mx-auto mt-10">
+<body>
     <!-- Book -->
     <!-- <div class="max-w-7xl mx-auto px-6 py-8"> -->
     {% include '/components/navbar.html' %}
+    {% include '/components/bg.html' %}
 
     {{pop_up.pop_up_message()}}
 <!-- copy here -->
         
+    <div class="max-w-7xl mx-auto mt-10">
         <div class="bg-white rounded-2xl shadow-lg overflow-hidden mb-8">
             <div class="flex">
                 
@@ -109,8 +111,9 @@
         {{comp.user_profile(user=note.owner)}}
         <!-- Reviews -->
         <div class="bg-white rounded-2xl shadow-lg p-8 mb-8">
-            <!-- Add Review  -->
-            {% if not my_review %}
+            <!-- Add Review, if its actually the buyer_id-->
+
+            {% if not my_review and has_bought %}
             <div class="mb-8 p-6 bg-linear-to-br from-blue-50 to-indigo-50 rounded-xl border border-blue-100">
                 <h2 class="text-2xl font-bold text-gray-800 mb-4 flex items-center gap-2">
                     Rate this book!
@@ -315,6 +318,7 @@
         {% if related_books %}
             {% include 'components/related_books.html'%}
         {% endif %}
+    </div>
     </div>
 
 

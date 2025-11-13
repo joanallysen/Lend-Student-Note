@@ -60,7 +60,7 @@ def explore():
 
     return render_template('explore.html', notes=notes, user_id=user_id, watchlisted_note_ids=watchlisted_note_ids, cart_note_ids=cart_note_ids)
 
-def find_similar_notes(note, top_n=4):
+def find_similar_notes(note, top_n=100):
     other_notes = Note.query.filter(Note.note_id != note.note_id).all()
     scored = []
     for other_note in other_notes:
@@ -97,12 +97,27 @@ def detail(note_id):
         else:
             my_review = review
 
+    has_bought = any(h.buyer_id == session['user_id'] for h in note.history_records)
+
+    watchlisted_note_ids = {nid[0] for nid in db.session.query(Watchlist.note_id).filter_by(user_id=user_id).all()}
+
+    user_cart = Cart.query.filter_by(user_id=user_id).first()
+    
+    # user cart is not created upon initialization but when opening user_cart
+    if not user_cart:
+        cart_note_ids = None
+    else:
+        cart_note_ids = {nid[0] for nid in db.session.query(CartItem.note_id).filter_by(cart_id=user_cart.cart_id).all()}
+    
     return render_template('detail.html', 
                         user_id=user_id,
                         note=note, 
                         related_books=related_books,
                         my_review=my_review,
-                        note_reviews=other_reviews)
+                        note_reviews=other_reviews,
+                        has_bought=has_bought,
+                        watchlisted_note_ids=watchlisted_note_ids, 
+                        cart_note_ids=cart_note_ids)
 
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():

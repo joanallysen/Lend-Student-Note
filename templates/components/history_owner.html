@@ -9,7 +9,7 @@
             <!-- Cards Grid -->
             <div class="grid grid-cols-4 gap-6">
                 {% for item in items %}
-                <div class="rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow flex flex-col h-full">
+                <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow flex flex-col h-full">
                     
                     <!-- Image and badge -->
                     <div class="relative h-100 bg-gray-100 shrink-0">
@@ -44,22 +44,25 @@
 
                         {# Transaction Details #}
                         <div class="space-y-2 mb-4">
+                            {% if item['transaction_date'] == None %}
+                                <div class="bg-yellow-100 border border-yellow-300 rounded px-2 py-1 mt-2">
+                                    <p class="text-yellow-800 font-bold font-medium"> Not returned yet</p>
+                                </div>
+                            {% endif %}     
+
                             {% if item['transaction_type'] == 'BORROW' %}
                                 <div class="bg-blue-50 border border-blue-200 rounded-md p-3 text-sm">
                                     <p class="text-gray-600 font-medium mb-1">Borrow Start Date</p>
                                     <p class="text-gray-900 mb-2">{{ item['borrow_start_date'].strftime("%d %b %Y")}}</p>
                                     
-                                    {% if item['transaction_date'] == None %}
-                                        <div class="bg-yellow-100 border border-yellow-300 rounded px-2 py-1 mt-2">
-                                            <p class="text-yellow-800 font-medium text-xs"> Not returned yet</p>
-                                        </div>
-                                    {% else %}
-                                        <p class="text-gray-600 font-medium mb-1">Return Date</p>
-                                        <p class="text-gray-900 mb-2">{{ item['transaction_date'].strftime("%d %b %Y") }}</p>
-                                    {% endif %}
-
                                     <p class="text-gray-600 font-medium mb-1">Borrowed to</p>
                                     <p class="text-gray-900 mb-2">{{item['buyer'].username}}</p>
+
+                                    {% if item['transaction_date'] %}
+                                        <p class="text-gray-600 font-medium mb-1">Return Date</p>
+                                        <p class="text-gray-900 mb-2">{{ item['transaction_date'].strftime("%d %b %Y") }}</p>
+                                    {%endif%}
+
                                 </div>
                             {% endif %}
                             

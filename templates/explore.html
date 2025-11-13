@@ -1,5 +1,6 @@
 {% import 'components/macros.html' as comp %}
 {% import 'components/search_bar.html' as sb %}
+{% import 'components/pop_up_message.html' as pop_up %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -11,6 +12,7 @@
 <body>
     {% include '/components/bg.html' %}
     {% include '/components/navbar.html' %}
+    {{pop_up.pop_up_message()}}
     
     {{sb.search_bar(user_input, condition, availability, sort_by, price_type, min_price, max_price)}}
     <div class="grid grid-cols-5 gap-8 mx-18">
