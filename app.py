@@ -46,9 +46,9 @@ def index():
 def explore():
     
     user_id = session.get('user_id')
-    notes = Note.query.filter(
-    not_(Note.status.in_(['HIDDEN', 'SOLD', 'DELETED']))
-    ).all()
+
+    notes = Note.query.filter(~Note.status.in_(['DELETED', 'HIDDEN', 'SOLD'])).all()
+
 
     watchlisted_note_ids = {nid[0] for nid in db.session.query(Watchlist.note_id).filter_by(user_id=user_id).all()}
 

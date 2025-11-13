@@ -16,7 +16,7 @@ def add_watchlist(note_id, destination='explore'):
     new_watchlist = Watchlist(user_id=user_id, note_id=note_id)
     db.session.add(new_watchlist)
     db.session.commit()
-    flash('Watchlist successfully added!', 'success')
+    flash('Book added to watchlist successfully!', 'success')
 
     destination =  request.form.get('source') or 'explore'
     note_id = request.form.get('note_id')
