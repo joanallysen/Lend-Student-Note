@@ -106,7 +106,7 @@
     </div>
 
     {# Notes Grid #}
-    <div class="grid grid-cols-5 gap-6 my-8">
+    <div class="grid grid-cols-4 gap-6 my-8">
         {% for note in user.notes_owned | selectattr('status','ne','DELETED') %}
             {{ comp.dashboard_card(note) }}
         {% endfor %}

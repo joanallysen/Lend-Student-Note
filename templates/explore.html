@@ -9,13 +9,13 @@
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <title>Explore</title>
 </head>
-<body>
+<body class="mb-8">
     {% include '/components/bg.html' %}
     {% include '/components/navbar.html' %}
     {{pop_up.pop_up_message()}}
     
     {{sb.search_bar(user_input, condition, availability, sort_by, price_type, min_price, max_price)}}
-    <div class="grid grid-cols-5 gap-8 mx-18 my-8">
+    <div class="grid grid-cols-4 gap-8 mx-50">
         {% for note in notes %}
             {{ comp.explore_card(note, user_id, cart_note_ids, watchlisted_note_ids) }}
         {% endfor %}
