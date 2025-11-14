@@ -6,8 +6,8 @@
     <h1 class="text-4xl font-bold mb-6">Related Notes</h1>
     {# Notes Grid #}
     <div class="grid grid-cols-4 gap-6">
-        {% for note in related_books %}
-            {{ comp.explore_card(note, user_id, cart_note_ids, watchlisted_note_ids, cur_path='detail') }}
+        {% for related_note in related_books %}
+            {{ comp.explore_card(related_note, user_id, cart_note_ids, watchlisted_note_ids, cur_path='detail', current_note_id=note.note_id) }}
         {% endfor %}
     </div>
 </div>

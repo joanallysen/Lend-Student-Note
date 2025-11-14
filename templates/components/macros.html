@@ -103,7 +103,7 @@
 </div>
 {% endmacro %}
 
-{% macro explore_card(note, user_id, cart_note_ids=[], watchlisted_note_ids=[], cur_path='explore') %}
+{% macro explore_card(note, user_id, cart_note_ids=[], watchlisted_note_ids=[], cur_path='explore', current_note_id=none) %}
 
     <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow flex flex-col h-full">
         
@@ -124,8 +124,10 @@
             
                 {% if note.note_id not in watchlisted_note_ids %}
                     <form action="{{ url_for('watchlist.add_watchlist', note_id=note.note_id) }}" method="POST">
-                        <input type="hidden" name="source" value="detail">
-                        {% if cur_path == 'detail' %} <input type="hidden" name="note_id" value="{{note.note_id}}"> {% endif %}
+                       <input type="hidden" name="source" value="{{ 'detail' if cur_path == 'detail' else 'explore' }}">
+                        {% if cur_path == 'detail' and current_note_id %} 
+                            <input type="hidden" name="note_id" value="{{ current_note_id }}">
+                        {% endif %}
                         
                         <button type="submit" class="cursor-pointer w-full flex items-center justify-center gap-2 px-4 py-2 transition-colors">
                             <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24"><path fill="currentColor" d="M5 21V5q0-.825.588-1.412T7 3h10q.825 0 1.413.588T19 5v16l-7-3zm2-3.05l5-2.15l5 2.15V5H7zM7 5h10z"/></svg>
@@ -133,8 +135,10 @@
                     </form>
                 {% else %}
                     <form action="{{ url_for('watchlist.remove_watchlist', note_id=note.note_id) }}" method="POST">
-                        <input type="hidden" name="source" value="detail">
-                        {% if cur_path == 'detail' %} <input type="hidden" name="note_id" value="{{note.note_id}}"> {% endif %}
+                        <input type="hidden" name="source" value="{{ 'detail' if cur_path == 'detail' else 'explore' }}">
+                        {% if cur_path == 'detail' and current_note_id %} 
+                            <input type="hidden" name="note_id" value="{{ current_note_id }}">
+                        {% endif %}
                         <button type="submit" class="cursor-pointer w-full flex items-center justify-center gap-2 px-4 py-2 transition-colors">
                             <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-red-700" viewBox="0 0 24 24"><path fill="currentColor" d="M5 21V5q0-.825.588-1.412T7 3h10q.825 0 1.413.588T19 5v16l-7-3z"/></svg>
                         </button>
@@ -277,7 +281,7 @@
 
 {# only got note in watchlist#}
 {%macro watchlist_card(note) %}
-<div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow flex flex-col h-full">
+<div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow flex flex-col h-full mb-8">
 
     {# Image #}
     <div class="relative h-100 bg-gray-100 shrink-0">
