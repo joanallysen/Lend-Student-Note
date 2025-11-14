@@ -1,4 +1,4 @@
-from flask import Flask, redirect, url_for, request, render_template, Blueprint, session
+from flask import Flask, redirect, url_for, request, render_template, Blueprint, session, flash
 from sqlalchemy import or_
 from models import db, Note, Cart, CartItem, Watchlist
 import re
@@ -26,6 +26,16 @@ def search_note():
     price_type = request.args.get('price_type','')
     min_price =  request.args.get('min_price','')
     max_price = request.args.get('max_price','')
+
+    if min_price and max_price:
+
+        if float(min_price) > float(max_price):
+            flash("Minimum price cannot be higher than maximum price!")
+            return render_template("search.html", user_id=user_id, watchlisted_note_ids=watchlisted_note_ids, cart_note_ids=cart_note_ids
+                            , user_input = user_input
+                            , condition=condition, sort_by=sort_by, availability =availability
+                            , price_type=price_type, min_price=min_price, max_price=max_price) 
+
 
     cleaned_input = re.sub(r'\s+', ' ', user_input).strip().lower()
     

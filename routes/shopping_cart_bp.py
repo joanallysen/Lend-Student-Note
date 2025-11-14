@@ -31,8 +31,26 @@ def user_cart():
 
     #check if the cart is not empty
     if user_cart.items:
-        cart_items= user_cart.items
-        total_price = sum(item.note_details.price for item in cart_items)
+        unavailable_items =[]
+
+        #Checking if the book is still available
+        for cart_item in user_cart.items:
+            if cart_item.note_details.status != 'AVAILABLE':
+                db.session.delete(cart_item)
+                unavailable_items.append(cart_item.note_details.title)
+        
+        if unavailable_items:
+            db.session.commit()
+            flash(f'Removed unavailable items: {", ".join(unavailable_items)}')
+        
+        #Check if there is a book after deleting
+        if user_cart.items:
+            cart_items= user_cart.items
+            total_price = sum(item.note_details.price for item in cart_items)
+        else:
+            cart_items=[]
+            return render_template('user_cart.html', items=cart_items)
+        
         return render_template('user_cart.html', items=cart_items, total_price=total_price)
     else:
         cart_items=[]
@@ -43,8 +61,7 @@ def user_cart():
 @login_required
 def add_to_cart(note_id):
     if request.method == 'POST':
-        user_id = session.get('user_id')
-
+    
         # check if user cart exist
         user_cart = check_user_cart_exist()
 
