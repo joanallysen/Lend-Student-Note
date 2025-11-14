@@ -63,7 +63,7 @@ def explore():
     return render_template('explore.html', notes=notes, user_id=user_id, watchlisted_note_ids=watchlisted_note_ids, cart_note_ids=cart_note_ids)
 
 def find_similar_notes(note, top_n=100):
-    other_notes = Note.query.filter(Note.note_id != note.note_id).all()
+    other_notes = Note.query.filter(and_(Note.note_id != note.note_id, ~Note.status.in_(['DELETED', 'HIDDEN']))).all()
     scored = []
     for other_note in other_notes:
         if other_note.embedding:

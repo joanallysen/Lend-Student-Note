@@ -1,6 +1,6 @@
 {# components/search_bar.html #}
 {% macro search_bar(user_input, condition, availability, sort_by, price_type, min_price, max_price) %}
-<div class="container pt-8 w-7xl mx-auto">
+<div class="pt-8 mx-50">
         
     <!-- Search Form -->
     <form action='/search' method="get" class="bg-white rounded-2xl shadow-md p-6 pb-px mb-2">
@@ -140,7 +140,7 @@
     </form>
 
     <!-- Sort By Section -->
-    <form action='/search' method="get" class=" px-4 py-1 mb-4 flex justify-end">
+    <form action='/search' method="get" class=" py-1 mb-4 flex justify-end">
         <input type="hidden" name="user_input" value="{{ user_input }}">
         <input type="hidden" name="condition" value="{{ condition }}">
         <input type="hidden" name="availability" value="{{ availability }}">
