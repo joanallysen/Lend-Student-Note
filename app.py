@@ -99,17 +99,22 @@ def detail(note_id):
         else:
             my_review = review
 
-    has_bought = any(h.buyer_id == session['user_id'] for h in note.history_records)
+    # only get has bought, watchlisted, and cart if user already exist
+    has_bought, watchlisted_note_ids, cart_note_ids = [], [], []
+    if 'user_id' in session:
+        user = User.query.get(session['user_id'])
+        if user:
+            has_bought = any(h.buyer_id == session['user_id'] for h in note.history_records)
+            watchlisted_note_ids = {nid[0] for nid in db.session.query(Watchlist.note_id).filter_by(user_id=user_id).all()}
+            user_cart = Cart.query.filter_by(user_id=user_id).first()
 
-    watchlisted_note_ids = {nid[0] for nid in db.session.query(Watchlist.note_id).filter_by(user_id=user_id).all()}
-
-    user_cart = Cart.query.filter_by(user_id=user_id).first()
+            # user cart is not created upon initialization but when opening user_cart
+            if not user_cart:
+                cart_note_ids = None
+            else:
+                cart_note_ids = {nid[0] for nid in db.session.query(CartItem.note_id).filter_by(cart_id=user_cart.cart_id).all()}
     
-    # user cart is not created upon initialization but when opening user_cart
-    if not user_cart:
-        cart_note_ids = None
-    else:
-        cart_note_ids = {nid[0] for nid in db.session.query(CartItem.note_id).filter_by(cart_id=user_cart.cart_id).all()}
+
     
     return render_template('detail.html', 
                         user_id=user_id,

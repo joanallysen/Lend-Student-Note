@@ -1,10 +1,12 @@
 from flask import Blueprint, session, redirect, url_for, flash, request
 from models import db, Watchlist
+from utility import login_required
 
 watchlist_bp = Blueprint('watchlist', __name__)
 
-# TODO need login
+
 @watchlist_bp.route('/add_watchlist/<int:note_id>', methods=['POST'])
+@login_required
 def add_watchlist(note_id, destination='explore'):
     user_id = session.get('user_id')
 
@@ -28,6 +30,7 @@ def add_watchlist(note_id, destination='explore'):
         
 
 @watchlist_bp.route('/remove_watchlist/<int:note_id>', methods=['POST'])
+@login_required # non user should not be able to remove from watchlist, but just in case
 def remove_watchlist(note_id):
     user_id = session.get('user_id')
     if request.method=="POST":

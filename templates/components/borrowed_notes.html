@@ -74,9 +74,26 @@
         </div>
 
         {# Notes Grid #}
+        {% if borrowed_notes %}
         <div class="grid grid-cols-4 gap-6">
+
             {% for note in borrowed_notes %}
                 {{ comp.borrowed_card(note) }}
             {% endfor %}
         </div>
+        {% else %}
+                <!-- Empty Borrowed State -->
+                <div class="flex flex-col items-center justify-center py-20">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-32 h-32 text-gray-300 mb-6" viewBox="0 0 24 24">
+                        <path fill="currentColor" d="M4 6h16v2H4zm0 5h16v2H4zm0 5h16v2H4z"/>
+                    </svg>
+                    <h2 class="text-2xl font-bold text-gray-700 mb-3">No Borrowed Notes Yet</h2>
+                    <p class="text-gray-500 mb-8 text-center max-w-md">
+                        You haven't borrowed or bought any notes yet. Start exploring to find books you like!
+                    </p>
+                    <a href="{{ url_for('explore') }}" class="px-8 py-3 bg-indigo-600 text-white font-semibold rounded-lg hover:bg-indigo-700 transition-colors shadow-md hover:shadow-lg">
+                        Browse Notes
+                    </a>
+                </div>
+        {% endif %}
 </div>

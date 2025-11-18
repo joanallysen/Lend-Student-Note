@@ -48,7 +48,7 @@
             {# Lended Count and Price #}
             {% set note_lend_count = note.history_records | selectattr('transaction_type', 'equalto', 'BORROW') | selectattr('transaction_date', 'ne', None) | list | length %}
             <div class="flex items-center justify-between mb-4">
-                <span class="text-sm text-gray-600">Lended {{ note_lend_count }}x</span>
+                <span class="text-sm text-gray-600">Lent {{ note_lend_count }}x</span>
                 <div class="flex items-baseline">
                     {% if note.price_sale %}
                     <span class="text-xl font-semibold text-gray-900">${{ note.price_sale }}</span>
