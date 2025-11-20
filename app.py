@@ -47,7 +47,7 @@ def explore():
     
     user_id = session.get('user_id')
 
-    notes = Note.query.filter(~Note.status.in_(['DELETED', 'HIDDEN', 'SOLD'])).all()
+    notes = Note.query.filter(~Note.status.in_(['DELETED', 'HIDDEN', 'SOLD', 'NEED ACTION'])).all()
 
 
     watchlisted_note_ids = {nid[0] for nid in db.session.query(Watchlist.note_id).filter_by(user_id=user_id).all()}
@@ -63,7 +63,7 @@ def explore():
     return render_template('explore.html', notes=notes, user_id=user_id, watchlisted_note_ids=watchlisted_note_ids, cart_note_ids=cart_note_ids)
 
 def find_similar_notes(note, top_n=100):
-    other_notes = Note.query.filter(and_(Note.note_id != note.note_id, ~Note.status.in_(['DELETED', 'HIDDEN']))).all()
+    other_notes = Note.query.filter(and_(Note.note_id != note.note_id, ~Note.status.in_(['DELETED', 'HIDDEN', 'SOLD', 'NEED ACTION']))).all()
     scored = []
     for other_note in other_notes:
         if other_note.embedding:
@@ -107,6 +107,7 @@ def detail(note_id):
             has_bought = any(h.buyer_id == session['user_id'] for h in note.history_records)
             watchlisted_note_ids = {nid[0] for nid in db.session.query(Watchlist.note_id).filter_by(user_id=user_id).all()}
             user_cart = Cart.query.filter_by(user_id=user_id).first()
+            print('USER ID IS DETECTED DETAIL', watchlisted_note_ids)
 
             # user cart is not created upon initialization but when opening user_cart
             if not user_cart:
@@ -115,7 +116,7 @@ def detail(note_id):
                 cart_note_ids = {nid[0] for nid in db.session.query(CartItem.note_id).filter_by(cart_id=user_cart.cart_id).all()}
     
 
-    
+    print (watchlisted_note_ids)
     return render_template('detail.html', 
                         user_id=user_id,
                         note=note, 
@@ -131,11 +132,17 @@ def signup():
     if request.method == 'POST':
         username = request.form.get('username')
         email = request.form.get('email')
+        phone = request.form.get('phone_number')
         password = request.form.get('password')
         confirm_password = request.form.get('confirm_password')
 
         if not username or not email or not password:
             flash('All fields are required!', 'error')
+            return redirect(url_for('signup'))
+        
+        phone = phone.replace(" ", "").strip()
+        if len(phone) != 10 or not phone.isdigit():
+            flash('Phone number is not valid', 'error')
             return redirect(url_for('signup'))
 
         if password != confirm_password:
@@ -150,20 +157,19 @@ def signup():
         if User.query.filter_by(email=email).first():
             flash('Email already exists!', 'error')
             return redirect(url_for('signup'))
+        
+        if User.query.filter_by(phone=phone).first():
+            flash('Phone already exists!', 'error')
+            return redirect(url_for('signup'))
 
         # create new user
         hashed_password = generate_password_hash(password, method='pbkdf2:sha256')
-        new_user = User(username=username, email=email, password=hashed_password)
+        new_user = User(username=username, email=email, password=hashed_password, phone=phone)
         
-        try:
-            db.session.add(new_user)
-            db.session.commit()
-            flash('Account created successfully! Please log in!', 'success')
-            return redirect(url_for('login'))
-        except:
-            db.session.rollback()
-            flash('An error occurred. Please try again.', 'error')
-            return redirect(url_for('signup'))
+        db.session.add(new_user)
+        db.session.commit()
+        flash('Account created successfully! Please log in!', 'success')
+        return redirect(url_for('login'))
 
     return render_template('signup.html')
 
