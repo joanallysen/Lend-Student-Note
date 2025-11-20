@@ -79,14 +79,10 @@ def add_note():
                 embedding = encode_note(title=request.form.get('title'), description=request.form.get('description'), tags=request.form.get('tags'))
             )   
 
-            # try: TODO WILL ADD THE EXCEPTION BACK THIS IS FOR ERROR DEBUGGING
             db.session.add(new_note)
             db.session.commit()
+            flash('Note added successfully!','success')
             return redirect(url_for('dashboard'))
-            # except:
-            #     db.session.rollback()
-            #     error = 'Failed to add to database, please try again...'
-            #     return render_template('preview.html', error=error, action='notes.add_note', note=None)
         
     return render_template('preview.html', error=error, action='notes.add_note', note=None)
 
@@ -117,6 +113,7 @@ def update_note(note_id):
             note.status = request.form.get('status')
         
         db.session.commit()
+        flash('Note details updated successfully!','success')
         return redirect(url_for('dashboard'))
 
     return render_template('preview.html', error=error, action='notes.update_note', note=note)

@@ -84,10 +84,17 @@
                 {% endif %}
 
                 <div class="flex gap-2">
+                    {% if note.status != 'SOLD' %}
                     <a href="{{ url_for('notes.update_note', note_id=note.note_id) }}" 
                         class="w-full text-center bg-gray-100 text-gray-700 px-4 py-2 rounded hover:bg-gray-200 transition-colors text-sm font-medium">
                         Edit
                     </a>
+                     
+                    {% else %}
+                    <div class="bg-red-100 text-center w-full py-2 rounded text text-red-700 text-sm font-medium"> 
+                        This note is sold!
+                    </div>
+                    {% endif %}
                     <form action="{{ url_for('notes.delete_note', note_id=note.note_id) }}" method="POST">
                         <button type="submit" 
                                 onclick="return confirm('Are you sure you want to delete this book?');"
@@ -108,14 +115,13 @@
     <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow flex flex-col h-full">
         
         {# Image #}
-        <div class="relative h-100 bg-gray-100 shrink-0">
+        <a href="{{ url_for('detail', note_id=note.note_id) }}" class="relative h-100 bg-gray-100 shrink-0 block">
             <img src="{{ url_for('static', filename='uploads/' + note.image_filename) }}" 
-                 alt="{{ note.title }}" 
-                 class="w-full h-full object-cover">
-            
-            {# Status Badge (top-right) #}
+                alt="{{ note.title }}" 
+                class="w-full h-full object-cover">
+                
             {% include '/components/status_badge.html' %}
-        </div>
+        </a>
 
         {# Content #}
         <div class="p-4 flex flex-col grow">
@@ -154,15 +160,15 @@
             
 
             <div class="flex items-baseline mb-4">
-                {% if note.price_sale %}
+                {% if note.listing_type == 'SALE' %}
                 <span class="text-xl font-semibold text-gray-900">${{ note.price_sale }}</span>
                 {% endif %}
 
-                {% if note.price_sale and note.price %}
+                {% if note.listing_type == 'BOTH' %}
                 <span class="text-sm text-gray-600 mx-1">or</span>
                 {% endif %}
 
-                {% if note.price %}
+                {% if note.listing_type == 'RENTAL' %}
                 <span class="text-xl font-semibold text-gray-900">${{ note.price }}</span>
                 <span class="text-sm text-gray-600">/week</span>
                 {% endif %}

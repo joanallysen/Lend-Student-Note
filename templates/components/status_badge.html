@@ -1,15 +1,15 @@
 {% set current_path = request.path %}
 
-<div class="absolute top-2 right-2">
+<div class="absolute top-4 right-4">
     {% if note.status == 'LENT' %}
-        <span class="bg-yellow-100 text-yellow-800 text-xs font-medium px-2.5 py-1 rounded">Lent</span>
+        <span class="bg-yellow-100 text-yellow-800 text-sm font-medium px-3 py-1.5 rounded">Lent</span>
     {% elif note.status == 'SOLD' %}
-        <span class="bg-red-100 text-red-800 text-xs font-medium px-2.5 py-1 rounded">Sold</span>
+        <span class="bg-red-100 text-red-800 text-sm font-medium px-3 py-1.5 rounded">Sold</span>
     {% elif note.status == 'NEED ACTION' %}
-        <span class="bg-yellow-100 text-yellow-800 text-xs font-medium px-2.5 py-1 rounded">Action Needed</span>
+        <span class="bg-yellow-100 text-yellow-800 text-sm font-medium px-3 py-1.5 rounded">Action Needed</span>
     {% elif note.status == 'HIDDEN' %}
-        <span class="bg-red-100 text-red-800 text-xs font-medium px-2.5 py-1 rounded">Hidden</span>
+        <span class="bg-red-100 text-red-800 text-sm font-medium px-3 py-1.5 rounded">Hidden</span>
     {% elif note.status == 'AVAILABLE' %}
-        <span class="bg-green-100 text-green-800 text-xs font-medium px-2.5 py-1 rounded">Available</span>
+        <span class="bg-green-100 text-green-800 text-sm font-medium px-3 py-1.5 rounded">Available</span>
     {% endif %}
 </div>

@@ -46,12 +46,13 @@ def user_cart():
         #Check if there is a book after deleting
         if user_cart.items:
             cart_items= user_cart.items
-            total_price = sum(item.note_details.price for item in cart_items)
+            deposit_money = len(user_cart.items) * 20
+            total_price = float(sum(item.total_price for item in cart_items)) + float(deposit_money)
         else:
             cart_items=[]
             return render_template('user_cart.html', items=cart_items)
         
-        return render_template('user_cart.html', items=cart_items, total_price=total_price)
+        return render_template('user_cart.html', items=cart_items, total_price=total_price, deposit_money=deposit_money)
     else:
         cart_items=[]
         return render_template('user_cart.html', items=cart_items)

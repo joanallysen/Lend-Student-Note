@@ -59,11 +59,11 @@
                                     <div class="grid grid-cols-2 gap-2 text-sm">
                                         <div>
                                             <p class="text-gray-600 font-medium mb-1">Start Date:</p>
-                                            <p class="text-gray-900">{{item.start_date}}</p>
+                                            <p class="text-gray-900">{{item.start_date.strftime('%d %B %Y')}}</p>
                                         </div>
                                         <div>
                                             <p class="text-gray-600 font-medium mb-1">End Date:</p>
-                                            <p class="text-gray-900">{{item.end_date}}</p>
+                                            <p class="text-gray-900">{{item.end_date.strftime('%d %B %Y')}}</p>
                                         </div>
                                     </div>
                                     <div class="mt-2 text-sm">
@@ -90,14 +90,14 @@
                             <span id="subTotal" class="font-medium">${{ items | sum(attribute='total_price') }}</span>
                         </div>
                         <div class="flex justify-between text-gray-600">
-                            <span>Discount</span>
-                            <span class="font-medium text-green-600">-$0.00</span>
+                            <span>Deposit ($20 * {{items|length}} {{'item' if items|length == 1 else 'items'}})</span>
+                            <span class="font-medium text-gray-600">${{deposit_money}} </span>
                         </div>
                         
                         <div class="border-t pt-4">
                             <div class="flex justify-between">
                                 <span>Total</span>
-                                <span id="total" class="font-medium">${{ items | sum(attribute='total_price') }}</span>
+                                <span id="total" class="font-medium">${{ total_price }}</span>
                             </div>
                         </div>
                     </div>
