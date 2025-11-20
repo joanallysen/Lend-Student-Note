@@ -173,6 +173,38 @@ def signup():
 
     return render_template('signup.html')
 
+@app.route('/edit_account', methods=['GET', 'POST'])
+def edit_account():
+    user_id = session['user_id']
+    user = User.query.get(user_id)
+    if request.method == 'POST':
+        username = request.form.get('username')
+        email = request.form.get('email')
+        about = request.form.get('about')
+
+        # check if username exist
+        existing_users = User.query.filter_by(username=username).all()
+        if len(existing_users) > 1 or (len(existing_users) == 1 and existing_users[0].user_id != user_id):
+            flash('Username already exists!', 'error')
+            return redirect(url_for('edit_account'))
+
+        # chcek if email exists
+        existing_emails = User.query.filter_by(email=email).all()
+        if len(existing_emails) > 1 or (len(existing_emails) == 1 and existing_emails[0].user_id != user_id):
+            flash('Email already exists!', 'error')
+            return redirect(url_for('edit_account'))
+        
+        user = User.query.get_or_404(user_id)
+        user.username = username
+        user.email = email
+        user.about = about
+        
+        db.session.commit()
+        flash('Account edited successfully!', 'success')
+        return redirect(url_for('dashboard'))
+
+    return render_template('edit_account.html', user=user)
+
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
