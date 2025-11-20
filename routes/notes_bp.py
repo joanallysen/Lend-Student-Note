@@ -63,8 +63,8 @@ def add_note():
                 image_filename = add_image(),
                 title=request.form.get('title'),
                 isbn=request.form.get('isbn'),
-                price = request.form.get('price') or 0,
-                price_sale = request.form.get('price_sale') or 0,
+                price = request.form.get('price') or -1,
+                price_sale = request.form.get('price_sale') or -1,
                 description = request.form.get('description'),
                 condition = request.form.get('condition'),
                 pickup_location = request.form.get('pickup_location'),
@@ -99,8 +99,8 @@ def update_note(note_id):
         note.image_filename = update_image(note)
         note.title = request.form.get('title')
         note.isbn = request.form.get('isbn')
-        note.price = request.form.get('price') or 0
-        note.price_sale = request.form.get('price_sale') or 0
+        note.price = request.form.get('price') or -1
+        note.price_sale = request.form.get('price_sale') or -1
         note.description = request.form.get('description')
         note.condition = request.form.get('condition')
         note.pickup_location = request.form.get('pickup_location')
