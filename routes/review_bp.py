@@ -76,24 +76,36 @@ def edit_review(review_id):
         db.session.commit()
     return redirect(url_for('detail',note_id = review.note_id))
 
-def update_avg_rating(model): # nvm, if user it will show the review that we do to other people not people to us.
-    if model.rating_count == 0:
-        model.avg_rating = 0
+def update_avg_rating(note):
+    if note.rating_count == 0:
+        note.avg_rating = 0
     else:
-        total_star = sum(int(review.star) for review in model.reviews)
-        model.avg_rating = total_star / model.rating_count
+        # Make sure we're only counting valid reviews
+        valid_reviews = [r for r in note.reviews if r.star is not None]
+        if not valid_reviews:
+            note.avg_rating = 0
+        else:
+            total_star = sum(int(r.star) for r in valid_reviews)
+            note.avg_rating = total_star / len(valid_reviews)
 
-# rather than this, how about using memory, so less cost intensive, probably for future development
 def update_seller_avg_rating(owner):
     if owner.rating_count == 0:
         owner.avg_rating = 0
     else:
-        # each note has its own avg_rating, sum them all up and get the avg
-        total_avg = 0
+        # Calculate the weighted average across ALL reviews for all notes
+        total_stars = 0
+        total_reviews = 0
+        
         for note in owner.notes_owned:
-            total_avg += float(note.avg_rating) or 0
-
-        # only count the average with notes that has a rating on them (unrated note doesnt count)
-        rated_notes = len([note for note in owner.notes_owned if note.rating_count >= 1])
-        owner.avg_rating = total_avg / rated_notes
+            if note.rating_count > 0:
+                # Sum all the actual star ratings, not the averages
+                for review in note.reviews:
+                    if review.star is not None:
+                        total_stars += int(review.star)
+                        total_reviews += 1
+        
+        if total_reviews > 0:
+            owner.avg_rating = total_stars / total_reviews
+        else:
+            owner.avg_rating = 0
         

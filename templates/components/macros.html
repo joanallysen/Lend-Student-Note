@@ -160,7 +160,7 @@
             
 
             <div class="flex items-baseline mb-4">
-                {% if note.listing_type == 'SALE' %}
+                {% if note.listing_type == 'SALE' or note.listing_type == 'BOTH' %}
                 <span class="text-xl font-semibold text-gray-900">${{ note.price_sale }}</span>
                 {% endif %}
 
@@ -168,7 +168,7 @@
                 <span class="text-sm text-gray-600 mx-1">or</span>
                 {% endif %}
 
-                {% if note.listing_type == 'RENTAL' %}
+                {% if note.listing_type == 'RENTAL' or note.listing_type == 'BOTH' %}
                 <span class="text-xl font-semibold text-gray-900">${{ note.price }}</span>
                 <span class="text-sm text-gray-600">/week</span>
                 {% endif %}

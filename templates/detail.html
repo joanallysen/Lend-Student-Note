@@ -510,49 +510,49 @@
 
 
         function calculateRatingDistribution() {
-            // combine own review and others into one array
-            const reviews = [myReview, ...noteReviews].filter(Boolean);
+        // combine own review and others into one array
+        const reviews = [myReview, ...noteReviews].filter(review => review && Object.keys(review).length > 0);
 
-            // initialize distribution
-            const distribution = { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 };
+        // initialize distribution
+        const distribution = { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 };
 
-            // count stars
-            reviews.forEach(review => {
-            const star = Number(review.star); // <-- convert here
+        // count stars
+        reviews.forEach(review => {
+            const star = parseInt(review.star); // Use parseInt for consistency
             if (star >= 1 && star <= 5) {
                 distribution[star]++;
             }
-            });
+        });
 
-            return {
-                totalReviews: reviews.length,
-                distribution: distribution
-            };
-        }
+        return {
+            totalReviews: reviews.length,
+            distribution: distribution
+        };
+}
 
         // Generate rating bars
         function generateRatingBars() {
-            const container = document.getElementById('ratingBars');
-            const { totalReviews, distribution } = calculateRatingDistribution();
+        const container = document.getElementById('ratingBars');
+        const { totalReviews, distribution } = calculateRatingDistribution();
+        
+        container.innerHTML = '';
+        
+        for (let rating = 5; rating >= 1; rating--) {
+            const count = distribution[rating] || 0; // Add fallback to 0
+            const percentage = totalReviews > 0 ? (count / totalReviews) * 100 : 0;
             
-            container.innerHTML = '';
-            
-            for (let rating = 5; rating >= 1; rating--) {
-                const count = distribution[rating];
-                const percentage = totalReviews > 0 ? (Number(count) / Number(totalReviews)) * 100 : 0;
-                
-                const barHTML = `
-                    <div class="flex items-center gap-3 mb-2">
-                        <div class="text-sm text-gray-600 w-2">${rating}</div>
-                        <div class="flex-1 h-2 bg-gray-200 rounded overflow-hidden">
-                            <div class="h-full bg-yellow-400 transition-all duration-300" style="width: ${percentage}%"></div>
-                        </div>
-                        <div class="text-sm text-gray-600 w-4 text-right">${count}</div>
+            const barHTML = `
+                <div class="flex items-center gap-3 mb-2">
+                    <div class="text-sm text-gray-600 w-4">${rating}</div>
+                    <div class="flex-1 h-2 bg-gray-200 rounded overflow-hidden">
+                        <div class="h-full bg-yellow-400 transition-all duration-300" style="width: ${percentage}%"></div>
                     </div>
-                `;
-                container.innerHTML += barHTML;
-            }
+                    <div class="text-sm text-gray-600 w-8 text-right">${count}</div>
+                </div>
+            `;
+            container.innerHTML += barHTML;
         }
+    }
 
         function createStarRating(starContainerID, ratingValueID, initialStarRating = 0){
             const starContainer = document.getElementById(starContainerID);
